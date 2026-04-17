@@ -1,0 +1,175 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import Link from 'next/link';
+import { MOCK_ROOMS, MOCK_FINANCIAL } from '@/services/mockData';
+import { formatCurrency } from '@/utils/currency';
+import RoomCard from '@/components/ui/RoomCard';
+import SearchInput from '@/components/ui/SearchInput';
+import FilterTabs from '@/components/ui/FilterTabs';
+
+export default function DashboardPage() {
+  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
+
+  const filteredRooms = useMemo(() => {
+    let rooms = MOCK_ROOMS;
+    if (activeTab === 'pending') {
+      rooms = rooms.filter((r) => r.billingStatus === 'pending');
+    }
+    if (search) {
+      const q = search.toLowerCase();
+      rooms = rooms.filter(
+        (r) => r.number.includes(q) || r.tenantName?.toLowerCase().includes(q)
+      );
+    }
+    return rooms;
+  }, [activeTab, search]);
+
+  const pendingCount = MOCK_ROOMS.filter((r) => r.billingStatus === 'pending').length;
+  const tabs = [
+    { key: 'all', label: 'All' },
+    { key: 'pending', label: 'Pending', count: pendingCount },
+  ];
+
+  const occupied = MOCK_ROOMS.filter((r) => r.occupancy === 'occupied').length;
+  const vacant = MOCK_ROOMS.filter((r) => r.occupancy === 'vacant').length;
+
+  return (
+    <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8 page-transition">
+      {/* ── Top Row: Revenue + Quick Stats ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Revenue Card */}
+        <div className="lg:col-span-2">
+          <div className="flex justify-between items-center mb-4">
+            <button className="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-xl text-on-surface font-semibold hover:bg-surface-container transition-colors">
+              <span>April 2026</span>
+              <span className="material-symbols-outlined text-sm">arrow_drop_down</span>
+            </button>
+          </div>
+          <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_10px_40px_rgba(18,28,40,0.03)] space-y-6">
+            <div>
+              <p className="text-on-surface-variant text-sm uppercase tracking-widest mb-1 font-medium">
+                Total Monthly Revenue
+              </p>
+              <h2 className="text-4xl font-black text-on-surface">
+                {formatCurrency(MOCK_FINANCIAL.totalRevenue)}
+              </h2>
+            </div>
+            <Link href="/billing/debt">
+              <div className="bg-surface-container-low p-4 rounded-2xl flex justify-between items-center group active:scale-[0.98] transition-transform cursor-pointer">
+                <div className="flex items-center gap-4">
+                  <div className="bg-tertiary-fixed p-3 rounded-full">
+                    <span className="material-symbols-outlined text-tertiary">account_balance_wallet</span>
+                  </div>
+                  <div>
+                    <p className="text-on-surface-variant text-sm font-semibold">Pending Payments</p>
+                    <p className="text-xl font-bold text-tertiary">
+                      {formatCurrency(MOCK_FINANCIAL.pendingPayments)}
+                    </p>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform">
+                  chevron_right
+                </span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Quick Stats — visible on desktop */}
+        <div className="hidden lg:flex flex-col gap-4">
+          <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_10px_40px_rgba(18,28,40,0.03)] flex-1 flex flex-col justify-center">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Occupied</p>
+            <p className="text-3xl font-black text-primary">{occupied}</p>
+            <p className="text-sm text-on-surface-variant font-medium">of {MOCK_ROOMS.length} rooms</p>
+          </div>
+          <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_10px_40px_rgba(18,28,40,0.03)] flex-1 flex flex-col justify-center">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Vacant</p>
+            <p className="text-3xl font-black text-secondary">{vacant}</p>
+            <p className="text-sm text-on-surface-variant font-medium">available now</p>
+          </div>
+          <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_10px_40px_rgba(18,28,40,0.03)] flex-1 flex flex-col justify-center">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Occupancy Rate</p>
+            <p className="text-3xl font-black text-on-surface">
+              {Math.round((occupied / MOCK_ROOMS.length) * 100)}%
+            </p>
+            <div className="w-full h-2 bg-surface-container rounded-full mt-2 overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full"
+                style={{ width: `${(occupied / MOCK_ROOMS.length) * 100}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Management Console ── */}
+      <section className="space-y-4">
+        <h3 className="text-lg font-bold tracking-tight">Management Console</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link href="/billing/meter-reading">
+            <button className="w-full h-14 btn-primary-gradient text-on-primary rounded-xl font-bold flex items-center justify-center gap-3 shadow-[0_8px_20px_rgba(0,74,198,0.2)] active:scale-95 transition-all">
+              <span className="material-symbols-outlined">speed</span>
+              Read Meters
+            </button>
+          </Link>
+          <Link href="/billing/generate">
+            <button className="w-full h-14 bg-surface-container-high text-on-surface rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+              <span className="material-symbols-outlined text-primary">print</span>
+              Print Bills
+            </button>
+          </Link>
+          <Link href="/services/complaints">
+            <button className="w-full h-14 bg-surface-container-high text-on-surface rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+              <span className="material-symbols-outlined text-tertiary">emergency_home</span>
+              Complaints
+            </button>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Room Status ── */}
+      <section className="space-y-4 lg:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <h3 className="text-lg font-bold tracking-tight">Room Status</h3>
+          <div className="flex gap-3 items-center">
+            <FilterTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+          </div>
+        </div>
+        <SearchInput value={search} onChange={setSearch} />
+
+        {/* Room Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredRooms.map((room) => (
+            <RoomCard
+              key={room.id}
+              room={room}
+              actionButton={
+                room.billingStatus === 'pending' ? (
+                  <Link href="/billing/verify">
+                    <button className="bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-bold shadow-[0_4px_12px_rgba(0,74,198,0.2)] active:scale-95 transition-all">
+                      Verify Slip
+                    </button>
+                  </Link>
+                ) : room.billingStatus === 'unpaid' ? (
+                  <Link href="/billing/debt">
+                    <button className="border-2 border-tertiary text-tertiary px-6 py-2 rounded-xl text-sm font-bold active:scale-95 transition-all">
+                      Remind
+                    </button>
+                  </Link>
+                ) : undefined
+              }
+            />
+          ))}
+          {filteredRooms.length === 0 && (
+            <div className="col-span-full text-center py-12 text-on-surface-variant">
+              <span className="material-symbols-outlined text-4xl mb-2 block">search_off</span>
+              <p className="font-medium">No rooms found</p>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
