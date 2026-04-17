@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#62df7d",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-fixed": "#410002",
+                    "on-tertiary-container": "#ffecea",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#dbe1ff",
+                    "error": "#ba1a1a",
+                    "primary": "#004ac6",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-background": "#121c28",
+                    "surface-container": "#e5eeff",
+                    "on-secondary-fixed": "#002109",
+                    "tertiary-container": "#d52022",
+                    "surface": "#f8f9ff",
+                    "inverse-surface": "#27313e",
+                    "primary-container": "#2563eb",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#7cf994",
+                    "on-surface-variant": "#434655",
+                    "tertiary-fixed-dim": "#ffb4ab",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#d9e3f4",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#ffdad6",
+                    "surface-tint": "#0053db",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed-variant": "#93000b",
+                    "tertiary": "#ae0010",
+                    "surface-container-high": "#dfe9fa",
+                    "secondary": "#006e2d",
+                    "surface-container-highest": "#d9e3f4",
+                    "surface-container-low": "#eef4ff",
+                    "on-secondary": "#ffffff",
+                    "background": "#f8f9ff",
+                    "outline": "#737686",
+                    "on-error-container": "#93000a",
+                    "surface-dim": "#d1dbec",
+                    "on-surface": "#121c28",
+                    "on-primary-fixed": "#00174b",
+                    "secondary-fixed": "#7ffc97",
+                    "inverse-on-surface": "#eaf1ff",
+                    "outline-variant": "#c3c6d7",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed-variant": "#005320",
+                    "on-secondary-container": "#007230",
+                    "on-primary-container": "#eeefff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Public Sans"],
+                    "body": ["Public Sans"],
+                    "label": ["Public Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .tap-highlight-none { -webkit-tap-highlight-color: transparent; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-white dark:bg-slate-950 flex items-center w-full px-6 py-4 max-w-7xl mx-auto docked full-width top-0 z-40 sticky">
+<button class="mr-4 p-2 scale-95 active:opacity-80 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+<span class="material-symbols-outlined text-blue-600 dark:text-blue-400">arrow_back</span>
+</button>
+<h1 class="font-public-sans font-bold text-2xl tracking-tight text-slate-900 dark:text-white">Resolved Complaints</h1>
+</header>
+<main class="px-6 py-4 space-y-8">
+<!-- Tabs Section -->
+<div class="flex p-1.5 bg-surface-container-low rounded-2xl w-full">
+<button class="flex-1 py-3 text-center font-semibold text-on-surface-variant hover:bg-white/50 transition-colors rounded-xl">
+                Open Issues
+            </button>
+<button class="flex-1 py-3 text-center font-bold text-blue-600 bg-surface-container-lowest shadow-sm rounded-xl">
+                Resolved
+            </button>
+</div>
+<!-- Section Summary Stats (Editorial SaaS Layout) -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest p-6 rounded-2xl">
+<p class="text-on-surface-variant text-sm font-medium mb-1">Weekly Resolved</p>
+<p class="text-4xl font-extrabold text-secondary tracking-tight">24</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl border-l-4 border-secondary-container">
+<p class="text-on-surface-variant text-sm font-medium mb-1">Avg. Time</p>
+<p class="text-4xl font-extrabold text-on-surface tracking-tight">4.2h</p>
+</div>
+</div>
+<!-- Resolved List -->
+<div class="space-y-6">
+<h2 class="text-sm font-bold text-outline tracking-widest uppercase px-1">Recent Closures</h2>
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 hover:bg-surface-container transition-colors group">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">RESOLVED</span>
+<span class="text-on-surface-variant text-sm font-medium">Fixed in 4 hours</span>
+</div>
+<div class="flex gap-4">
+<div class="flex-1">
+<h3 class="font-bold text-lg leading-tight mb-2">Room 101: Lightbulb flickering</h3>
+<p class="text-on-surface-variant text-sm mb-4">The main ceiling fixture in the bedroom was replaced with a new LED unit.</p>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<span class="text-sm font-medium text-on-surface">Completed by: Staff S.</span>
+</div>
+</div>
+<div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="close-up of a professional modern LED light fixture being installed in a clean white ceiling by a worker" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGwuJcWBqfokzLqVOj5g6DUAZkdAtFbDIVYP-jL_yUoIeaLlQoGBKpCIEdVc2HclmCQEwq5pHtbFEx9LhY327f7kCIIr09ScKRcLxoFBrjY8gIsYRctPeBd_56pIU2mZlEff8CCdGlnQxFNUBPYSoeC4n3T-nOKbnZPd4zM7kna_EgM5xbd0hLCuFTe8ygOMKX_2Fe-FZl7P3dExsx8Vnz3RofL08sgL2HT8wHbHCWxPOZT7RBCFR7_OV4r2koLD9z3EOBulIbxccN"/>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-surface-variant flex justify-between items-center text-xs text-outline">
+<span>Reference ID: #MNT-2940</span>
+<span>2 days ago</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">RESOLVED</span>
+<span class="text-on-surface-variant text-sm font-medium">Resolved 1 day ago</span>
+</div>
+<div class="flex gap-4">
+<div class="flex-1">
+<h3 class="font-bold text-lg leading-tight mb-2">Room 405: Water pressure low</h3>
+<p class="text-on-surface-variant text-sm mb-4">Cleaned the showerhead filter and adjusted the pressure valve in the corridor.</p>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<span class="text-sm font-medium text-on-surface">Completed by: Maintenance Pro</span>
+</div>
+</div>
+<div class="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="high contrast photo of a clean chrome bathroom faucet with crystalline water drops in a modern interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_P_kDSTlO6Jw1ZCxyAK05RX1avaupd2kVVuaIiNFbOiiFMa92Bsa1yjiUdkJbrDnplxQZ9DfnBf9FiXj0TH8u3rIwqNFCzrqx0W1LIy0vi-Ibwe1p1Z1V9a49M8KNikhLTS2sqMFHLU0jFJw-gTM8Xmd9rjCSu55XrJZPEqe-eKZ9XcEpSqDQqsKFCoDRpLByqZx_8Yb5-796h3KkP6B_TmN6DXEUbi5JpztyXX4WfCEa6PhbyEqUHA5kamwz3rsyS3hdXVoKV_-b"/>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-surface-variant flex justify-between items-center text-xs text-outline">
+<span>Reference ID: #MNT-2881</span>
+<span>24 hours ago</span>
+</div>
+</div>
+<!-- Card 3 (No Image Variant) -->
+<div class="bg-surface-container-lowest rounded-2xl p-5 hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start mb-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase">RESOLVED</span>
+<span class="text-on-surface-variant text-sm font-medium">Fixed in 2 hours</span>
+</div>
+<div>
+<h3 class="font-bold text-lg leading-tight mb-2">Lobby: Wi-Fi Access Point Offline</h3>
+<p class="text-on-surface-variant text-sm mb-4">Firmware update and hardware reset performed on the 2nd floor router node.</p>
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<span class="text-sm font-medium text-on-surface">Completed by: IT Dept</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-surface-variant flex justify-between items-center text-xs text-outline">
+<span>Reference ID: #MNT-2852</span>
+<span>3 days ago</span>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-50 rounded-t-3xl shadow-[0_-10px_40px_rgba(18,28,40,0.05)]">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2.5 hover:text-blue-500 dark:hover:text-blue-300 transition-transform duration-200 ease-out tap-highlight-none" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-public-sans text-xs font-semibold">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2.5 hover:text-blue-500 dark:hover:text-blue-300 transition-transform duration-200 ease-out tap-highlight-none" href="#">
+<span class="material-symbols-outlined mb-1">receipt_long</span>
+<span class="font-public-sans text-xs font-semibold">Billing</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-2xl px-5 py-2.5 transition-transform duration-200 ease-out tap-highlight-none" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">room_service</span>
+<span class="font-public-sans text-xs font-semibold">Services</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2.5 hover:text-blue-500 dark:hover:text-blue-300 transition-transform duration-200 ease-out tap-highlight-none" href="#">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-public-sans text-xs font-semibold">Settings</span>
+</a>
+</nav>
+</body></html>

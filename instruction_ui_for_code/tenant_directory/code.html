@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tenant Directory - Estate Clarity</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#004ac6",
+                        "secondary-fixed": "#7ffc97",
+                        "on-tertiary-fixed-variant": "#93000b",
+                        "surface-container-high": "#dfe9fa",
+                        "on-secondary-fixed": "#002109",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#d9e3f4",
+                        "surface-dim": "#d1dbec",
+                        "surface-container": "#e5eeff",
+                        "inverse-surface": "#27313e",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#d9e3f4",
+                        "secondary-fixed-dim": "#62df7d",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#ae0010",
+                        "on-primary-fixed": "#00174b",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-container": "#ffecea",
+                        "inverse-primary": "#b4c5ff",
+                        "background": "#f8f9ff",
+                        "on-secondary-fixed-variant": "#005320",
+                        "primary-container": "#2563eb",
+                        "outline": "#737686",
+                        "surface-tint": "#0053db",
+                        "secondary-container": "#7cf994",
+                        "on-primary-container": "#eeefff",
+                        "secondary": "#006e2d",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "on-surface-variant": "#434655",
+                        "on-tertiary-fixed": "#410002",
+                        "on-surface": "#121c28",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#dbe1ff",
+                        "on-background": "#121c28",
+                        "on-secondary-container": "#007230",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#ffdad6",
+                        "tertiary-container": "#d52022",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#eef4ff",
+                        "outline-variant": "#c3c6d7",
+                        "tertiary-fixed-dim": "#ffb4ab"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 bg-white dark:bg-slate-900 flex items-center justify-between px-6 py-4 w-full tonal-layering via-bg-slate-50 dark:bg-slate-800/50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface" data-icon="menu">menu</span>
+<h1 class="font-headline font-bold text-2xl tracking-tight text-slate-900 dark:text-white">Tenants</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface" data-icon="search">search</span>
+<span class="material-symbols-outlined text-on-surface" data-icon="filter_list">filter_list</span>
+</div>
+</header>
+<main class="px-6 py-4">
+<!-- Search & Filter Bar -->
+<section class="space-y-6">
+<div class="relative group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline" data-icon="search">search</span>
+</div>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-lowest border-none rounded-2xl text-body-lg placeholder:text-outline-variant focus:ring-2 focus:ring-primary/20 transition-all shadow-sm" placeholder="Search name or room..." type="text"/>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 no-scrollbar">
+<button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-primary text-on-primary font-semibold text-sm shadow-md">All</button>
+<button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-colors">Active Lease</button>
+<button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-colors">Expiring Soon</button>
+<button class="whitespace-nowrap px-6 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-colors">Historical</button>
+</div>
+</section>
+<!-- Tenant List -->
+<section class="mt-8 space-y-4">
+<!-- Tenant Card 1 -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-3xl hover:bg-surface-container-low transition-colors active:scale-[0.98] duration-150 group">
+<div class="w-14 h-14 rounded-2xl overflow-hidden mr-4 flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="professional headshot of a young woman with a friendly expression in a modern bright office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCuUBwbvu8xlo_qXbP2ssiHgPv4E9KPh7Tse9LAvYH-Sq4hPv_OmPEltssubrZS1cacSQxu5VOJY1kX_dFkFCtCtS4OAkIqItGwNpS-nxzS-LvFlkZI9W5iLjMmPA46yhsobC6ldCFfKNZ_ZhdwWKbCv9rhojR2d9_9P6BejRhwfSs0N0FPs1Nm0znvOpM1TdhENjXh8uGVwFu4_UXu_MSD4XuD2apFX3DlW6JlD5RE8VBh9VKVHefbR2npBm88tXjFUOy6pFdXL57"/>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="font-bold text-on-surface text-lg truncate">Malee P.</h3>
+<p class="text-on-surface-variant text-sm font-medium">Room 102</p>
+</div>
+<div class="flex flex-col items-end gap-2 ml-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-extrabold uppercase tracking-wider">Active</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Tenant Card 2 -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-3xl hover:bg-surface-container-low transition-colors active:scale-[0.98] duration-150 group">
+<div class="w-14 h-14 rounded-2xl overflow-hidden mr-4 flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a professional man in a navy blue suit against a soft grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIz6p_RVaukbYo9XcT87KvM6uCIT-l2I5ficDYOj9B8hmPJTnzUufxjUOeOywJOcxq_XtXsIYjXXcIUXvMJn9LmnGZlfLZnEyQc0kzcMfjRne4hirMDFdyrl_2GdV5K5oczuqDfAMdCi-HblUzm2qBh_91V4UVgowPRDE9xV6KtMUmmEHNegPF8ZoHzs9YEdzpoSMxCKDQdOH8wRA7nvavUnJL3fbvU2TaN-RXOBEVYtTc9486VN2DhgPUImvCo8GBSWFINhl1WDZ8"/>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="font-bold text-on-surface text-lg truncate">Somchai W.</h3>
+<p class="text-on-surface-variant text-sm font-medium">Room 305</p>
+</div>
+<div class="flex flex-col items-end gap-2 ml-2">
+<span class="px-3 py-1 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant text-[11px] font-extrabold uppercase tracking-wider">Expiring Soon</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Tenant Card 3 -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-3xl hover:bg-surface-container-low transition-colors active:scale-[0.98] duration-150 group">
+<div class="w-14 h-14 rounded-2xl overflow-hidden mr-4 flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="studio portrait of a woman with glasses and a warm smile, neutral warm lighting, high contrast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnoNz6YpunjNd20rKKm7HOI2E7UFlRz-mpGxR7D058oERtF1cEveT889Ow1cA3e4R9KBFhsE0OyMMGuTeKPhiTCnpk1Tv0_i0jCZpQjod1zSYsid6DPslBklo7ImZmjRiEcpo4nrbuFOFBRoUCc-wDhEftcN9XDADSjBJx6gO1AAkFYprk1yZebJC5jfxdAkbTVmxtyBqTupg4HenZgMPQjVPy4-mJj-WZ8Mkq4CK233Y12MtFfnUMsQcL3a8N7xWEBO1uPDxp4RTQ"/>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="font-bold text-on-surface text-lg truncate">Ananya S.</h3>
+<p class="text-on-surface-variant text-sm font-medium">Room 412</p>
+</div>
+<div class="flex flex-col items-end gap-2 ml-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-extrabold uppercase tracking-wider">Active</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Tenant Card 4 -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-3xl hover:bg-surface-container-low transition-colors active:scale-[0.98] duration-150 group">
+<div class="w-14 h-14 rounded-2xl overflow-hidden mr-4 flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="portrait of a creative professional in a casual setting with natural light and soft blurred background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2ZY36x99CQDfYXd445vui6AVGy4npOhhCuZV4eiegNQQiNaoSpJN6zs3N_oYzx3ygoGJkTp550vWmdL28ksxu1ExmQqyEjcgqc9_rSUAmg7wgELDZO3KZzHI0N7K16cZZkOTET2vvcDVo9LDDF80O9rL-MbxXxqpUXfc07uDfJL-AgpSbxToyhQID30pO8saKjxUUtNmXYRzRnAnuExXP2XkZGjsksC8lvb3S6PTgoteDwNyGsx-P4xJ1CQdiYvSdjQqvy5NoyKx4"/>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="font-bold text-on-surface text-lg truncate">Kittisak R.</h3>
+<p class="text-on-surface-variant text-sm font-medium">Room 201</p>
+</div>
+<div class="flex flex-col items-end gap-2 ml-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-extrabold uppercase tracking-wider">Active</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Tenant Card 5 -->
+<div class="flex items-center p-4 bg-surface-container-lowest rounded-3xl hover:bg-surface-container-low transition-colors active:scale-[0.98] duration-150 group">
+<div class="w-14 h-14 rounded-2xl overflow-hidden mr-4 flex-shrink-0 bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="portrait of a young female student with short black hair smiling outdoors in a park setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQxM3EZ5GE9xrB82bBvHmIn0xvXeQ4DbAq7Ub18le5WxAVjyoJHoKHsQGMw9b1hWKXYp-6Q90Twui7rU-ZqhImRt77FCCj7WUpYosS1sLPSfYtGtKOSKF00lR51kkBZx-VN9PdQoy7jjvEu2LFrdLzYMoozuOjJssutCl92zQ3m0u0vl-tMcciC7mVctPK91084tDLKUjwaXXLt7hPi1fuRGuG35b8zpYAE69_9ANBjrHfEVSOvWv2PJbiEp9uDnL_rNkzVX0KfvOf"/>
+</div>
+<div class="flex-grow min-w-0">
+<h3 class="font-bold text-on-surface text-lg truncate">Preeya K.</h3>
+<p class="text-on-surface-variant text-sm font-medium">Room 108</p>
+</div>
+<div class="flex flex-col items-end gap-2 ml-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[11px] font-extrabold uppercase tracking-wider">Active</span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md z-50 rounded-t-3xl shadow-[0_-10px_40px_rgba(18,28,40,0.05)]">
+<!-- Dashboard/Home -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 duration-200 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-100 rounded-2xl" href="#"><span class="material-symbols-outlined mb-1" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span><span class="font-public-sans text-xs font-semibold">Home</span></a>
+<!-- Tenants (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-100 rounded-2xl px-5 py-2.5 active:scale-90 duration-200 text-slate-500 dark:text-slate-400" href="#"><span class="material-symbols-outlined mb-1" data-icon="payments">payments</span><span class="font-public-sans text-xs font-semibold">Billing</span></a>
+<!-- Rooms/Billing -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 duration-200" href="#"><span class="material-symbols-outlined mb-1" data-icon="construction">construction</span><span class="font-public-sans text-xs font-semibold">Services</span></a>
+<!-- Reports/Services -->
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800 active:scale-90 duration-200" href="#"><span class="material-symbols-outlined mb-1" data-icon="settings">settings</span><span class="font-public-sans text-xs font-semibold">Settings</span></a>
+</nav>
+<!-- FAB (Contextual for Tenant List) -->
+<div class="fixed bottom-28 right-6 z-40">
+<button class="w-16 h-16 rounded-2xl bg-gradient-to-b from-primary to-primary-container text-on-primary shadow-[0_20px_50px_rgba(0,74,198,0.3)] flex items-center justify-center active:scale-95 duration-150">
+<span class="material-symbols-outlined text-3xl" data-icon="person_add">person_add</span>
+</button>
+</div>
+</body></html>

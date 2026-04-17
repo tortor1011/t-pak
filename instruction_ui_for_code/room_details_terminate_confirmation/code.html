@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Room 101 Details - Dormitory Manager</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-high": "#dfe9fa",
+                        "secondary-container": "#7cf994",
+                        "surface-container-highest": "#d9e3f4",
+                        "background": "#f8f9ff",
+                        "on-tertiary-fixed": "#410002",
+                        "on-tertiary-fixed-variant": "#93000b",
+                        "on-primary-fixed": "#00174b",
+                        "primary-container": "#2563eb",
+                        "tertiary-fixed": "#ffdad6",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#ffb4ab",
+                        "on-tertiary-container": "#ffecea",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#d52022",
+                        "outline": "#737686",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "on-secondary-fixed-variant": "#005320",
+                        "secondary-fixed": "#7ffc97",
+                        "tertiary": "#ae0010",
+                        "surface": "#f8f9ff",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-variant": "#d9e3f4",
+                        "surface-dim": "#d1dbec",
+                        "surface-container-low": "#eef4ff",
+                        "on-secondary-fixed": "#002109",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#0053db",
+                        "on-surface-variant": "#434655",
+                        "inverse-surface": "#27313e",
+                        "primary": "#004ac6",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-surface": "#121c28",
+                        "outline-variant": "#c3c6d7",
+                        "secondary": "#006e2d",
+                        "on-background": "#121c28",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e5eeff",
+                        "on-secondary-container": "#007230"
+                    },
+                    fontFamily: {
+                        "headline": ["Public Sans"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; background-color: #f8f9ff; color: #121c28; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+<style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-surface select-none">
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-6" id="modalOverlay">
+<!-- Confirmation Modal -->
+<div class="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
+<div class="p-8 text-center">
+<div class="w-20 h-20 bg-error-container/10 rounded-full flex items-center justify-center mx-auto mb-6">
+<span class="material-symbols-outlined text-error text-4xl">warning</span>
+</div>
+<h3 class="text-2xl font-black text-on-surface mb-3 leading-tight">Confirm Lease Termination?</h3>
+<p class="text-on-surface-variant font-medium leading-relaxed">
+                    This will calculate the final refund amount for <span class="font-bold text-on-surface">Room 105</span>.
+                </p>
+</div>
+<div class="p-6 pt-0 space-y-3">
+<button class="w-full h-14 rounded-2xl bg-error text-white font-extrabold active:scale-95 duration-150 shadow-lg shadow-error/20" onclick="document.getElementById('modalOverlay').classList.add('hidden')">
+                    Confirm Termination
+                </button>
+<button class="w-full h-14 rounded-2xl bg-surface-container-high text-on-surface font-bold active:scale-95 duration-150" onclick="document.getElementById('modalOverlay').classList.add('hidden')">
+                    Keep Lease
+                </button>
+</div>
+</div>
+</div>
+<!-- TopAppBar -->
+<nav class="w-full top-0 sticky bg-white dark:bg-slate-900 z-50">
+<div class="flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 duration-150 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-full text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-['Public_Sans'] font-bold text-xl tracking-tight text-on-surface">Room 101 Details</h1>
+</div>
+<button class="active:scale-95 duration-150 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-full text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined">edit</span>
+</button>
+</div>
+</nav>
+<main class="pb-32 px-4 space-y-6">
+<!-- Tenant Info Card -->
+<section class="mt-4 bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_50px_rgba(18,28,40,0.05)]">
+<div class="flex items-center gap-5 mb-8">
+<div class="relative">
+<img alt="Johnathan Doe" class="w-20 h-20 rounded-2xl object-cover" data-alt="professional portrait of a young man with a friendly smile wearing a clean white shirt against a neutral studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuGIrX5_sxjqfFjMRSekVHvdR0ypwoVWi-9h7Xlzh3YvrdO1cvYM3cJjm1GrNJ1N6SPbBGqiyzaFNy_AoXhQhM8wY1FxQ6cLFVyirdhxvgmThJDxf-UXANUSGkeWbt471mt-95CcSfKoR-ILPYrWThodi_vidUyt8GzSSzgN72FGo5dZGXhhii3W6yO67zb8rRjYXyMx0RoGKvw5ruybERtZKUS67CA_HeFATXIDgn6fWs8_iDP4j8MR-u_NGSpmQi1CF3vJsTEYd9"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 bg-secondary-container border-2 border-white rounded-full"></div>
+</div>
+<div class="flex-1">
+<h2 class="text-2xl font-extrabold tracking-tight text-on-surface">Johnathan Doe</h2>
+<p class="text-on-surface-variant font-medium">+66 81 234 5678</p>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<button class="h-14 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-primary-container to-primary text-white font-bold active:scale-95 duration-150 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">call</span>
+<span>Call</span>
+</button>
+<button class="h-14 flex items-center justify-center gap-2 rounded-2xl bg-secondary-container text-on-secondary-container font-bold active:scale-95 duration-150">
+<span class="material-symbols-outlined">forum</span>
+<span>Chat</span>
+</button>
+</div>
+<!-- Lease Dates -->
+<div class="space-y-4 pt-4 border-t border-surface-container">
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-medium">Move-in Date</span>
+<span class="text-on-surface font-semibold">Oct 01, 2025</span>
+</div>
+<div class="flex justify-between items-center bg-error-container/20 p-3 rounded-xl">
+<span class="text-on-tertiary-fixed-variant font-bold">Contract Expires</span>
+<span class="text-error font-extrabold">Sep 30, 2026</span>
+</div>
+</div>
+</section>
+<!-- Current Month Quick View -->
+<section class="bg-primary-container rounded-3xl p-6 text-white shadow-xl">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="text-sm font-bold uppercase tracking-widest opacity-80">LAST RECORDED METER (March 2026)</h3>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm">bolt</span>
+<span class="text-xs font-bold uppercase opacity-70">Electricity</span>
+</div>
+<p class="text-xl font-bold">120 <span class="text-sm font-medium opacity-80">kWh</span></p>
+</div>
+<div class="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm">water_drop</span>
+<span class="text-xs font-bold uppercase opacity-70">Water</span>
+</div>
+<p class="text-xl font-bold">8 <span class="text-sm font-medium opacity-80">m³</span></p>
+</div>
+</div>
+<div class="flex justify-between items-center pt-4 border-t border-white/20"><span class="font-bold opacity-90">Base Room Rate</span><span class="text-2xl font-black">฿ 4,000</span></div>
+</section>
+<!-- Billing History Section -->
+<section>
+<div class="flex justify-between items-end px-2 mb-4">
+<h3 class="text-xl font-extrabold tracking-tight">Billing History</h3>
+<span class="text-primary font-bold text-sm">View All</span>
+</div>
+<div class="space-y-3">
+<!-- March -->
+<div class="flex items-center justify-between bg-surface-container-low p-5 rounded-2xl hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined font-bold">receipt_long</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">March 2026</p>
+<p class="text-sm font-medium text-on-surface-variant">฿ 4,500</p>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">PAID</span>
+</div>
+<!-- Feb -->
+<div class="flex items-center justify-between bg-surface-container-low p-5 rounded-2xl hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined font-bold">receipt_long</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">February 2026</p>
+<p class="text-sm font-medium text-on-surface-variant">฿ 4,500</p>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">PAID</span>
+</div>
+<!-- Jan -->
+<div class="flex items-center justify-between bg-surface-container-low p-5 rounded-2xl hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined font-bold">receipt_long</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">January 2026</p>
+<p class="text-sm font-medium text-on-surface-variant">฿ 4,500</p>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider">PAID</span>
+</div>
+</div>
+</section>
+<!-- Final Action Buttons -->
+<section class="space-y-3 pt-6">
+<button class="w-full h-14 rounded-2xl border-2 border-primary-container text-primary-container font-extrabold active:scale-95 duration-150">
+                Send Manual Reminder
+            </button>
+<button class="w-full h-14 rounded-2xl bg-error-container/10 text-error font-bold active:scale-95 duration-150" onclick="document.getElementById('modalOverlay').classList.remove('hidden'); document.getElementById('modalOverlay').classList.add('flex')">
+                Terminate Lease
+            </button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-[0_-10px_40px_rgba(18,28,40,0.05)] rounded-t-3xl">
+<div class="flex flex-col items-center justify-center bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-2xl px-4 py-2 active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Public_Sans'] font-semibold text-xs mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-2 hover:text-blue-500 dark:hover:text-blue-300 active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-['Public_Sans'] font-semibold text-xs mt-1">Billing</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-2 hover:text-blue-500 dark:hover:text-blue-300 active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="room_service">room_service</span>
+<span class="font-['Public_Sans'] font-semibold text-xs mt-1">Services</span>
+</div>
+<div class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-4 py-2 hover:text-blue-500 dark:hover:text-blue-300 active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Public_Sans'] font-semibold text-xs mt-1">Profile</span>
+</div>
+</nav>
+</body></html>

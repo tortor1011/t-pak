@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Operations Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#410002",
+                    "on-background": "#121c28",
+                    "surface": "#f8f9ff",
+                    "background": "#f8f9ff",
+                    "on-tertiary-container": "#ffecea",
+                    "tertiary-fixed-dim": "#ffb4ab",
+                    "primary-container": "#2563eb",
+                    "on-surface-variant": "#434655",
+                    "outline": "#737686",
+                    "on-error": "#ffffff",
+                    "secondary-fixed-dim": "#62df7d",
+                    "tertiary-container": "#d52022",
+                    "surface-container": "#e5eeff",
+                    "surface-variant": "#d9e3f4",
+                    "on-primary-container": "#eeefff",
+                    "surface-dim": "#d1dbec",
+                    "secondary": "#006e2d",
+                    "on-secondary-fixed": "#002109",
+                    "surface-container-high": "#dfe9fa",
+                    "surface-container-highest": "#d9e3f4",
+                    "secondary-container": "#7cf994",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-surface": "#121c28",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#ae0010",
+                    "surface-bright": "#f8f9ff",
+                    "inverse-primary": "#b4c5ff",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed": "#7ffc97",
+                    "primary-fixed": "#dbe1ff",
+                    "on-secondary-fixed-variant": "#005320",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-primary-fixed": "#00174b",
+                    "on-primary": "#ffffff",
+                    "surface-container-low": "#eef4ff",
+                    "primary": "#004ac6",
+                    "outline-variant": "#c3c6d7",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary-container": "#007230",
+                    "inverse-surface": "#27313e",
+                    "on-tertiary-fixed-variant": "#93000b",
+                    "surface-tint": "#0053db",
+                    "on-secondary": "#ffffff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "tertiary-fixed": "#ffdad6",
+                    "error-container": "#ffdad6",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Public Sans"],
+                    "body": ["Public Sans"],
+                    "label": ["Public Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-surface sticky top-0 z-50 shadow-[0_20px_50px_rgba(18,28,40,0.05)]">
+<div class="flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Owner Profile" class="w-10 h-10 rounded-full object-cover border-2 border-surface-container" data-alt="Professional portrait of a middle-aged real estate owner with a confident smile, warm studio lighting, clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDE_Ks_OPgXpKwTOTmEtbbpV-2LdRmwIoQmEjw5rCxLpzF-ov8axWlTmQlMNB9PejRrpr5guH1BxOe87C6h-joiqkF4t2z_4TBmOG0btigNRI8benOX2iOXDIGSxAWdUsIHNJ9E4eD6ZYg9CiF2FzDEfCzbWFmn-sZFabvcxNCjQkBJW99i9sLwgNBCdq_uITZHc5u6NYdsuBq7EOVpnvF2q68ei98tDcl-4oN0jTjtbMJz1e2iYEcuLqErmaXHlpaC7PNKTOrw9YNA"/>
+</div>
+<h1 class="text-2xl font-bold text-blue-600 tracking-tight">Operations Center</h1>
+<div class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100 transition-colors cursor-pointer scale-95 active:duration-150">
+<span class="material-symbols-outlined text-slate-500" data-icon="notifications">notifications</span>
+</div>
+</div>
+</header>
+<main class="max-w-screen-md mx-auto px-6 mt-8 space-y-8">
+<!-- Priority Card: Move-out Request -->
+<section>
+<div class="bg-surface-container-low rounded-xl p-8 relative overflow-hidden group">
+<!-- Soft blue decorative element -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="event_busy">event_busy</span>
+<h2 class="text-xl font-bold text-on-surface">Move-out Request</h2>
+</div>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-8">
+                        Room 205 (Michael Chen) is moving out tomorrow. Needs final room inspection and meter reading.
+                    </p>
+<button class="w-full h-14 bg-gradient-to-b from-primary to-primary-container text-white font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 hover:opacity-90 transition-all active:scale-[0.98]">
+                        Process Move-out
+                    </button>
+</div>
+</div>
+</section>
+<!-- Operations Grid -->
+<section>
+<div class="flex items-baseline justify-between mb-6">
+<h3 class="text-2xl font-extrabold tracking-tight">Daily Operations</h3>
+<span class="text-sm font-bold text-primary px-3 py-1 bg-primary-fixed rounded-full">6 Tools</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- 1. Tenant Complaints -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_50px_rgba(18,28,40,0.05)] flex flex-col gap-4 hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="report_problem">report_problem</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-1">Tenant Complaints</h4>
+<p class="text-sm text-tertiary font-semibold">2 active tickets</p>
+</div>
+</div>
+<!-- 2. Delivery Tasks -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_50px_rgba(18,28,40,0.05)] flex flex-col gap-4 hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="package_2">package_2</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-1">Delivery Tasks</h4>
+<p class="text-sm text-primary font-semibold">3 boxes to deliver</p>
+</div>
+</div>
+<!-- 3. Parking & Vehicles -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_50px_rgba(18,28,40,0.05)] flex flex-col gap-4 hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="directions_car">directions_car</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-1">Parking &amp; Vehicles</h4>
+<p class="text-sm text-secondary font-semibold">License plate tracking</p>
+</div>
+</div>
+<!-- 4. Broadcast Alerts -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_50px_rgba(18,28,40,0.05)] flex flex-col gap-4 hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-purple-700" data-icon="campaign">campaign</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-1">Broadcast Alerts</h4>
+<p class="text-sm text-purple-700 font-semibold">Send announcements</p>
+</div>
+</div>
+<!-- 5. Tenant Directory -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_50px_rgba(18,28,40,0.05)] flex flex-col gap-4 hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-indigo-700" data-icon="contact_page">contact_page</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-1">Tenant Directory</h4>
+<p class="text-sm text-indigo-700 font-semibold">Contact info &amp; leases</p>
+</div>
+</div>
+<!-- 6. Room Setup -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_50px_rgba(18,28,40,0.05)] flex flex-col gap-4 hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="w-12 h-12 rounded-xl bg-slate-200 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-600" data-icon="chair">chair</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-1">Room Setup</h4>
+<p class="text-sm text-slate-600 font-semibold">Manage amenities &amp; rent</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Overview (Asymmetric addition for quality) -->
+<section class="pb-10">
+<div class="bg-white rounded-xl p-6 shadow-[0_20px_50px_rgba(18,28,40,0.05)] border-l-4 border-primary">
+<div class="flex justify-between items-center">
+<div>
+<p class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Operational Pulse</p>
+<p class="text-3xl font-extrabold text-on-surface">94% Occupancy</p>
+</div>
+<div class="text-right">
+<p class="text-secondary font-bold text-lg">+2.4%</p>
+<p class="text-xs text-slate-400">vs last month</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface/80 backdrop-blur-md shadow-[0_-10px_40px_rgba(0,0,0,0.05)] rounded-t-3xl">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-slate-500 px-6 py-2 hover:bg-blue-50 transition-all duration-300" href="#"><span class="material-symbols-outlined mb-1" data-icon="home">home</span><span class="text-[11px] font-bold">Home</span></a>
+<!-- Billing -->
+<a class="flex flex-col items-center justify-center text-slate-500 px-6 py-2 hover:bg-blue-50 transition-all duration-300" href="#"><span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span><span class="text-[11px] font-bold">Billing</span></a>
+<!-- Services (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-blue-100 text-blue-700 rounded-2xl px-6 py-2 transition-all duration-300" href="#"><span class="material-symbols-outlined mb-1 filled-icon" data-icon="room_service" style="font-variation-settings: 'FILL' 1;">room_service</span><span class="text-[11px] font-bold">Services</span></a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-slate-500 px-6 py-2 hover:bg-blue-50 transition-all duration-300" href="#"><span class="material-symbols-outlined mb-1" data-icon="settings">settings</span><span class="text-[11px] font-bold">Settings</span></a>
+</nav>
+</body></html>

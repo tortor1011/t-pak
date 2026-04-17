@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#d52022",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#004ac6",
+                        "surface-container-high": "#dfe9fa",
+                        "error-container": "#ffdad6",
+                        "on-background": "#121c28",
+                        "on-primary-container": "#eeefff",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#27313e",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#007230",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#d9e3f4",
+                        "secondary-container": "#7cf994",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "tertiary-fixed": "#ffdad6",
+                        "primary-fixed": "#dbe1ff",
+                        "tertiary": "#ae0010",
+                        "on-primary-fixed": "#00174b",
+                        "surface-tint": "#0053db",
+                        "secondary-fixed": "#7ffc97",
+                        "on-surface": "#121c28",
+                        "surface-container": "#e5eeff",
+                        "background": "#f8f9ff",
+                        "surface-bright": "#f8f9ff",
+                        "inverse-primary": "#b4c5ff",
+                        "primary-container": "#2563eb",
+                        "on-secondary-fixed-variant": "#005320",
+                        "on-tertiary-fixed-variant": "#93000b",
+                        "surface-dim": "#d1dbec",
+                        "outline": "#737686",
+                        "on-tertiary-container": "#ffecea",
+                        "surface": "#f8f9ff",
+                        "outline-variant": "#c3c6d7",
+                        "error": "#ba1a1a",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-tertiary-fixed": "#410002",
+                        "secondary": "#006e2d",
+                        "on-secondary-fixed": "#002109",
+                        "surface-container-low": "#eef4ff",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-variant": "#d9e3f4",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed-dim": "#ffb4ab",
+                        "on-surface-variant": "#434655"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Public Sans"],
+                        "body": ["Public Sans"],
+                        "label": ["Public Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Public Sans', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-line { border: none !important; }
+        .tonal-layering { background-image: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(0,0,0,0.02)); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- TopAppBar Shell -->
+<header class="w-full sticky top-0 z-50 bg-white dark:bg-slate-950 shadow-sm flex items-center justify-between px-6 py-4">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 duration-150 text-blue-600 dark:text-blue-400">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-public-sans text-xl font-bold tracking-tight text-on-background">Broadcast Alerts</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="professional portrait of a building manager in a clean office setting, soft daylight, sharp focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxHLMTEc2fEQDzCLd1PCS995qlz_mbNChraw3u2jSOCRxyLpI0-_5dQhVeiwbo-AvndbkiSGvFLp6yur9bGSb4oJUYvjJJegXaCZLShoLr2OR4sSMAm4PQuQmSOoktGrq48qWdbRpuxtMTgvZjZdDlxoPT0bhjbMZNts69jOFOYku15zJSjosETPuQogogmQD4COAEIhnrJ2II6ykjMaonNGUqVhMjVgpmfMzxMkx45ZVX1fGaW3m80XPamQaDOOMNT3zqsX0W6l0-"/>
+</div>
+</header>
+<main class="px-6 py-8 space-y-8 max-w-lg mx-auto">
+<!-- Create Alert Section -->
+<section class="space-y-4">
+<h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant px-1">New Broadcast</h2>
+<div class="bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_50px_rgba(18,28,40,0.05)] space-y-6">
+<!-- Target Selector -->
+<div class="space-y-2">
+<label class="text-sm font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="groups">groups</span>
+                        Target Audience
+                    </label>
+<div class="relative">
+<select class="w-full h-[56px] px-4 bg-surface-container-low rounded-xl border-none focus:ring-2 focus:ring-primary appearance-none text-on-surface font-medium">
+<option selected="">All Tenants</option>
+<option>Building A</option>
+<option>Floor 4</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+<!-- Alert Title -->
+<div class="space-y-2">
+<label class="text-sm font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="title">title</span>
+                        Alert Title
+                    </label>
+<input class="w-full h-[56px] px-4 bg-surface-container-low rounded-xl border-none focus:ring-2 focus:ring-primary placeholder:text-outline/60 text-on-surface font-medium" placeholder="Announcement Title (e.g., Water Maintenance)" type="text"/>
+</div>
+<!-- Alert Message -->
+<div class="space-y-2">
+<label class="text-sm font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="chat">chat</span>
+                        Alert Message
+                    </label>
+<textarea class="w-full p-4 bg-surface-container-low rounded-xl border-none focus:ring-2 focus:ring-primary placeholder:text-outline/60 text-on-surface font-medium resize-none" placeholder="Type your announcement here..." rows="4"></textarea>
+</div>
+<!-- Attachment & Action -->
+<div class="pt-2 space-y-6">
+<button class="flex items-center gap-2 text-primary font-bold hover:bg-surface-container-low p-3 rounded-xl transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="attachment">attachment</span>
+<span>Add Image or File</span>
+</button>
+<button class="w-full h-[64px] bg-gradient-to-b from-primary to-primary-container text-white rounded-2xl font-extrabold text-lg flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="campaign" style="font-variation-settings: 'FILL' 1;">campaign</span>
+                        Send Broadcast Now
+                    </button>
+</div>
+</div>
+</section>
+<!-- Sent History Section -->
+<section class="space-y-4">
+<div class="flex items-center justify-between px-1">
+<h2 class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Sent History</h2>
+<button class="text-primary font-bold text-sm">View All</button>
+</div>
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-low rounded-3xl p-5 flex items-start gap-4 hover:bg-surface-container transition-colors">
+<div class="mt-1">
+<div class="w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_rgba(0,74,198,0.4)]"></div>
+</div>
+<div class="flex-1 space-y-1">
+<h3 class="font-bold text-on-surface text-lg leading-tight">Water maintenance tomorrow</h3>
+<div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+<span class="flex items-center gap-1 text-sm font-medium text-on-secondary-container bg-secondary-container/30 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span>
+                                Sent to All
+                            </span>
+<span class="text-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+                                2 hours ago
+                            </span>
+</div>
+</div>
+<button class="text-outline active:scale-90">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-low rounded-3xl p-5 flex items-start gap-4 hover:bg-surface-container transition-colors">
+<div class="mt-1">
+<div class="w-3 h-3 bg-outline-variant rounded-full"></div>
+</div>
+<div class="flex-1 space-y-1">
+<h3 class="font-bold text-on-surface text-lg leading-tight">New parcel locker installed</h3>
+<div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+<span class="flex items-center gap-1 text-sm font-medium text-on-secondary-container bg-secondary-container/30 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span>
+                                Sent to All
+                            </span>
+<span class="text-sm text-outline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+                                3 days ago
+                            </span>
+</div>
+</div>
+<button class="text-outline active:scale-90">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Shell -->
+<!-- Content mapping: "Dashboard" maps to "Home", "Tenants" maps to "Billing", "Broadcasts" (Active), "Settings" -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-[0_-20px_50px_rgba(18,28,40,0.05)] rounded-t-3xl z-50">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition-transform active:scale-90 text-slate-500 dark:text-slate-400" href="#"><span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-public-sans text-[12px] font-semibold">Home</span></a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition-transform active:scale-90" href="#"><span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-public-sans text-[12px] font-semibold">Billing</span></a>
+<a class="flex flex-col items-center justify-center bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-2xl px-5 py-2 transition-transform active:scale-90 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-2xl" href="#"><span class="material-symbols-outlined" data-icon="home_repair_service" style="font-variation-settings: 'FILL' 1;">home_repair_service</span>
+<span class="font-public-sans text-[12px] font-semibold">Services</span></a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition-transform active:scale-90" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-public-sans text-[12px] font-semibold">Settings</span>
+</a>
+</nav>
+</body></html>
