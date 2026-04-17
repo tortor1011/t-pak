@@ -38,6 +38,13 @@ const SERVICE_ITEMS = [
     href: '/reports',
     iconColor: 'text-primary',
   },
+  {
+    title: 'Bulk Room Setup',
+    description: 'Set pricing and setup multiple rooms',
+    icon: 'view_module',
+    href: '/services/bulk-room-setup',
+    iconColor: 'text-secondary',
+  },
 ];
 
 export default function ServicesPage() {
