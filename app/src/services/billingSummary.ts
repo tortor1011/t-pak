@@ -1,7 +1,8 @@
 import { Room } from '@/types/room';
 import {
+  buildRoomAdditionalChargeContext,
   calculateRoomAdditionalCharge,
-  loadAdditionalChargePerRoom,
+  type RoomAdditionalChargeContext,
 } from '@/services/additionalChargeRules';
 
 export interface BillingSummary {
@@ -15,7 +16,7 @@ export interface BillingSummary {
 
 function getRoomPayableAmount(
   room: Room,
-  additionalChargePerRoom: number
+  additionalChargeContext: RoomAdditionalChargeContext
 ): number {
   let basePayableAmount = 0;
 
@@ -25,11 +26,11 @@ function getRoomPayableAmount(
     basePayableAmount = room.baseRent;
   }
 
-  return basePayableAmount + calculateRoomAdditionalCharge(room, additionalChargePerRoom);
+  return basePayableAmount + calculateRoomAdditionalCharge(room, additionalChargeContext);
 }
 
 export function calculateBillingSummary(rooms: Room[]): BillingSummary {
-  const additionalChargePerRoom = loadAdditionalChargePerRoom();
+  const additionalChargeContext = buildRoomAdditionalChargeContext();
   const totalRooms = rooms.length;
   const occupiedRooms = rooms.filter((room) => room.occupancy === 'occupied').length;
   const vacantRooms = rooms.filter((room) => room.occupancy === 'vacant').length;
@@ -37,14 +38,14 @@ export function calculateBillingSummary(rooms: Room[]): BillingSummary {
   const occupiedRoomList = rooms.filter((room) => room.occupancy === 'occupied');
 
   const totalRevenue = occupiedRoomList.reduce(
-    (sum, room) => sum + getRoomPayableAmount(room, additionalChargePerRoom),
+    (sum, room) => sum + getRoomPayableAmount(room, additionalChargeContext),
     0
   );
 
   const pendingPayments = occupiedRoomList
     .filter((room) => room.billingStatus !== 'paid')
     .reduce(
-      (sum, room) => sum + getRoomPayableAmount(room, additionalChargePerRoom),
+      (sum, room) => sum + getRoomPayableAmount(room, additionalChargeContext),
       0
     );
 

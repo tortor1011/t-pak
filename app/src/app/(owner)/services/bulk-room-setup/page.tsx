@@ -4,6 +4,11 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { formatCurrency } from '@/utils/currency';
 import { applyBulkBaseRentOverrides } from '@/services/roomPricingOverrides';
+import { loadActiveAdditionalChargeRules } from '@/services/additionalChargeRules';
+import {
+  applyBulkRoomAdditionalChargeRuleIds,
+  resetBulkRoomAdditionalChargeOverrides,
+} from '@/services/roomAdditionalChargeOverrides';
 
 const FLOORS = [1, 2, 3, 4];
 const ROOMS_PER_FLOOR = 12;
@@ -18,13 +23,33 @@ export default function BulkRoomSetupPage() {
   const [selectedRooms, setSelectedRooms] = useState<number[]>(() =>
     buildRoomsOnFloor(1).slice(0, 10)
   );
+  const activeAdditionalChargeRules = useMemo(
+    () => loadActiveAdditionalChargeRules(),
+    []
+  );
+  const [selectedChargeRuleIds, setSelectedChargeRuleIds] = useState<string[]>(
+    () => activeAdditionalChargeRules.map((rule) => rule.id)
+  );
   const [baseRentInput, setBaseRentInput] = useState('5000');
-  const [applyFeedback, setApplyFeedback] = useState<string | null>(null);
+  const [baseRentFeedback, setBaseRentFeedback] = useState<string | null>(null);
+  const [chargeFeedback, setChargeFeedback] = useState<string | null>(null);
 
   const allRoomsOnFloor = useMemo(
     () => buildRoomsOnFloor(selectedFloor),
     [selectedFloor]
   );
+
+  const selectedChargeRules = useMemo(() => {
+    const selectedSet = new Set(selectedChargeRuleIds);
+
+    return activeAdditionalChargeRules.filter((rule) => selectedSet.has(rule.id));
+  }, [activeAdditionalChargeRules, selectedChargeRuleIds]);
+
+  const selectedChargeTotal = useMemo(() => {
+    return selectedChargeRules.reduce((sum, rule) => sum + rule.amount, 0);
+  }, [selectedChargeRules]);
+
+  const hasActiveAdditionalChargeRules = activeAdditionalChargeRules.length > 0;
 
   const parsedBaseRent = Number.parseInt(baseRentInput, 10);
   const isBaseRentValid = Number.isFinite(parsedBaseRent) && parsedBaseRent > 0;
@@ -51,16 +76,79 @@ export default function BulkRoomSetupPage() {
   const handleFloorSelect = (floor: number) => {
     setSelectedFloor(floor);
     setSelectedRooms(buildRoomsOnFloor(floor).slice(0, 10));
-    setApplyFeedback(null);
+    setBaseRentFeedback(null);
+    setChargeFeedback(null);
   };
 
-  const handleApply = () => {
+  const handleApplyBaseRent = () => {
     if (!isBaseRentValid || selectedRooms.length === 0) return;
 
     applyBulkBaseRentOverrides(selectedRooms, parsedBaseRent);
-    setApplyFeedback(
+    window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
+    setBaseRentFeedback(
       `Applied ${formatCurrency(parsedBaseRent)} to ${selectedRooms.length} room(s) on Floor ${selectedFloor}.`
     );
+    setChargeFeedback(null);
+  };
+
+  const handleToggleChargeRule = (ruleId: string) => {
+    setSelectedChargeRuleIds((prev) => {
+      if (prev.includes(ruleId)) {
+        return prev.filter((id) => id !== ruleId);
+      }
+
+      return [...prev, ruleId];
+    });
+
+    setChargeFeedback(null);
+  };
+
+  const handleSelectAllChargeRules = () => {
+    setSelectedChargeRuleIds(activeAdditionalChargeRules.map((rule) => rule.id));
+    setChargeFeedback(null);
+  };
+
+  const handleClearChargeRules = () => {
+    setSelectedChargeRuleIds([]);
+    setChargeFeedback(null);
+  };
+
+  const handleApplyChargeRules = () => {
+    if (selectedRooms.length === 0) {
+      return;
+    }
+
+    if (!hasActiveAdditionalChargeRules && selectedChargeRuleIds.length === 0) {
+      return;
+    }
+
+    applyBulkRoomAdditionalChargeRuleIds(selectedRooms, selectedChargeRuleIds);
+    window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
+
+    if (selectedChargeRuleIds.length === 0) {
+      setChargeFeedback(
+        `Applied no additional charges to ${selectedRooms.length} room(s) on Floor ${selectedFloor}.`
+      );
+    } else {
+      setChargeFeedback(
+        `Applied ${selectedChargeRuleIds.length} charge rule(s) to ${selectedRooms.length} room(s) on Floor ${selectedFloor}.`
+      );
+    }
+
+    setBaseRentFeedback(null);
+  };
+
+  const handleResetChargeOverridesToGlobal = () => {
+    if (selectedRooms.length === 0) {
+      return;
+    }
+
+    resetBulkRoomAdditionalChargeOverrides(selectedRooms);
+    window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
+    setChargeFeedback(
+      `Reset ${selectedRooms.length} room(s) to use global additional charge rules.`
+    );
+    setBaseRentFeedback(null);
   };
 
   const actionFormContent = (
@@ -95,25 +183,112 @@ export default function BulkRoomSetupPage() {
               Please enter a valid base rent amount greater than 0.
             </p>
           )}
-          {applyFeedback && (
+          {baseRentFeedback && (
             <p className="mt-2 text-sm font-medium text-secondary">
-              {applyFeedback}
+              {baseRentFeedback}
             </p>
           )}
         </div>
+
+        <button
+          onClick={handleApplyBaseRent}
+          disabled={!isBaseRentValid}
+          className={`w-full h-14 rounded-xl bg-linear-to-b from-primary to-primary-container text-on-primary font-bold text-lg flex items-center justify-center shadow-lg shadow-primary/20 transition-all ${
+            isBaseRentValid
+              ? 'hover:opacity-90 active:scale-[0.98]'
+              : 'opacity-50 cursor-not-allowed'
+          }`}
+        >
+          Apply Base Rent
+        </button>
       </div>
 
-      <button
-        onClick={handleApply}
-        disabled={!isBaseRentValid}
-        className={`w-full h-14 rounded-xl bg-linear-to-b from-primary to-primary-container text-on-primary font-bold text-lg flex items-center justify-center shadow-lg shadow-primary/20 transition-all ${
-          isBaseRentValid
-            ? 'hover:opacity-90 active:scale-[0.98]'
-            : 'opacity-50 cursor-not-allowed'
-        }`}
-      >
-        Apply to Selected Rooms
-      </button>
+      <div className="border-t border-surface-container pt-6 space-y-5">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-lg font-bold text-on-surface">Additional Charge Rules</h3>
+          <span className="text-xs font-bold text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-lg">
+            {selectedChargeRuleIds.length}/{activeAdditionalChargeRules.length} selected
+          </span>
+        </div>
+
+        {!hasActiveAdditionalChargeRules ? (
+          <div className="rounded-xl bg-surface-container-low p-4 text-sm font-medium text-on-surface-variant text-center">
+            No active additional charge rules found. Add rules in Property Settings first.
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {activeAdditionalChargeRules.map((rule) => {
+                const isSelected = selectedChargeRuleIds.includes(rule.id);
+
+                return (
+                  <button
+                    key={rule.id}
+                    onClick={() => handleToggleChargeRule(rule.id)}
+                    className={`rounded-xl border p-3 text-left transition-all ${
+                      isSelected
+                        ? 'border-primary bg-primary/5'
+                        : 'border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low'
+                    }`}
+                  >
+                    <p className="text-sm font-bold text-on-surface">{rule.name}</p>
+                    <p className="text-xs font-medium text-on-surface-variant">
+                      {formatCurrency(Math.round(rule.amount))}/room
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={handleSelectAllChargeRules}
+                className="h-10 px-3 rounded-lg text-xs font-bold border border-outline-variant text-on-surface hover:bg-surface-container-low transition-all active:scale-95"
+              >
+                Select All
+              </button>
+              <button
+                onClick={handleClearChargeRules}
+                className="h-10 px-3 rounded-lg text-xs font-bold border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-all active:scale-95"
+              >
+                Clear Selection
+              </button>
+            </div>
+
+            <p className="text-xs font-medium text-on-surface-variant">
+              Selected additional charges: {formatCurrency(Math.round(selectedChargeTotal))} per occupied room
+            </p>
+          </>
+        )}
+
+        <button
+          onClick={handleApplyChargeRules}
+          disabled={selectedRooms.length === 0 || (!hasActiveAdditionalChargeRules && selectedChargeRuleIds.length === 0)}
+          className={`w-full h-12 rounded-xl bg-secondary text-on-secondary font-bold text-sm flex items-center justify-center transition-all ${
+            selectedRooms.length === 0 || (!hasActiveAdditionalChargeRules && selectedChargeRuleIds.length === 0)
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:opacity-90 active:scale-[0.98]'
+          }`}
+        >
+          Apply Charge Rules to Selected Rooms
+        </button>
+
+        <button
+          onClick={handleResetChargeOverridesToGlobal}
+          disabled={selectedRooms.length === 0}
+          className={`w-full h-12 rounded-xl border border-outline-variant text-on-surface font-bold text-sm flex items-center justify-center transition-all ${
+            selectedRooms.length === 0
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-surface-container-low active:scale-[0.98]'
+          }`}
+        >
+          Reset Selected Rooms to Global Rules
+        </button>
+
+        {chargeFeedback && (
+          <p className="text-sm font-medium text-secondary">{chargeFeedback}</p>
+        )}
+      </div>
     </>
   );
 

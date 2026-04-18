@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { MOCK_ROOMS } from '@/services/mockData';
 import { applyRoomPricingOverrides } from '@/services/roomPricingOverrides';
 import {
-  loadActiveAdditionalChargeRuleCount,
-  loadAdditionalChargePerRoom,
+  buildRoomAdditionalChargeContext,
+  calculateAdditionalChargeForRoomNumber,
 } from '@/services/additionalChargeRules';
 import { formatCurrency } from '@/utils/currency';
 import PageHeader from '@/components/layout/PageHeader';
@@ -14,11 +14,11 @@ import PageHeader from '@/components/layout/PageHeader';
 export default function GenerateBillsPage() {
   const router = useRouter();
   const rooms = useMemo(() => applyRoomPricingOverrides(MOCK_ROOMS), []);
-  const additionalChargePerRoom = useMemo(() => loadAdditionalChargePerRoom(), []);
-  const activeAdditionalChargeRuleCount = useMemo(
-    () => loadActiveAdditionalChargeRuleCount(),
+  const additionalChargeContext = useMemo(
+    () => buildRoomAdditionalChargeContext(),
     []
   );
+  const activeAdditionalChargeRuleCount = additionalChargeContext.activeRuleIds.length;
   const unbilledRooms = useMemo(
     () => rooms.filter((r) => r.occupancy === 'occupied'),
     [rooms]
@@ -46,17 +46,29 @@ export default function GenerateBillsPage() {
     }
   };
 
-  const estimatedRevenue = useMemo(
-    () =>
-      unbilledRooms
-        .filter((r) => selectedIds.has(r.id))
-        .reduce(
-          (sum, room) =>
-            sum + room.baseRent + (room.occupancy === 'occupied' ? additionalChargePerRoom : 0),
-          0
-        ),
-    [additionalChargePerRoom, selectedIds, unbilledRooms]
-  );
+  const revenueBreakdown = useMemo(() => {
+    return unbilledRooms
+      .filter((room) => selectedIds.has(room.id))
+      .reduce(
+        (acc, room) => {
+          const roomAdditionalCharge = calculateAdditionalChargeForRoomNumber(
+            room.number,
+            additionalChargeContext
+          );
+
+          acc.baseRevenue += room.baseRent;
+          acc.additionalRevenue += roomAdditionalCharge;
+
+          return acc;
+        },
+        {
+          baseRevenue: 0,
+          additionalRevenue: 0,
+        }
+      );
+  }, [additionalChargeContext, selectedIds, unbilledRooms]);
+
+  const estimatedRevenue = revenueBreakdown.baseRevenue + revenueBreakdown.additionalRevenue;
 
   const selectedRooms = useMemo(
     () => unbilledRooms.filter((room) => selectedIds.has(room.id)),
@@ -76,8 +88,8 @@ export default function GenerateBillsPage() {
 
       setGenerationFeedback(
         `Generated ${selectedRooms.length} invoice(s) totaling ${formatCurrency(estimatedRevenue)}${
-          activeAdditionalChargeRuleCount > 0
-            ? ` (including ${formatCurrency(additionalChargePerRoom)} extra charges per room).`
+          revenueBreakdown.additionalRevenue > 0
+            ? ` (including ${formatCurrency(revenueBreakdown.additionalRevenue)} additional charges).`
             : '.'
         }`
       );
@@ -122,8 +134,8 @@ export default function GenerateBillsPage() {
             </p>
             {activeAdditionalChargeRuleCount > 0 && (
               <p className="text-xs font-medium text-on-surface-variant">
-                Includes {formatCurrency(additionalChargePerRoom)} extra charges per room from{' '}
-                {activeAdditionalChargeRuleCount} active rule
+                Includes {formatCurrency(revenueBreakdown.additionalRevenue)} additional charges
+                from {activeAdditionalChargeRuleCount} active rule
                 {activeAdditionalChargeRuleCount === 1 ? '' : 's'}.
               </p>
             )}
@@ -170,6 +182,11 @@ export default function GenerateBillsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {unbilledRooms.map((room) => {
             const selected = selectedIds.has(room.id);
+            const roomAdditionalCharge = calculateAdditionalChargeForRoomNumber(
+              room.number,
+              additionalChargeContext
+            );
+
             return (
               <div
                 key={room.id}
@@ -203,11 +220,11 @@ export default function GenerateBillsPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-base font-bold text-on-surface">
-                    {formatCurrency(room.baseRent + additionalChargePerRoom)}
+                    {formatCurrency(room.baseRent + roomAdditionalCharge)}
                   </p>
-                  {activeAdditionalChargeRuleCount > 0 && (
+                  {roomAdditionalCharge > 0 && (
                     <p className="text-[10px] font-medium text-on-surface-variant">
-                      Base {formatCurrency(room.baseRent)} + Extra {formatCurrency(additionalChargePerRoom)}
+                      Base {formatCurrency(room.baseRent)} + Extra {formatCurrency(roomAdditionalCharge)}
                     </p>
                   )}
                   <span className="inline-block px-2 py-0.5 rounded-sm bg-surface-container text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter mt-1">
