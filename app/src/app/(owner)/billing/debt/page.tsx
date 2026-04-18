@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
 import {
   settleDebtByRoomNumber,
   sendBulkDebtRemindersByIds,
   sendDebtReminder,
   type DebtCollectionQueueItem,
 } from '@/services/debtReminderQueue';
-import { buildOwnerBillingState } from '@/services/ownerBillingState';
 import { setRoomBillingStatusOverride } from '@/services/roomBillingStatusOverrides';
 import { formatCurrency } from '@/utils/currency';
 import { getRelativeTime } from '@/utils/date';
@@ -16,7 +16,7 @@ import PageHeader from '@/components/layout/PageHeader';
 
 export default function DebtCollectionPage() {
   const router = useRouter();
-  const [billingState, setBillingState] = useState(() => buildOwnerBillingState());
+  const { billingState, refreshBillingState } = useOwnerBillingState();
   const [isBulkSending, setIsBulkSending] = useState(false);
   const [activeReminderId, setActiveReminderId] = useState<string | null>(null);
   const [activeSettlementRoom, setActiveSettlementRoom] = useState<string | null>(null);
@@ -27,20 +27,6 @@ export default function DebtCollectionPage() {
     isBulkSending ||
     Boolean(activeReminderId) ||
     Boolean(activeSettlementRoom);
-
-  useEffect(() => {
-    const refreshBillingState = () => {
-      setBillingState(buildOwnerBillingState());
-    };
-
-    window.addEventListener('storage', refreshBillingState);
-    window.addEventListener('estate_clarity.billing_state_updated', refreshBillingState);
-
-    return () => {
-      window.removeEventListener('storage', refreshBillingState);
-      window.removeEventListener('estate_clarity.billing_state_updated', refreshBillingState);
-    };
-  }, []);
 
   const handleSendBulkReminder = async () => {
     if (isActionInProgress || debts.length === 0) return;
@@ -55,7 +41,7 @@ export default function DebtCollectionPage() {
 
       const debtIds = debts.map((debt) => debt.id);
       sendBulkDebtRemindersByIds(debtIds);
-      setBillingState(buildOwnerBillingState());
+      refreshBillingState();
       setFeedback(`Bulk reminder sent to ${debtIds.length} room(s).`);
     } finally {
       setIsBulkSending(false);
@@ -74,7 +60,7 @@ export default function DebtCollectionPage() {
       });
 
       sendDebtReminder(debt.id);
-      setBillingState(buildOwnerBillingState());
+      refreshBillingState();
       setFeedback(`Reminder sent to Room ${debt.roomNumber}.`);
     } finally {
       setActiveReminderId(null);
@@ -83,6 +69,12 @@ export default function DebtCollectionPage() {
 
   const handleCallTenant = (phone: string) => {
     if (isActionInProgress) return;
+
+    if (!phone || phone.trim() === '' || phone === '-') {
+      setFeedback('No phone number is available for this room.');
+      return;
+    }
+
     window.location.href = `tel:${phone}`;
   };
 
@@ -100,7 +92,7 @@ export default function DebtCollectionPage() {
       settleDebtByRoomNumber(debt.roomNumber);
       setRoomBillingStatusOverride(debt.roomNumber, 'paid');
       window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
-      setBillingState(buildOwnerBillingState());
+      refreshBillingState();
       setFeedback(`Room ${debt.roomNumber} marked as settled.`);
     } finally {
       setActiveSettlementRoom(null);
@@ -172,6 +164,7 @@ export default function DebtCollectionPage() {
               {debts.map((debt) => {
                 const isSendingForDebt = activeReminderId === debt.id;
                 const isSettlingForDebt = activeSettlementRoom === debt.roomNumber;
+                const hasCallablePhone = debt.phone.trim() !== '' && debt.phone !== '-';
 
                 return (
                   <div
@@ -223,15 +216,15 @@ export default function DebtCollectionPage() {
                       </button>
                       <button
                         onClick={() => handleCallTenant(debt.phone)}
-                        disabled={isActionInProgress}
+                        disabled={isActionInProgress || !hasCallablePhone}
                         className={`h-12 border-2 border-primary text-primary font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm ${
-                          isActionInProgress
+                          isActionInProgress || !hasCallablePhone
                             ? 'opacity-60 cursor-not-allowed'
                             : 'active:scale-95'
                         }`}
                       >
                         <span className="material-symbols-outlined text-lg">call</span>
-                        Call Tenant
+                        {hasCallablePhone ? 'Call Tenant' : 'No Phone'}
                       </button>
                     </div>
 

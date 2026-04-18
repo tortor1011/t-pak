@@ -162,6 +162,7 @@ export function reviewSlipVerification(
         roomNumber: reviewedSlip.roomNumber,
         tenantName: reviewedSlip.tenantName,
         amount: reviewedSlip.amount,
+        observedAt: reviewedSlip.uploadedAt,
       });
     }
   }

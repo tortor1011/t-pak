@@ -4,12 +4,21 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { MOCK_ROOMS } from '@/services/mockData';
 import { applyRoomPricingOverrides } from '@/services/roomPricingOverrides';
+import {
+  loadActiveAdditionalChargeRuleCount,
+  loadAdditionalChargePerRoom,
+} from '@/services/additionalChargeRules';
 import { formatCurrency } from '@/utils/currency';
 import PageHeader from '@/components/layout/PageHeader';
 
 export default function GenerateBillsPage() {
   const router = useRouter();
   const rooms = useMemo(() => applyRoomPricingOverrides(MOCK_ROOMS), []);
+  const additionalChargePerRoom = useMemo(() => loadAdditionalChargePerRoom(), []);
+  const activeAdditionalChargeRuleCount = useMemo(
+    () => loadActiveAdditionalChargeRuleCount(),
+    []
+  );
   const unbilledRooms = useMemo(
     () => rooms.filter((r) => r.occupancy === 'occupied'),
     [rooms]
@@ -41,8 +50,12 @@ export default function GenerateBillsPage() {
     () =>
       unbilledRooms
         .filter((r) => selectedIds.has(r.id))
-        .reduce((sum, r) => sum + r.baseRent, 0),
-    [selectedIds, unbilledRooms]
+        .reduce(
+          (sum, room) =>
+            sum + room.baseRent + (room.occupancy === 'occupied' ? additionalChargePerRoom : 0),
+          0
+        ),
+    [additionalChargePerRoom, selectedIds, unbilledRooms]
   );
 
   const selectedRooms = useMemo(
@@ -62,7 +75,11 @@ export default function GenerateBillsPage() {
       });
 
       setGenerationFeedback(
-        `Generated ${selectedRooms.length} invoice(s) totaling ${formatCurrency(estimatedRevenue)}.`
+        `Generated ${selectedRooms.length} invoice(s) totaling ${formatCurrency(estimatedRevenue)}${
+          activeAdditionalChargeRuleCount > 0
+            ? ` (including ${formatCurrency(additionalChargePerRoom)} extra charges per room).`
+            : '.'
+        }`
       );
     } finally {
       setIsGenerating(false);
@@ -103,6 +120,13 @@ export default function GenerateBillsPage() {
             <p className="text-2xl font-bold text-on-surface">
               {formatCurrency(estimatedRevenue)}
             </p>
+            {activeAdditionalChargeRuleCount > 0 && (
+              <p className="text-xs font-medium text-on-surface-variant">
+                Includes {formatCurrency(additionalChargePerRoom)} extra charges per room from{' '}
+                {activeAdditionalChargeRuleCount} active rule
+                {activeAdditionalChargeRuleCount === 1 ? '' : 's'}.
+              </p>
+            )}
           </div>
         </section>
 
@@ -179,8 +203,13 @@ export default function GenerateBillsPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-base font-bold text-on-surface">
-                    {formatCurrency(room.baseRent)}
+                    {formatCurrency(room.baseRent + additionalChargePerRoom)}
                   </p>
+                  {activeAdditionalChargeRuleCount > 0 && (
+                    <p className="text-[10px] font-medium text-on-surface-variant">
+                      Base {formatCurrency(room.baseRent)} + Extra {formatCurrency(additionalChargePerRoom)}
+                    </p>
+                  )}
                   <span className="inline-block px-2 py-0.5 rounded-sm bg-surface-container text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter mt-1">
                     Meter: Apr 01
                   </span>

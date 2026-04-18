@@ -1,34 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import { buildOwnerBillingState } from '@/services/ownerBillingState';
+import { useMemo } from 'react';
+import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
 import { formatCurrency } from '@/utils/currency';
 
 export default function BillingPage() {
-  const [billingState, setBillingState] = useState(() => buildOwnerBillingState());
+  const { billingState } = useOwnerBillingState();
 
   const summary = billingState.summary;
   const pendingSlipCount = billingState.pendingSlipCount;
   const activeDebtCount = billingState.activeDebtQueue.length;
-
-  useEffect(() => {
-    const refreshBillingState = () => {
-      setBillingState(buildOwnerBillingState());
-    };
-
-    refreshBillingState();
-
-    const handleStorage = () => refreshBillingState();
-    const handleBillingStateUpdated = () => refreshBillingState();
-
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener('estate_clarity.billing_state_updated', handleBillingStateUpdated);
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('estate_clarity.billing_state_updated', handleBillingStateUpdated);
-    };
-  }, []);
 
   const billingActions = useMemo(
     () => [

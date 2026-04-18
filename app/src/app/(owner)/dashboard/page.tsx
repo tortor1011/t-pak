@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { buildOwnerBillingState } from '@/services/ownerBillingState';
+import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
 import { formatCurrency } from '@/utils/currency';
 import RoomCard from '@/components/ui/RoomCard';
 import SearchInput from '@/components/ui/SearchInput';
@@ -11,23 +11,9 @@ import FilterTabs from '@/components/ui/FilterTabs';
 export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
-  const [billingState, setBillingState] = useState(() => buildOwnerBillingState());
+  const { billingState } = useOwnerBillingState();
   const rooms = billingState.rooms;
   const summary = billingState.summary;
-
-  useEffect(() => {
-    const refreshBillingState = () => {
-      setBillingState(buildOwnerBillingState());
-    };
-
-    window.addEventListener('storage', refreshBillingState);
-    window.addEventListener('estate_clarity.billing_state_updated', refreshBillingState);
-
-    return () => {
-      window.removeEventListener('storage', refreshBillingState);
-      window.removeEventListener('estate_clarity.billing_state_updated', refreshBillingState);
-    };
-  }, []);
 
   const filteredRooms = useMemo(() => {
     let filtered = rooms;
