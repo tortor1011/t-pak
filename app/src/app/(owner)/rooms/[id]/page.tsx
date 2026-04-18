@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { MOCK_ROOMS, MOCK_BILLS } from '@/services/mockData';
 import { buildOwnerRooms } from '@/services/ownerRooms';
+import {
+  buildRoomAdditionalChargeContext,
+  calculateAdditionalChargeForRoomNumber,
+} from '@/services/additionalChargeRules';
+import { getRoomAdditionalChargeRuleIds } from '@/services/roomAdditionalChargeOverrides';
+import type { AdditionalChargeRule } from '@/services/propertySettings';
 import { formatCurrency } from '@/utils/currency';
 import StatusBadge from '@/components/ui/StatusBadge';
 import PageHeader from '@/components/layout/PageHeader';
@@ -40,6 +46,49 @@ export default function RoomDetailPage() {
         ),
     [roomId]
   );
+
+  const additionalChargeContext = buildRoomAdditionalChargeContext();
+
+  const roomChargeOverrideIds = useMemo(() => {
+    if (!room) {
+      return undefined;
+    }
+
+    return getRoomAdditionalChargeRuleIds(room.number);
+  }, [room]);
+
+  const isUsingGlobalChargeRules = roomChargeOverrideIds === undefined;
+
+  const effectiveChargeRules = useMemo(() => {
+    if (!room) {
+      return [];
+    }
+
+    const effectiveRuleIds =
+      roomChargeOverrideIds ?? additionalChargeContext.activeRuleIds;
+
+    return effectiveRuleIds
+      .map((ruleId) => additionalChargeContext.activeRulesById.get(ruleId))
+      .filter((rule): rule is AdditionalChargeRule => rule !== undefined);
+  }, [additionalChargeContext, room, roomChargeOverrideIds]);
+
+  const ignoredOverrideRuleIds = useMemo(() => {
+    if (!roomChargeOverrideIds) {
+      return [];
+    }
+
+    return roomChargeOverrideIds.filter(
+      (ruleId) => !additionalChargeContext.activeRulesById.has(ruleId)
+    );
+  }, [additionalChargeContext, roomChargeOverrideIds]);
+
+  const roomAdditionalCharge = useMemo(() => {
+    if (!room || room.occupancy !== 'occupied') {
+      return 0;
+    }
+
+    return calculateAdditionalChargeForRoomNumber(room.number, additionalChargeContext);
+  }, [additionalChargeContext, room]);
 
   if (!room) {
     return (
@@ -139,6 +188,73 @@ export default function RoomDetailPage() {
             <span className="font-bold opacity-90">Base Room Rate</span>
             <span className="text-2xl font-black">{formatCurrency(room.baseRent)}</span>
           </div>
+        </section>
+
+        {/* Additional Charges Debug */}
+        <section className="bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_50px_rgba(18,28,40,0.05)] space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-extrabold tracking-tight text-on-surface">
+              Additional Charge Assignment
+            </h3>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                isUsingGlobalChargeRules
+                  ? 'bg-secondary-container/30 text-secondary'
+                  : 'bg-primary/10 text-primary'
+              }`}
+            >
+              {isUsingGlobalChargeRules ? 'Global Rules' : 'Room Override'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl bg-surface-container-low p-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                Applied This Month
+              </p>
+              <p className="text-sm font-medium text-on-surface-variant">
+                {room.occupancy === 'occupied'
+                  ? 'Calculated from effective charge rules'
+                  : 'Vacant room has no additional charges'}
+              </p>
+            </div>
+            <p className="text-2xl font-black text-on-surface">
+              {formatCurrency(roomAdditionalCharge)}
+            </p>
+          </div>
+
+          {effectiveChargeRules.length === 0 ? (
+            <div className="rounded-xl bg-surface-container-low p-4 text-sm font-medium text-on-surface-variant text-center">
+              No active additional charge rules currently apply to this room.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {effectiveChargeRules.map((rule) => (
+                <div
+                  key={rule.id}
+                  className="rounded-xl bg-surface-container-low p-3 border border-surface-container-high"
+                >
+                  <p className="text-sm font-bold text-on-surface">{rule.name}</p>
+                  <p className="text-xs font-medium text-on-surface-variant">
+                    {formatCurrency(Math.round(rule.amount))} per month
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {ignoredOverrideRuleIds.length > 0 && (
+            <div className="rounded-xl bg-error-container/20 p-3 text-xs font-medium text-error">
+              Ignored override rule id
+              {ignoredOverrideRuleIds.length === 1 ? '' : 's'}: {ignoredOverrideRuleIds.join(', ')}
+            </div>
+          )}
+
+          <p className="text-xs text-on-surface-variant font-medium leading-relaxed">
+            {isUsingGlobalChargeRules
+              ? 'This room currently follows all active global additional charge rules from Property Settings.'
+              : 'This room currently uses a custom additional charge selection from Bulk Room Setup.'}
+          </p>
         </section>
 
         {/* Billing History */}
