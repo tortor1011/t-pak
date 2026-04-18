@@ -1,31 +1,47 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { MOCK_ROOMS } from '@/services/mockData';
+import { buildOwnerRooms } from '@/services/ownerRooms';
 import { formatCurrency } from '@/utils/currency';
 import SearchInput from '@/components/ui/SearchInput';
 import StatusBadge from '@/components/ui/StatusBadge';
 
 export default function RoomsPage() {
   const [search, setSearch] = useState('');
+  const [rooms, setRooms] = useState(() => buildOwnerRooms(MOCK_ROOMS));
+
+  useEffect(() => {
+    const refreshRoomsState = () => {
+      setRooms(buildOwnerRooms(MOCK_ROOMS));
+    };
+
+    window.addEventListener('storage', refreshRoomsState);
+    window.addEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
+
+    return () => {
+      window.removeEventListener('storage', refreshRoomsState);
+      window.removeEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
+    };
+  }, []);
 
   const filteredRooms = useMemo(() => {
-    if (!search) return MOCK_ROOMS;
+    if (!search) return rooms;
     const q = search.toLowerCase();
-    return MOCK_ROOMS.filter(
+    return rooms.filter(
       (r) =>
         r.number.includes(q) ||
         r.tenantName?.toLowerCase().includes(q)
     );
-  }, [search]);
+  }, [rooms, search]);
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 page-transition">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold tracking-tight">Room Directory</h2>
         <span className="text-on-surface-variant font-medium text-sm">
-          {MOCK_ROOMS.length} rooms
+          {rooms.length} rooms
         </span>
       </div>
 
@@ -35,7 +51,7 @@ export default function RoomsPage() {
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-surface-container-lowest p-4 rounded-2xl text-center shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
           <p className="text-2xl font-black text-primary">
-            {MOCK_ROOMS.filter((r) => r.occupancy === 'occupied').length}
+            {rooms.filter((r) => r.occupancy === 'occupied').length}
           </p>
           <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
             Occupied
@@ -43,14 +59,14 @@ export default function RoomsPage() {
         </div>
         <div className="bg-surface-container-lowest p-4 rounded-2xl text-center shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
           <p className="text-2xl font-black text-secondary">
-            {MOCK_ROOMS.filter((r) => r.occupancy === 'vacant').length}
+            {rooms.filter((r) => r.occupancy === 'vacant').length}
           </p>
           <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
             Vacant
           </p>
         </div>
         <div className="bg-surface-container-lowest p-4 rounded-2xl text-center shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
-          <p className="text-2xl font-black text-on-surface">{MOCK_ROOMS.length}</p>
+          <p className="text-2xl font-black text-on-surface">{rooms.length}</p>
           <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
             Total
           </p>

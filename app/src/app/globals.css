@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "animate.css";
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
 
 /* ============================================
    Estate Clarity — Design System (M3 Tokens)
@@ -71,7 +72,7 @@
   --color-inverse-on-surface: #eaf1ff;
 
   /* ── Font ── */
-  --font-kanit: "Kanit", sans-serif;
+  --font-kanit: var(--font-app), sans-serif;
 
   /* ── Border radius override ── */
   --radius-sm: 0.25rem;
@@ -84,7 +85,7 @@
 
 /* ── Global Styles ── */
 body {
-  font-family: "Kanit", sans-serif;
+  font-family: var(--font-kanit);
   background-color: var(--color-surface);
   color: var(--color-on-surface);
   -webkit-tap-highlight-color: transparent;

@@ -1,4 +1,5 @@
 import { Room } from '@/types/room';
+import Image from 'next/image';
 import StatusBadge from './StatusBadge';
 import { formatCurrency } from '@/utils/currency';
 
@@ -33,10 +34,12 @@ export default function RoomCard({ room, onClick, actionButton }: RoomCardProps)
       ) : (
         <div className="h-12 w-12 rounded-full bg-surface-container overflow-hidden flex items-center justify-center">
           {room.tenantAvatar ? (
-            <img
+            <Image
               className="w-full h-full object-cover"
               src={room.tenantAvatar}
               alt={room.tenantName ?? ''}
+              width={48}
+              height={48}
             />
           ) : (
             <span className="material-symbols-outlined text-outline">person</span>

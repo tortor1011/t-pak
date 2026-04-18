@@ -1,12 +1,172 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import {
+  loadPropertySettings,
+  savePropertySettings,
+  type PropertySettingsValues,
+} from '@/services/propertySettings';
+
+interface SettingsFormState {
+  electricityRate: string;
+  waterRate: string;
+  lateFee: string;
+  lateFeeDay: string;
+}
+
+function normalizeNumericInput(value: string, allowDecimal: boolean): string {
+  const sanitized = allowDecimal
+    ? value.replace(/[^\d.]/g, '')
+    : value.replace(/[^\d]/g, '');
+
+  if (!allowDecimal) {
+    return sanitized;
+  }
+
+  const [whole, ...decimals] = sanitized.split('.');
+  return decimals.length > 0 ? `${whole}.${decimals.join('')}` : whole;
+}
+
+function toFormState(values: PropertySettingsValues): SettingsFormState {
+  return {
+    electricityRate: values.electricityRate.toString(),
+    waterRate: values.waterRate.toString(),
+    lateFee: values.lateFee.toString(),
+    lateFeeDay: values.lateFeeDay.toString(),
+  };
+}
 
 export default function SettingsPage() {
-  const [electricityRate, setElectricityRate] = useState('8');
-  const [waterRate, setWaterRate] = useState('20');
-  const [lateFee, setLateFee] = useState('200');
-  const [lateFeeDay, setLateFeeDay] = useState('5');
+  const initialSettings = useMemo<PropertySettingsValues>(() => {
+    const loaded = loadPropertySettings();
+
+    return {
+      electricityRate: loaded.electricityRate,
+      waterRate: loaded.waterRate,
+      lateFee: loaded.lateFee,
+      lateFeeDay: loaded.lateFeeDay,
+    };
+  }, []);
+
+  const [savedSettings, setSavedSettings] =
+    useState<PropertySettingsValues>(initialSettings);
+  const [form, setForm] = useState<SettingsFormState>(() =>
+    toFormState(initialSettings)
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const parsedValues = useMemo<PropertySettingsValues | null>(() => {
+    const electricityRate = Number.parseFloat(form.electricityRate);
+    const waterRate = Number.parseFloat(form.waterRate);
+    const lateFee = Number.parseFloat(form.lateFee);
+    const lateFeeDay = Number.parseInt(form.lateFeeDay, 10);
+
+    if (
+      !Number.isFinite(electricityRate) ||
+      !Number.isFinite(waterRate) ||
+      !Number.isFinite(lateFee) ||
+      !Number.isFinite(lateFeeDay)
+    ) {
+      return null;
+    }
+
+    return {
+      electricityRate,
+      waterRate,
+      lateFee,
+      lateFeeDay,
+    };
+  }, [form]);
+
+  const validationError = useMemo(() => {
+    if (!parsedValues) {
+      return 'Please fill all fields with numeric values.';
+    }
+
+    if (parsedValues.electricityRate <= 0) {
+      return 'Electricity rate must be greater than 0.';
+    }
+
+    if (parsedValues.waterRate <= 0) {
+      return 'Water rate must be greater than 0.';
+    }
+
+    if (parsedValues.lateFee <= 0) {
+      return 'Late fee must be greater than 0.';
+    }
+
+    if (!Number.isInteger(parsedValues.lateFeeDay) || parsedValues.lateFeeDay < 0) {
+      return 'Grace period must be a whole number that is 0 or greater.';
+    }
+
+    return null;
+  }, [parsedValues]);
+
+  const hasUnsavedChanges = useMemo(() => {
+    if (!parsedValues) {
+      return true;
+    }
+
+    return (
+      parsedValues.electricityRate !== savedSettings.electricityRate ||
+      parsedValues.waterRate !== savedSettings.waterRate ||
+      parsedValues.lateFee !== savedSettings.lateFee ||
+      parsedValues.lateFeeDay !== savedSettings.lateFeeDay
+    );
+  }, [parsedValues, savedSettings]);
+
+  const canSave = !isSaving && !validationError && hasUnsavedChanges;
+
+  const handleValueChange = (
+    field: keyof SettingsFormState,
+    value: string,
+    allowDecimal: boolean
+  ) => {
+    const normalized = normalizeNumericInput(value, allowDecimal);
+
+    setForm((prev) => ({
+      ...prev,
+      [field]: normalized,
+    }));
+
+    setSaveError(null);
+    setSaveFeedback(null);
+  };
+
+  const handleSave = async () => {
+    if (isSaving) return;
+
+    if (validationError || !parsedValues) {
+      setSaveError(validationError ?? 'Please check the form values.');
+      return;
+    }
+
+    if (!hasUnsavedChanges) {
+      setSaveFeedback('No changes to save.');
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveFeedback(null);
+
+    try {
+      await new Promise<void>((resolve) => {
+        window.setTimeout(() => resolve(), 500);
+      });
+
+      const savedSnapshot = savePropertySettings(parsedValues);
+
+      setSavedSettings(parsedValues);
+      setSaveFeedback(
+        `Settings saved at ${new Date(savedSnapshot.updatedAt).toLocaleTimeString()}.`
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="px-6 py-8 space-y-8 page-transition">
@@ -52,8 +212,10 @@ export default function SettingsPage() {
               <input
                 className="w-full h-14 pl-10 pr-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary font-bold text-lg"
                 type="number"
-                value={electricityRate}
-                onChange={(e) => setElectricityRate(e.target.value)}
+                value={form.electricityRate}
+                onChange={(e) =>
+                  handleValueChange('electricityRate', e.target.value, true)
+                }
               />
             </div>
           </div>
@@ -71,8 +233,8 @@ export default function SettingsPage() {
               <input
                 className="w-full h-14 pl-10 pr-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary font-bold text-lg"
                 type="number"
-                value={waterRate}
-                onChange={(e) => setWaterRate(e.target.value)}
+                value={form.waterRate}
+                onChange={(e) => handleValueChange('waterRate', e.target.value, true)}
               />
             </div>
           </div>
@@ -94,8 +256,8 @@ export default function SettingsPage() {
               <input
                 className="w-full h-14 pl-10 pr-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary font-bold text-lg"
                 type="number"
-                value={lateFee}
-                onChange={(e) => setLateFee(e.target.value)}
+                value={form.lateFee}
+                onChange={(e) => handleValueChange('lateFee', e.target.value, true)}
               />
             </div>
           </div>
@@ -106,24 +268,42 @@ export default function SettingsPage() {
             <input
               className="w-full h-14 px-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary font-bold text-lg"
               type="number"
-              value={lateFeeDay}
-              onChange={(e) => setLateFeeDay(e.target.value)}
+              value={form.lateFeeDay}
+              onChange={(e) => handleValueChange('lateFeeDay', e.target.value, false)}
             />
           </div>
           <div className="flex items-start space-x-2 p-3 bg-tertiary-fixed/20 rounded-xl">
             <span className="material-symbols-outlined text-tertiary text-lg mt-0.5">info</span>
             <p className="text-xs text-tertiary font-medium leading-relaxed">
-              Late fee of ฿{lateFee}/day will be applied after {lateFeeDay} days past due date
+              Late fee of ฿{form.lateFee || '0'}/day will be applied after {form.lateFeeDay || '0'} days past due date
             </p>
           </div>
         </div>
       </section>
 
       {/* Save Button */}
-      <button className="w-full h-14 btn-primary-gradient text-on-primary rounded-2xl font-bold text-lg shadow-[0_8px_20px_rgba(0,74,198,0.2)] active:scale-95 transition-all flex items-center justify-center gap-3">
+      <button
+        onClick={handleSave}
+        disabled={!canSave}
+        className={`w-full h-14 btn-primary-gradient text-on-primary rounded-2xl font-bold text-lg shadow-[0_8px_20px_rgba(0,74,198,0.2)] transition-all flex items-center justify-center gap-3 ${
+          canSave ? 'active:scale-95' : 'opacity-60 cursor-not-allowed'
+        }`}
+      >
         <span className="material-symbols-outlined">save</span>
-        Save Settings
+        {isSaving ? 'Saving Settings...' : hasUnsavedChanges ? 'Save Settings' : 'Settings Saved'}
       </button>
+
+      {saveError && (
+        <p className="px-4 py-3 rounded-xl bg-error-container/20 text-error text-sm font-medium">
+          {saveError}
+        </p>
+      )}
+
+      {saveFeedback && (
+        <p className="px-4 py-3 rounded-xl bg-secondary-container/30 text-secondary text-sm font-medium">
+          {saveFeedback}
+        </p>
+      )}
 
       {/* App Info */}
       <div className="text-center pt-4">

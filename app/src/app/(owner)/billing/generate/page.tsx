@@ -3,15 +3,22 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { MOCK_ROOMS } from '@/services/mockData';
+import { applyRoomPricingOverrides } from '@/services/roomPricingOverrides';
 import { formatCurrency } from '@/utils/currency';
 import PageHeader from '@/components/layout/PageHeader';
 
 export default function GenerateBillsPage() {
   const router = useRouter();
-  const unbilledRooms = MOCK_ROOMS.filter((r) => r.occupancy === 'occupied');
+  const rooms = useMemo(() => applyRoomPricingOverrides(MOCK_ROOMS), []);
+  const unbilledRooms = useMemo(
+    () => rooms.filter((r) => r.occupancy === 'occupied'),
+    [rooms]
+  );
   const [selectedIds, setSelectedIds] = useState<Set<string>>(
     new Set(unbilledRooms.map((r) => r.id))
   );
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationFeedback, setGenerationFeedback] = useState<string | null>(null);
 
   const toggleRoom = (id: string) => {
     setSelectedIds((prev) => {
@@ -37,6 +44,30 @@ export default function GenerateBillsPage() {
         .reduce((sum, r) => sum + r.baseRent, 0),
     [selectedIds, unbilledRooms]
   );
+
+  const selectedRooms = useMemo(
+    () => unbilledRooms.filter((room) => selectedIds.has(room.id)),
+    [selectedIds, unbilledRooms]
+  );
+
+  const handleGenerateBills = async () => {
+    if (isGenerating || selectedRooms.length === 0) return;
+
+    setIsGenerating(true);
+    setGenerationFeedback(null);
+
+    try {
+      await new Promise<void>((resolve) => {
+        window.setTimeout(() => resolve(), 500);
+      });
+
+      setGenerationFeedback(
+        `Generated ${selectedRooms.length} invoice(s) totaling ${formatCurrency(estimatedRevenue)}.`
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-surface pb-32 lg:pb-8">
@@ -77,12 +108,25 @@ export default function GenerateBillsPage() {
 
         {/* Primary Action */}
         <section className="space-y-4">
-          <button className="w-full h-[64px] btn-primary-gradient text-on-primary rounded-2xl font-bold text-lg shadow-lg active:scale-95 transition-all duration-200 flex items-center justify-center gap-3">
-            <span>Generate & Send All Invoices</span>
+          <button
+            onClick={handleGenerateBills}
+            disabled={isGenerating || selectedRooms.length === 0}
+            className={`w-full h-16 btn-primary-gradient text-on-primary rounded-2xl font-bold text-lg shadow-lg transition-all duration-200 flex items-center justify-center gap-3 ${
+              isGenerating || selectedRooms.length === 0
+                ? 'opacity-50 cursor-not-allowed'
+                : 'active:scale-95'
+            }`}
+          >
+            <span>{isGenerating ? 'Generating Invoices...' : 'Generate & Send All Invoices'}</span>
           </button>
           <p className="text-center text-on-surface-variant text-sm px-4 leading-relaxed">
             Automatically calculates utilities and notifies tenants via SMS and Email.
           </p>
+          {generationFeedback && (
+            <p className="text-center text-sm font-medium text-secondary">
+              {generationFeedback}
+            </p>
+          )}
         </section>
 
         {/* Room List */}
@@ -90,7 +134,10 @@ export default function GenerateBillsPage() {
           <h3 className="text-lg font-bold text-on-surface">Select Rooms</h3>
           <button
             onClick={toggleAll}
-            className="text-primary font-bold text-sm hover:opacity-80 transition-opacity"
+            disabled={isGenerating}
+            className={`text-primary font-bold text-sm transition-opacity ${
+              isGenerating ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-80'
+            }`}
           >
             {selectedIds.size === unbilledRooms.length ? 'Deselect All' : `Select All (${unbilledRooms.length})`}
           </button>
@@ -102,8 +149,12 @@ export default function GenerateBillsPage() {
             return (
               <div
                 key={room.id}
-                onClick={() => toggleRoom(room.id)}
-                className="bg-surface-container-lowest rounded-3xl p-5 flex items-center gap-5 transition-all hover:bg-surface-container-low cursor-pointer"
+                onClick={() => !isGenerating && toggleRoom(room.id)}
+                className={`bg-surface-container-lowest rounded-3xl p-5 flex items-center gap-5 transition-all ${
+                  isGenerating
+                    ? 'opacity-60 cursor-not-allowed'
+                    : 'hover:bg-surface-container-low cursor-pointer'
+                }`}
               >
                 <div className="shrink-0">
                   <div
@@ -120,7 +171,7 @@ export default function GenerateBillsPage() {
                     )}
                   </div>
                 </div>
-                <div className="flex-grow">
+                <div className="grow">
                   <h4 className="text-lg font-bold text-on-surface">Room {room.number}</h4>
                   <p className="text-on-surface-variant text-sm font-medium">
                     {room.tenantName ?? 'Vacant'}

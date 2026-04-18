@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { MOCK_ROOMS, MOCK_FINANCIAL } from '@/services/mockData';
+import { buildOwnerBillingState } from '@/services/ownerBillingState';
 import { formatCurrency } from '@/utils/currency';
 import RoomCard from '@/components/ui/RoomCard';
 import SearchInput from '@/components/ui/SearchInput';
@@ -11,29 +11,48 @@ import FilterTabs from '@/components/ui/FilterTabs';
 export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [billingState, setBillingState] = useState(() => buildOwnerBillingState());
+  const rooms = billingState.rooms;
+  const summary = billingState.summary;
+
+  useEffect(() => {
+    const refreshBillingState = () => {
+      setBillingState(buildOwnerBillingState());
+    };
+
+    window.addEventListener('storage', refreshBillingState);
+    window.addEventListener('estate_clarity.billing_state_updated', refreshBillingState);
+
+    return () => {
+      window.removeEventListener('storage', refreshBillingState);
+      window.removeEventListener('estate_clarity.billing_state_updated', refreshBillingState);
+    };
+  }, []);
 
   const filteredRooms = useMemo(() => {
-    let rooms = MOCK_ROOMS;
+    let filtered = rooms;
     if (activeTab === 'pending') {
-      rooms = rooms.filter((r) => r.billingStatus === 'pending');
+      filtered = filtered.filter((r) => r.billingStatus === 'pending');
     }
     if (search) {
       const q = search.toLowerCase();
-      rooms = rooms.filter(
+      filtered = filtered.filter(
         (r) => r.number.includes(q) || r.tenantName?.toLowerCase().includes(q)
       );
     }
-    return rooms;
-  }, [activeTab, search]);
+    return filtered;
+  }, [activeTab, rooms, search]);
 
-  const pendingCount = MOCK_ROOMS.filter((r) => r.billingStatus === 'pending').length;
+  const pendingCount = rooms.filter((r) => r.billingStatus === 'pending').length;
   const tabs = [
     { key: 'all', label: 'All' },
     { key: 'pending', label: 'Pending', count: pendingCount },
   ];
 
-  const occupied = MOCK_ROOMS.filter((r) => r.occupancy === 'occupied').length;
-  const vacant = MOCK_ROOMS.filter((r) => r.occupancy === 'vacant').length;
+  const occupancyRate =
+    summary.totalRooms > 0
+      ? Math.round((summary.occupiedRooms / summary.totalRooms) * 100)
+      : 0;
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8 page-transition">
@@ -53,7 +72,7 @@ export default function DashboardPage() {
                 Total Monthly Revenue
               </p>
               <h2 className="text-4xl font-black text-on-surface">
-                {formatCurrency(MOCK_FINANCIAL.totalRevenue)}
+                {formatCurrency(summary.totalRevenue)}
               </h2>
             </div>
             <Link href="/billing/debt">
@@ -65,7 +84,7 @@ export default function DashboardPage() {
                   <div>
                     <p className="text-on-surface-variant text-sm font-semibold">Pending Payments</p>
                     <p className="text-xl font-bold text-tertiary">
-                      {formatCurrency(MOCK_FINANCIAL.pendingPayments)}
+                      {formatCurrency(summary.pendingPayments)}
                     </p>
                   </div>
                 </div>
@@ -81,23 +100,21 @@ export default function DashboardPage() {
         <div className="hidden lg:flex flex-col gap-4">
           <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_10px_40px_rgba(18,28,40,0.03)] flex-1 flex flex-col justify-center">
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Occupied</p>
-            <p className="text-3xl font-black text-primary">{occupied}</p>
-            <p className="text-sm text-on-surface-variant font-medium">of {MOCK_ROOMS.length} rooms</p>
+            <p className="text-3xl font-black text-primary">{summary.occupiedRooms}</p>
+            <p className="text-sm text-on-surface-variant font-medium">of {summary.totalRooms} rooms</p>
           </div>
           <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_10px_40px_rgba(18,28,40,0.03)] flex-1 flex flex-col justify-center">
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Vacant</p>
-            <p className="text-3xl font-black text-secondary">{vacant}</p>
+            <p className="text-3xl font-black text-secondary">{summary.vacantRooms}</p>
             <p className="text-sm text-on-surface-variant font-medium">available now</p>
           </div>
           <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_10px_40px_rgba(18,28,40,0.03)] flex-1 flex flex-col justify-center">
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">Occupancy Rate</p>
-            <p className="text-3xl font-black text-on-surface">
-              {Math.round((occupied / MOCK_ROOMS.length) * 100)}%
-            </p>
+            <p className="text-3xl font-black text-on-surface">{occupancyRate}%</p>
             <div className="w-full h-2 bg-surface-container rounded-full mt-2 overflow-hidden">
               <div
                 className="h-full bg-primary rounded-full"
-                style={{ width: `${(occupied / MOCK_ROOMS.length) * 100}%` }}
+                style={{ width: `${occupancyRate}%` }}
               />
             </div>
           </div>

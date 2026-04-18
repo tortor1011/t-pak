@@ -1,43 +1,77 @@
 'use client';
 
 import Link from 'next/link';
-import { MOCK_FINANCIAL, MOCK_SLIPS, MOCK_DEBTS } from '@/services/mockData';
+import { useEffect, useMemo, useState } from 'react';
+import { buildOwnerBillingState } from '@/services/ownerBillingState';
 import { formatCurrency } from '@/utils/currency';
 
-const BILLING_ACTIONS = [
-  {
-    title: 'Read Meters',
-    description: 'Record electricity & water usage',
-    icon: 'speed',
-    href: '/billing/meter-reading',
-    gradient: true,
-  },
-  {
-    title: 'Generate Bills',
-    description: 'Create invoices for unbilled rooms',
-    icon: 'receipt_long',
-    href: '/billing/generate',
-    gradient: false,
-  },
-  {
-    title: 'Verify Slips',
-    description: `${MOCK_SLIPS.length} slips waiting for review`,
-    icon: 'fact_check',
-    href: '/billing/verify',
-    gradient: false,
-    badge: MOCK_SLIPS.length,
-  },
-  {
-    title: 'Debt Collection',
-    description: `${MOCK_DEBTS.length} rooms with outstanding balance`,
-    icon: 'account_balance_wallet',
-    href: '/billing/debt',
-    gradient: false,
-    badge: MOCK_DEBTS.length,
-  },
-];
-
 export default function BillingPage() {
+  const [billingState, setBillingState] = useState(() => buildOwnerBillingState());
+
+  const summary = billingState.summary;
+  const pendingSlipCount = billingState.pendingSlipCount;
+  const activeDebtCount = billingState.activeDebtQueue.length;
+
+  useEffect(() => {
+    const refreshBillingState = () => {
+      setBillingState(buildOwnerBillingState());
+    };
+
+    refreshBillingState();
+
+    const handleStorage = () => refreshBillingState();
+    const handleBillingStateUpdated = () => refreshBillingState();
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('estate_clarity.billing_state_updated', handleBillingStateUpdated);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('estate_clarity.billing_state_updated', handleBillingStateUpdated);
+    };
+  }, []);
+
+  const billingActions = useMemo(
+    () => [
+      {
+        title: 'Read Meters',
+        description: 'Record electricity & water usage',
+        icon: 'speed',
+        href: '/billing/meter-reading',
+        gradient: true,
+      },
+      {
+        title: 'Generate Bills',
+        description: 'Create invoices for unbilled rooms',
+        icon: 'receipt_long',
+        href: '/billing/generate',
+        gradient: false,
+      },
+      {
+        title: 'Verify Slips',
+        description:
+          pendingSlipCount > 0
+            ? `${pendingSlipCount} slips waiting for review`
+            : 'No slips waiting for review',
+        icon: 'fact_check',
+        href: '/billing/verify',
+        gradient: false,
+        badge: pendingSlipCount > 0 ? pendingSlipCount : undefined,
+      },
+      {
+        title: 'Debt Collection',
+        description:
+          activeDebtCount > 0
+            ? `${activeDebtCount} rooms with outstanding balance`
+            : 'No rooms with outstanding balance',
+        icon: 'account_balance_wallet',
+        href: '/billing/debt',
+        gradient: false,
+        badge: activeDebtCount > 0 ? activeDebtCount : undefined,
+      },
+    ],
+    [activeDebtCount, pendingSlipCount]
+  );
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8 page-transition">
       {/* Summary */}
@@ -48,7 +82,7 @@ export default function BillingPage() {
               Monthly Revenue
             </p>
             <h2 className="text-4xl font-black text-on-surface">
-              {formatCurrency(MOCK_FINANCIAL.totalRevenue)}
+              {formatCurrency(summary.totalRevenue)}
             </h2>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-surface-container flex items-center justify-center">
@@ -59,13 +93,13 @@ export default function BillingPage() {
           <div className="flex-1 bg-secondary-container/20 px-4 py-3 rounded-xl">
             <p className="text-xs font-bold text-on-secondary-container uppercase tracking-wider">Collected</p>
             <p className="text-lg font-bold text-on-secondary-container">
-              {formatCurrency(MOCK_FINANCIAL.totalRevenue - MOCK_FINANCIAL.pendingPayments)}
+              {formatCurrency(summary.collectedRevenue)}
             </p>
           </div>
           <div className="flex-1 bg-tertiary-fixed/40 px-4 py-3 rounded-xl">
             <p className="text-xs font-bold text-tertiary uppercase tracking-wider">Pending</p>
             <p className="text-lg font-bold text-tertiary">
-              {formatCurrency(MOCK_FINANCIAL.pendingPayments)}
+              {formatCurrency(summary.pendingPayments)}
             </p>
           </div>
         </div>
@@ -75,7 +109,7 @@ export default function BillingPage() {
       <section className="space-y-4">
         <h3 className="text-lg font-bold tracking-tight">Billing Lifecycle</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {BILLING_ACTIONS.map((action) => (
+          {billingActions.map((action) => (
             <Link key={action.href} href={action.href}>
               <div
                 className={`p-5 rounded-2xl flex items-center gap-4 active:scale-[0.98] transition-all cursor-pointer h-full ${

@@ -1,5 +1,13 @@
 import type { Metadata } from 'next';
+import { Kanit } from 'next/font/google';
 import './globals.css';
+
+const kanit = Kanit({
+  subsets: ['latin', 'thai'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-app',
+});
 
 export const metadata: Metadata = {
   title: 'Estate Clarity — Dormitory Manager',
@@ -13,19 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th" className="h-full antialiased">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="min-h-full flex flex-col bg-surface text-on-surface">
+      <body className={`${kanit.variable} min-h-full flex flex-col bg-surface text-on-surface`}>
         {children}
       </body>
     </html>

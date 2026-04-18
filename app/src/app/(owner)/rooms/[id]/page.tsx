@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { MOCK_ROOMS, MOCK_BILLS } from '@/services/mockData';
+import { buildOwnerRooms } from '@/services/ownerRooms';
 import { formatCurrency } from '@/utils/currency';
 import StatusBadge from '@/components/ui/StatusBadge';
 import PageHeader from '@/components/layout/PageHeader';
@@ -10,8 +11,35 @@ import PageHeader from '@/components/layout/PageHeader';
 export default function RoomDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const room = MOCK_ROOMS.find((r) => r.id === params.id);
+  const roomId = typeof params.id === 'string' ? params.id : '';
+  const [rooms, setRooms] = useState(() => buildOwnerRooms(MOCK_ROOMS));
+
+  useEffect(() => {
+    const refreshRoomsState = () => {
+      setRooms(buildOwnerRooms(MOCK_ROOMS));
+    };
+
+    window.addEventListener('storage', refreshRoomsState);
+    window.addEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
+
+    return () => {
+      window.removeEventListener('storage', refreshRoomsState);
+      window.removeEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
+    };
+  }, []);
+  const room = rooms.find((r) => r.id === roomId);
   const [showModal, setShowModal] = useState(false);
+
+  const roomBills = useMemo(
+    () =>
+      MOCK_BILLS
+        .filter((bill) => bill.roomId === roomId)
+        .sort(
+          (a, b) =>
+            new Date(b.meterReadDate).getTime() - new Date(a.meterReadDate).getTime()
+        ),
+    [roomId]
+  );
 
   if (!room) {
     return (
@@ -20,8 +48,6 @@ export default function RoomDetailPage() {
       </div>
     );
   }
-
-  const roomBills = MOCK_BILLS.filter((b) => b.roomId === room.id);
 
   return (
     <div className="min-h-screen bg-surface pb-32 lg:pb-8">
@@ -122,9 +148,9 @@ export default function RoomDetailPage() {
             <span className="text-primary font-bold text-sm">View All</span>
           </div>
           <div className="space-y-3">
-            {['March 2026', 'February 2026', 'January 2026'].map((month) => (
+            {roomBills.map((bill) => (
               <div
-                key={month}
+                key={bill.id}
                 className="flex items-center justify-between bg-surface-container-low p-5 rounded-2xl hover:bg-surface-container-high transition-colors"
               >
                 <div className="flex items-center gap-4">
@@ -132,15 +158,21 @@ export default function RoomDetailPage() {
                     <span className="material-symbols-outlined font-bold">receipt_long</span>
                   </div>
                   <div>
-                    <p className="font-bold text-on-surface">{month}</p>
+                    <p className="font-bold text-on-surface">{bill.month} {bill.year}</p>
                     <p className="text-sm font-medium text-on-surface-variant">
-                      {formatCurrency(room.baseRent)}
+                      {formatCurrency(bill.totalAmount)}
                     </p>
                   </div>
                 </div>
-                <StatusBadge status="paid" />
+                <StatusBadge status={bill.status} />
               </div>
             ))}
+            {roomBills.length === 0 && (
+              <div className="bg-surface-container-low p-6 rounded-2xl text-center text-on-surface-variant">
+                <span className="material-symbols-outlined text-3xl mb-2 block">receipt_long</span>
+                <p className="font-medium">No billing history available for this room.</p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -162,7 +194,7 @@ export default function RoomDetailPage() {
 
       {/* Terminate Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-100 flex items-center justify-center p-6">
           <div className="bg-white rounded-[2rem] w-full max-w-md overflow-hidden shadow-2xl">
             <div className="p-8 text-center">
               <div className="w-20 h-20 bg-error-container/10 rounded-full flex items-center justify-center mx-auto mb-6">

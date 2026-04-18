@@ -3,35 +3,123 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MOCK_METER_READINGS } from '@/services/mockData';
+import {
+  loadMeterReadingDrafts,
+  parseReadingInput,
+  saveMeterReadingDrafts,
+  type MeterReadingDraftMap,
+} from '@/services/meterReadingDrafts';
 import PageHeader from '@/components/layout/PageHeader';
+
+interface ValidationResult {
+  incompleteCount: number;
+  error: string | null;
+}
+
+function validateMeterReadings(readings: MeterReadingDraftMap): ValidationResult {
+  let incompleteCount = 0;
+
+  for (const room of MOCK_METER_READINGS) {
+    const roomReading = readings[room.roomId];
+    const electricText = roomReading?.electric ?? '';
+    const waterText = roomReading?.water ?? '';
+
+    if (electricText.trim() === '' || waterText.trim() === '') {
+      incompleteCount += 1;
+      continue;
+    }
+
+    const electric = parseReadingInput(electricText);
+    const water = parseReadingInput(waterText);
+
+    if (electric === null || water === null) {
+      return {
+        incompleteCount,
+        error: `Room ${room.roomNumber} has an invalid meter value.`,
+      };
+    }
+
+    if (electric < room.electricity.previous) {
+      return {
+        incompleteCount,
+        error: `Room ${room.roomNumber} electricity reading must be greater than or equal to the previous value.`,
+      };
+    }
+
+    if (water < room.water.previous) {
+      return {
+        incompleteCount,
+        error: `Room ${room.roomNumber} water reading must be greater than or equal to the previous value.`,
+      };
+    }
+  }
+
+  return {
+    incompleteCount,
+    error: null,
+  };
+}
 
 export default function MeterReadingPage() {
   const router = useRouter();
-  
-  // State to hold all readings being input
-  const [readings, setReadings] = useState(
-    MOCK_METER_READINGS.reduce((acc, current) => {
-      acc[current.roomId] = {
-        electric: current.electricity.current?.toString() || '',
-        water: current.water.current?.toString() || ''
-      };
-      return acc;
-    }, {} as Record<string, { electric: string; water: string }>)
+
+  const [readings, setReadings] = useState<MeterReadingDraftMap>(() =>
+    loadMeterReadingDrafts(MOCK_METER_READINGS)
   );
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const handleReadingChange = (roomId: string, field: 'electric' | 'water', value: string) => {
-    setReadings(prev => ({
+    const sanitized = value.replace(/[^\d.]/g, '');
+    const [whole, ...decimals] = sanitized.split('.');
+    const normalized = decimals.length > 0 ? `${whole}.${decimals.join('')}` : whole;
+
+    setReadings((prev) => ({
       ...prev,
       [roomId]: {
         ...prev[roomId],
-        [field]: value
-      }
+        [field]: normalized,
+      },
     }));
+
+    setSaveError(null);
+    setSaveFeedback(null);
   };
 
-  const handleSave = () => {
-    // In a real app, save to API here
-    router.back();
+  const validation = validateMeterReadings(readings);
+
+  const canSave = !isSaving && validation.incompleteCount === 0 && !validation.error;
+
+  const handleSave = async () => {
+    if (isSaving) return;
+
+    if (validation.error) {
+      setSaveError(validation.error);
+      return;
+    }
+
+    if (validation.incompleteCount > 0) {
+      setSaveError(
+        `Please complete all readings before saving. ${validation.incompleteCount} room(s) still missing values.`
+      );
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError(null);
+    setSaveFeedback(null);
+
+    try {
+      await new Promise<void>((resolve) => {
+        window.setTimeout(() => resolve(), 500);
+      });
+
+      saveMeterReadingDrafts(readings);
+      setSaveFeedback(`Saved meter readings for ${MOCK_METER_READINGS.length} room(s).`);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -48,6 +136,18 @@ export default function MeterReadingPage() {
 
       <div className="flex-grow flex flex-col pb-32 lg:pb-8 page-transition">
         <section className="px-4 sm:px-6 lg:px-8 mt-4 max-w-6xl mx-auto w-full">
+          {saveError && (
+            <p className="mb-4 px-4 py-3 rounded-xl bg-error-container/20 text-error text-sm font-medium">
+              {saveError}
+            </p>
+          )}
+
+          {saveFeedback && (
+            <p className="mb-4 px-4 py-3 rounded-xl bg-secondary-container/30 text-secondary text-sm font-medium">
+              {saveFeedback}
+            </p>
+          )}
+
           <div className="bg-white rounded-2xl shadow-sm border border-outline-variant overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[700px]">
               <thead>
@@ -109,10 +209,13 @@ export default function MeterReadingPage() {
       <div className="fixed bottom-0 left-0 lg:left-72 w-full lg:w-[calc(100%-18rem)] p-6 pb-10 lg:pb-6 bg-gradient-to-t from-surface via-surface to-transparent z-40 pointer-events-none">
         <button
           onClick={handleSave}
-          className="w-full max-w-2xl mx-auto h-[64px] btn-primary-gradient text-on-primary rounded-2xl font-bold text-lg shadow-[0_20px_50px_rgba(18,28,40,0.15)] active:scale-95 transition-all flex items-center justify-center gap-3 pointer-events-auto"
+          disabled={!canSave}
+          className={`w-full max-w-2xl mx-auto h-16 btn-primary-gradient text-on-primary rounded-2xl font-bold text-lg shadow-[0_20px_50px_rgba(18,28,40,0.15)] transition-all flex items-center justify-center gap-3 pointer-events-auto ${
+            canSave ? 'active:scale-95' : 'opacity-60 cursor-not-allowed'
+          }`}
         >
           <span className="material-symbols-outlined">save</span>
-          บันทึกข้อมูล
+          {isSaving ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
         </button>
       </div>
     </div>

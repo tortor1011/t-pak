@@ -1,13 +1,59 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { MOCK_SLIPS } from '@/services/mockData';
+import {
+  getPendingSlipVerificationQueue,
+  loadSlipVerificationQueue,
+  reviewSlipVerification,
+  type SlipVerificationQueueItem,
+} from '@/services/slipVerificationQueue';
 import { formatCurrency } from '@/utils/currency';
 import { getRelativeTime } from '@/utils/date';
 import PageHeader from '@/components/layout/PageHeader';
 
 export default function VerifySlipsPage() {
   const router = useRouter();
+  const [queue, setQueue] = useState<SlipVerificationQueueItem[]>(() =>
+    loadSlipVerificationQueue()
+  );
+  const [activeAction, setActiveAction] = useState<{
+    slipId: string;
+    decision: 'approved' | 'rejected';
+  } | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+
+  const pendingQueue = useMemo(
+    () => getPendingSlipVerificationQueue(queue),
+    [queue]
+  );
+
+  const handleReview = async (
+    slip: SlipVerificationQueueItem,
+    decision: 'approved' | 'rejected'
+  ) => {
+    if (activeAction) return;
+
+    setActiveAction({ slipId: slip.id, decision });
+    setActionFeedback(null);
+
+    try {
+      await new Promise<void>((resolve) => {
+        window.setTimeout(() => resolve(), 450);
+      });
+
+      const nextQueue = reviewSlipVerification(slip.id, decision);
+      setQueue(nextQueue);
+
+      setActionFeedback(
+        decision === 'approved'
+          ? `Room ${slip.roomNumber} was approved and marked as paid.`
+          : `Room ${slip.roomNumber} was rejected and moved back to unpaid.`
+      );
+    } finally {
+      setActiveAction(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-surface pb-32 lg:pb-8">
@@ -16,7 +62,7 @@ export default function VerifySlipsPage() {
         onBack={() => router.back()}
         rightAction={
           <span className="bg-tertiary text-on-tertiary w-7 h-7 rounded-full flex items-center justify-center text-xs font-black">
-            {MOCK_SLIPS.length}
+            {pendingQueue.length}
           </span>
         }
       />
@@ -26,17 +72,30 @@ export default function VerifySlipsPage() {
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-bold text-on-surface">Verification Queue</h3>
           <span className="text-on-surface-variant text-sm font-medium">
-            {MOCK_SLIPS.length} pending
+            {pendingQueue.length} pending
           </span>
         </div>
 
+        {actionFeedback && (
+          <p className="text-sm font-medium text-secondary bg-secondary-container/30 rounded-xl px-4 py-3">
+            {actionFeedback}
+          </p>
+        )}
+
         {/* Slip Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {MOCK_SLIPS.map((slip) => (
-            <div
-              key={slip.id}
-              className="bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_50px_rgba(18,28,40,0.05)] space-y-4"
-            >
+          {pendingQueue.map((slip) => {
+            const isActioningThisSlip = activeAction?.slipId === slip.id;
+            const isApproving =
+              isActioningThisSlip && activeAction?.decision === 'approved';
+            const isRejecting =
+              isActioningThisSlip && activeAction?.decision === 'rejected';
+
+            return (
+              <div
+                key={slip.id}
+                className="bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_50px_rgba(18,28,40,0.05)] space-y-4"
+              >
               {/* Header */}
               <div className="flex justify-between items-start">
                 <div>
@@ -79,20 +138,37 @@ export default function VerifySlipsPage() {
 
               {/* Actions */}
               <div className="grid grid-cols-2 gap-3">
-                <button className="h-14 btn-primary-gradient text-on-primary font-bold rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+                <button
+                  onClick={() => handleReview(slip, 'approved')}
+                  disabled={Boolean(activeAction)}
+                  className={`h-14 btn-primary-gradient text-on-primary font-bold rounded-xl transition-transform flex items-center justify-center gap-2 ${
+                    activeAction
+                      ? 'opacity-60 cursor-not-allowed'
+                      : 'active:scale-95'
+                  }`}
+                >
                   <span className="material-symbols-outlined text-xl">check_circle</span>
-                  Approve
+                  {isApproving ? 'Approving...' : 'Approve'}
                 </button>
-                <button className="h-14 bg-error-container/20 text-error font-bold rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+                <button
+                  onClick={() => handleReview(slip, 'rejected')}
+                  disabled={Boolean(activeAction)}
+                  className={`h-14 bg-error-container/20 text-error font-bold rounded-xl transition-transform flex items-center justify-center gap-2 ${
+                    activeAction
+                      ? 'opacity-60 cursor-not-allowed'
+                      : 'active:scale-95'
+                  }`}
+                >
                   <span className="material-symbols-outlined text-xl">cancel</span>
-                  Reject
+                  {isRejecting ? 'Rejecting...' : 'Reject'}
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
-        {MOCK_SLIPS.length === 0 && (
+        {pendingQueue.length === 0 && (
           <div className="text-center py-16 text-on-surface-variant">
             <span className="material-symbols-outlined text-5xl mb-4 block text-secondary">
               verified

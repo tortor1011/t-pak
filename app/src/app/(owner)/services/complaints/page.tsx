@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import Image from 'next/image';
 import { MOCK_COMPLAINTS } from '@/services/mockData';
 import { getRelativeTime } from '@/utils/date';
 import { ComplaintStatus } from '@/types/complaint';
@@ -88,10 +89,12 @@ export default function ComplaintsPage() {
                 </p>
               </div>
               {complaint.photoUrl ? (
-                <img
+                <Image
                   className="w-20 h-20 object-cover rounded-xl bg-surface-variant ml-4"
                   src={complaint.photoUrl}
                   alt={complaint.title}
+                  width={80}
+                  height={80}
                 />
               ) : (
                 <div className="w-20 h-20 bg-surface-container flex items-center justify-center rounded-xl ml-4">
