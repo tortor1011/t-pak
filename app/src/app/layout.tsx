@@ -10,7 +10,7 @@ const kanit = Kanit({
 });
 
 export const metadata: Metadata = {
-  title: 'Estate Clarity — Dormitory Manager',
+  title: 'T PAK',
   description: 'Premium Dormitory Management ERP System for Building Owners and Administrators',
 };
 
