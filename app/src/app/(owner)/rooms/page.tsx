@@ -7,10 +7,34 @@ import { buildOwnerRooms } from '@/services/ownerRooms';
 import { formatCurrency } from '@/utils/currency';
 import SearchInput from '@/components/ui/SearchInput';
 import StatusBadge from '@/components/ui/StatusBadge';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function RoomsPage() {
+  const { language } = useLanguage();
   const [search, setSearch] = useState('');
   const [rooms, setRooms] = useState(() => buildOwnerRooms(MOCK_ROOMS));
+  const text =
+    language === 'th'
+      ? {
+          title: 'ผังห้องพัก',
+          roomCount: 'ห้อง',
+          occupied: 'มีผู้เช่า',
+          vacant: 'ว่าง',
+          total: 'ทั้งหมด',
+          vacantBadge: 'ว่าง',
+          noTenant: 'ไม่มีผู้เช่า',
+          base: 'ค่าเช่าพื้นฐาน',
+        }
+      : {
+          title: 'Room Directory',
+          roomCount: 'rooms',
+          occupied: 'Occupied',
+          vacant: 'Vacant',
+          total: 'Total',
+          vacantBadge: 'VACANT',
+          noTenant: 'No tenant',
+          base: 'Base',
+        };
 
   useEffect(() => {
     const refreshRoomsState = () => {
@@ -39,9 +63,9 @@ export default function RoomsPage() {
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 page-transition">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight">Room Directory</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{text.title}</h2>
         <span className="text-on-surface-variant font-medium text-sm">
-          {rooms.length} rooms
+          {rooms.length} {text.roomCount}
         </span>
       </div>
 
@@ -54,7 +78,7 @@ export default function RoomsPage() {
             {rooms.filter((r) => r.occupancy === 'occupied').length}
           </p>
           <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
-            Occupied
+            {text.occupied}
           </p>
         </div>
         <div className="bg-surface-container-lowest p-4 rounded-2xl text-center shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
@@ -62,13 +86,13 @@ export default function RoomsPage() {
             {rooms.filter((r) => r.occupancy === 'vacant').length}
           </p>
           <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
-            Vacant
+            {text.vacant}
           </p>
         </div>
         <div className="bg-surface-container-lowest p-4 rounded-2xl text-center shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
           <p className="text-2xl font-black text-on-surface">{rooms.length}</p>
           <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
-            Total
+            {text.total}
           </p>
         </div>
       </div>
@@ -84,15 +108,15 @@ export default function RoomsPage() {
                   <StatusBadge status={room.billingStatus} />
                   {room.occupancy === 'vacant' && (
                     <span className="bg-surface-variant text-on-surface-variant text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                      VACANT
+                      {text.vacantBadge}
                     </span>
                   )}
                 </div>
                 <p className="text-on-surface-variant font-medium">
-                  {room.tenantName ?? 'No tenant'}
+                  {room.tenantName ?? text.noTenant}
                 </p>
                 <p className="text-sm font-bold text-on-surface">
-                  Base: {formatCurrency(room.baseRent)}
+                  {text.base}: {formatCurrency(room.baseRent)}
                 </p>
               </div>
               <span className="material-symbols-outlined text-outline">chevron_right</span>

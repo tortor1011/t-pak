@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
   settleDebtByRoomNumber,
   sendBulkDebtRemindersByIds,
@@ -16,6 +17,7 @@ import PageHeader from '@/components/layout/PageHeader';
 
 export default function DebtCollectionPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { billingState, refreshBillingState } = useOwnerBillingState();
   const [isBulkSending, setIsBulkSending] = useState(false);
   const [activeReminderId, setActiveReminderId] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export default function DebtCollectionPage() {
       const debtIds = debts.map((debt) => debt.id);
       sendBulkDebtRemindersByIds(debtIds);
       refreshBillingState();
-      setFeedback(`Bulk reminder sent to ${debtIds.length} room(s).`);
+      setFeedback(t('debt.bulkReminderFeedback', { count: debtIds.length }));
     } finally {
       setIsBulkSending(false);
     }
@@ -61,7 +63,7 @@ export default function DebtCollectionPage() {
 
       sendDebtReminder(debt.id);
       refreshBillingState();
-      setFeedback(`Reminder sent to Room ${debt.roomNumber}.`);
+      setFeedback(t('debt.singleReminderFeedback', { room: debt.roomNumber }));
     } finally {
       setActiveReminderId(null);
     }
@@ -71,7 +73,7 @@ export default function DebtCollectionPage() {
     if (isActionInProgress) return;
 
     if (!phone || phone.trim() === '' || phone === '-') {
-      setFeedback('No phone number is available for this room.');
+      setFeedback(t('debt.noPhoneAvailable'));
       return;
     }
 
@@ -93,7 +95,7 @@ export default function DebtCollectionPage() {
       setRoomBillingStatusOverride(debt.roomNumber, 'paid');
       window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
       refreshBillingState();
-      setFeedback(`Room ${debt.roomNumber} marked as settled.`);
+      setFeedback(t('debt.markedSettledFeedback', { room: debt.roomNumber }));
     } finally {
       setActiveSettlementRoom(null);
     }
@@ -102,7 +104,7 @@ export default function DebtCollectionPage() {
   return (
     <div className="min-h-screen bg-surface pb-32 lg:pb-8">
       <PageHeader
-        title="Debt Collection"
+        title={t('page.debtCollectionTitle')}
         onBack={() => router.back()}
         rightAction={
           <button className="p-2 rounded-full hover:bg-slate-100 transition-colors">
@@ -117,7 +119,7 @@ export default function DebtCollectionPage() {
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-on-tertiary-fixed-variant text-sm font-bold uppercase tracking-wider">
-                Total Outstanding
+                {t('debt.totalOutstanding')}
               </p>
               <h2 className="text-4xl font-black text-on-tertiary-fixed tracking-tight mt-1">
                 {formatCurrency(totalOutstanding)}
@@ -139,7 +141,7 @@ export default function DebtCollectionPage() {
             }`}
           >
             <span className="material-symbols-outlined text-lg">send</span>
-            {isBulkSending ? 'Sending Reminders...' : 'Send Bulk Reminder'}
+            {isBulkSending ? t('debt.sendingReminders') : t('debt.sendBulkReminder')}
           </button>
         </section>
 
@@ -150,14 +152,14 @@ export default function DebtCollectionPage() {
         )}
 
         <section className="space-y-4">
-          <h3 className="text-lg font-bold text-on-surface">Overdue Rooms</h3>
+          <h3 className="text-lg font-bold text-on-surface">{t('debt.overdueRooms')}</h3>
           {debts.length === 0 ? (
             <div className="text-center py-16 text-on-surface-variant bg-surface-container-lowest rounded-3xl">
               <span className="material-symbols-outlined text-5xl mb-4 block text-secondary">
                 verified
               </span>
-              <h3 className="text-xl font-bold mb-2">No Active Debts</h3>
-              <p className="font-medium">All overdue balances are currently cleared.</p>
+              <h3 className="text-xl font-bold mb-2">{t('debt.noActiveDebts')}</h3>
+              <p className="font-medium">{t('debt.noActiveDebtsDescription')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -175,10 +177,12 @@ export default function DebtCollectionPage() {
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xl font-black text-on-surface">
-                            Room {debt.roomNumber}
+                            {t('common.room')} {debt.roomNumber}
                           </span>
                           <span className="bg-error text-on-error text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
-                            {debt.monthsOverdue} {debt.monthsOverdue > 1 ? 'MONTHS' : 'MONTH'} OVERDUE
+                            {debt.monthsOverdue > 1
+                              ? t('debt.monthsOverdue', { count: debt.monthsOverdue })
+                              : t('debt.monthOverdue', { count: debt.monthsOverdue })}
                           </span>
                         </div>
                         <p className="text-on-surface-variant font-medium text-sm">{debt.tenantName}</p>
@@ -192,13 +196,13 @@ export default function DebtCollectionPage() {
                       <span className="material-symbols-outlined text-sm">schedule</span>
                       <span>
                         {debt.lastReminder
-                          ? `Last reminder: ${getRelativeTime(debt.lastReminder)}`
-                          : 'No reminder sent yet'}
+                          ? t('debt.lastReminder', { time: getRelativeTime(debt.lastReminder) })
+                          : t('debt.noReminderSent')}
                       </span>
                     </div>
 
                     <div className="text-xs text-on-surface-variant font-medium">
-                      {debt.reminderCount} reminder{debt.reminderCount === 1 ? '' : 's'} sent
+                      {t('debt.reminderSentCount', { count: debt.reminderCount })}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -212,7 +216,7 @@ export default function DebtCollectionPage() {
                         }`}
                       >
                         <span className="material-symbols-outlined text-lg">send</span>
-                        {isSendingForDebt ? 'Sending...' : 'Send Reminder'}
+                        {isSendingForDebt ? t('debt.sending') : t('debt.sendReminder')}
                       </button>
                       <button
                         onClick={() => handleCallTenant(debt.phone)}
@@ -224,7 +228,7 @@ export default function DebtCollectionPage() {
                         }`}
                       >
                         <span className="material-symbols-outlined text-lg">call</span>
-                        {hasCallablePhone ? 'Call Tenant' : 'No Phone'}
+                        {hasCallablePhone ? t('debt.callTenant') : t('debt.noPhone')}
                       </button>
                     </div>
 
@@ -238,7 +242,7 @@ export default function DebtCollectionPage() {
                       }`}
                     >
                       <span className="material-symbols-outlined text-lg">task_alt</span>
-                      {isSettlingForDebt ? 'Settling...' : 'Mark as Settled'}
+                      {isSettlingForDebt ? t('debt.settling') : t('debt.markSettled')}
                     </button>
                   </div>
                 );

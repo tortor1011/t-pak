@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DRAWER_NAV_ITEMS } from '@/types/navigation';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   return (
     <aside className="hidden lg:flex flex-col w-72 h-screen bg-surface-container-low border-r border-outline-variant/30 fixed left-0 top-0 z-30">
@@ -16,8 +18,8 @@ export default function Sidebar() {
             <span className="material-symbols-outlined text-white text-xl">apartment</span>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-on-surface leading-tight">Estate Clarity</h1>
-            <p className="text-xs font-medium text-on-surface-variant">Dormitory ERP</p>
+            <h1 className="text-lg font-bold text-on-surface leading-tight">{t('sidebar.brandName')}</h1>
+            <p className="text-xs font-medium text-on-surface-variant">{t('sidebar.brandTagline')}</p>
           </div>
         </div>
       </div>
@@ -29,8 +31,8 @@ export default function Sidebar() {
             <span className="material-symbols-outlined text-lg">person</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-on-surface truncate">Admin Manager</p>
-            <p className="text-xs font-medium text-primary">Property Group A</p>
+            <p className="text-sm font-bold text-on-surface truncate">{t('sidebar.profileName')}</p>
+            <p className="text-xs font-medium text-primary">{t('sidebar.profileGroup')}</p>
           </div>
         </div>
       </div>
@@ -58,7 +60,7 @@ export default function Sidebar() {
               >
                 {item.icon}
               </span>
-              <span className="text-sm">{item.label}</span>
+              <span className="text-sm">{t(item.labelKey)}</span>
               {active && (
                 <div className="ml-auto w-1.5 h-5 rounded-full bg-primary" />
               )}
@@ -71,7 +73,7 @@ export default function Sidebar() {
       <div className="px-3 pb-6 pt-2 border-t border-outline-variant/20 mt-2">
         <button className="flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container/10 rounded-xl transition-all w-full font-medium text-sm">
           <span className="material-symbols-outlined text-xl">logout</span>
-          <span>Logout</span>
+          <span>{t('common.logout')}</span>
         </button>
         <p className="text-[10px] text-outline text-center mt-3">Estate Clarity v1.0.0</p>
       </div>

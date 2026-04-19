@@ -1,7 +1,10 @@
+'use client';
+
 import { Room } from '@/types/room';
 import Image from 'next/image';
 import StatusBadge from './StatusBadge';
 import { formatCurrency } from '@/utils/currency';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface RoomCardProps {
   room: Room;
@@ -10,6 +13,8 @@ interface RoomCardProps {
 }
 
 export default function RoomCard({ room, onClick, actionButton }: RoomCardProps) {
+  const { t } = useLanguage();
+
   return (
     <div
       className="bg-surface-container-lowest p-5 rounded-2xl flex justify-between items-center shadow-[0_10px_40px_rgba(18,28,40,0.03)] cursor-pointer hover:bg-surface-container-low transition-colors"
@@ -21,7 +26,7 @@ export default function RoomCard({ room, onClick, actionButton }: RoomCardProps)
           <StatusBadge status={room.billingStatus} />
         </div>
         <p className="text-on-surface-variant font-medium">
-          {room.tenantName ?? 'Vacant'}
+          {room.tenantName ?? t('roomCard.vacant')}
         </p>
         {room.currentBill > 0 && (
           <p className="text-lg font-bold text-on-surface">

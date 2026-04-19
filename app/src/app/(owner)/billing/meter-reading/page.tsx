@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/hooks/useLanguage';
 import { MOCK_METER_READINGS } from '@/services/mockData';
 import {
   loadMeterReadingDrafts,
@@ -9,6 +10,7 @@ import {
   saveMeterReadingDrafts,
   type MeterReadingDraftMap,
 } from '@/services/meterReadingDrafts';
+import type { TranslationKey, TranslationParams } from '@/services/i18n';
 import PageHeader from '@/components/layout/PageHeader';
 
 interface ValidationResult {
@@ -16,7 +18,9 @@ interface ValidationResult {
   error: string | null;
 }
 
-function validateMeterReadings(readings: MeterReadingDraftMap): ValidationResult {
+type Translate = (key: TranslationKey, params?: TranslationParams) => string;
+
+function validateMeterReadings(readings: MeterReadingDraftMap, t: Translate): ValidationResult {
   let incompleteCount = 0;
 
   for (const room of MOCK_METER_READINGS) {
@@ -35,21 +39,21 @@ function validateMeterReadings(readings: MeterReadingDraftMap): ValidationResult
     if (electric === null || water === null) {
       return {
         incompleteCount,
-        error: `Room ${room.roomNumber} has an invalid meter value.`,
+        error: t('meter.invalidValue', { room: room.roomNumber }),
       };
     }
 
     if (electric < room.electricity.previous) {
       return {
         incompleteCount,
-        error: `Room ${room.roomNumber} electricity reading must be greater than or equal to the previous value.`,
+        error: t('meter.electricityMustIncrease', { room: room.roomNumber }),
       };
     }
 
     if (water < room.water.previous) {
       return {
         incompleteCount,
-        error: `Room ${room.roomNumber} water reading must be greater than or equal to the previous value.`,
+        error: t('meter.waterMustIncrease', { room: room.roomNumber }),
       };
     }
   }
@@ -62,6 +66,7 @@ function validateMeterReadings(readings: MeterReadingDraftMap): ValidationResult
 
 export default function MeterReadingPage() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const [readings, setReadings] = useState<MeterReadingDraftMap>(() =>
     loadMeterReadingDrafts(MOCK_METER_READINGS)
@@ -87,7 +92,7 @@ export default function MeterReadingPage() {
     setSaveFeedback(null);
   };
 
-  const validation = validateMeterReadings(readings);
+  const validation = validateMeterReadings(readings, t);
 
   const canSave = !isSaving && validation.incompleteCount === 0 && !validation.error;
 
@@ -101,7 +106,7 @@ export default function MeterReadingPage() {
 
     if (validation.incompleteCount > 0) {
       setSaveError(
-        `Please complete all readings before saving. ${validation.incompleteCount} room(s) still missing values.`
+        t('meter.completeAllReadings', { count: validation.incompleteCount })
       );
       return;
     }
@@ -116,7 +121,7 @@ export default function MeterReadingPage() {
       });
 
       saveMeterReadingDrafts(readings);
-      setSaveFeedback(`Saved meter readings for ${MOCK_METER_READINGS.length} room(s).`);
+      setSaveFeedback(t('meter.savedFeedback', { count: MOCK_METER_READINGS.length }));
     } finally {
       setIsSaving(false);
     }
@@ -125,7 +130,7 @@ export default function MeterReadingPage() {
   return (
     <div className="min-h-screen bg-surface flex flex-col">
       <PageHeader
-        title="จดค่าน้ำ-ค่าไฟ"
+        title={t('page.meterReadingTitle')}
         onBack={() => router.back()}
         rightAction={
           <button className="p-2 rounded-full hover:bg-slate-100 transition-colors flex items-center gap-2">
@@ -134,7 +139,7 @@ export default function MeterReadingPage() {
         }
       />
 
-      <div className="flex-grow flex flex-col pb-32 lg:pb-8 page-transition">
+      <div className="grow flex flex-col pb-32 lg:pb-8 page-transition">
         <section className="px-4 sm:px-6 lg:px-8 mt-4 max-w-6xl mx-auto w-full">
           {saveError && (
             <p className="mb-4 px-4 py-3 rounded-xl bg-error-container/20 text-error text-sm font-medium">
@@ -149,14 +154,14 @@ export default function MeterReadingPage() {
           )}
 
           <div className="bg-white rounded-2xl shadow-sm border border-outline-variant overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[700px]">
+            <table className="w-full text-left border-collapse min-w-175">
               <thead>
                 <tr className="bg-slate-50 border-b border-outline-variant text-sm text-on-surface-variant whitespace-nowrap">
-                  <th className="py-4 px-4 font-semibold w-24">ห้อง</th>
-                  <th className="py-4 px-4 font-semibold text-right">ค่าไฟเดือนก่อน</th>
-                  <th className="py-4 px-4 font-semibold">ค่าไฟเดือนนี้</th>
-                  <th className="py-4 px-4 font-semibold text-right">ค่าน้ำเดือนก่อน</th>
-                  <th className="py-4 px-4 font-semibold">ค่าน้ำเดือนนี้</th>
+                  <th className="py-4 px-4 font-semibold w-24">{t('meter.roomColumn')}</th>
+                  <th className="py-4 px-4 font-semibold text-right">{t('meter.prevElectric')}</th>
+                  <th className="py-4 px-4 font-semibold">{t('meter.currentElectric')}</th>
+                  <th className="py-4 px-4 font-semibold text-right">{t('meter.prevWater')}</th>
+                  <th className="py-4 px-4 font-semibold">{t('meter.currentWater')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -206,7 +211,7 @@ export default function MeterReadingPage() {
       </div>
 
       {/* Footer Action */}
-      <div className="fixed bottom-0 left-0 lg:left-72 w-full lg:w-[calc(100%-18rem)] p-6 pb-10 lg:pb-6 bg-gradient-to-t from-surface via-surface to-transparent z-40 pointer-events-none">
+      <div className="fixed bottom-0 left-0 lg:left-72 w-full lg:w-[calc(100%-18rem)] p-6 pb-10 lg:pb-6 bg-linear-to-t from-surface via-surface to-transparent z-40 pointer-events-none">
         <button
           onClick={handleSave}
           disabled={!canSave}
@@ -215,7 +220,7 @@ export default function MeterReadingPage() {
           }`}
         >
           <span className="material-symbols-outlined">save</span>
-          {isSaving ? 'กำลังบันทึก...' : 'บันทึกข้อมูล'}
+          {isSaving ? t('meter.saving') : t('meter.save')}
         </button>
       </div>
     </div>

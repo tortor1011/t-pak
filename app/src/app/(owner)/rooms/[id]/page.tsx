@@ -13,9 +13,11 @@ import type { AdditionalChargeRule } from '@/services/propertySettings';
 import { formatCurrency } from '@/utils/currency';
 import StatusBadge from '@/components/ui/StatusBadge';
 import PageHeader from '@/components/layout/PageHeader';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function RoomDetailPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const params = useParams();
   const roomId = typeof params.id === 'string' ? params.id : '';
   const [rooms, setRooms] = useState(() => buildOwnerRooms(MOCK_ROOMS));
@@ -93,7 +95,7 @@ export default function RoomDetailPage() {
   if (!room) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
-        <p className="text-on-surface-variant">Room not found</p>
+        <p className="text-on-surface-variant">{t('roomDetail.notFound')}</p>
       </div>
     );
   }
@@ -101,7 +103,7 @@ export default function RoomDetailPage() {
   return (
     <div className="min-h-screen bg-surface pb-32 lg:pb-8">
       <PageHeader
-        title={`Room ${room.number} Details`}
+        title={t('roomDetail.title', { room: room.number })}
         onBack={() => router.back()}
         rightAction={
           <button className="p-2 rounded-full hover:bg-slate-100 text-primary">
@@ -124,7 +126,7 @@ export default function RoomDetailPage() {
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-extrabold tracking-tight text-on-surface">
-                {room.tenantName ?? 'Vacant Room'}
+                {room.tenantName ?? t('roomDetail.vacantRoom')}
               </h2>
               {room.tenantName && (
                 <p className="text-on-surface-variant font-medium">+66 81 234 5678</p>
@@ -137,11 +139,11 @@ export default function RoomDetailPage() {
             <div className="grid grid-cols-2 gap-4 mb-8">
               <button className="h-14 flex items-center justify-center gap-2 rounded-2xl btn-primary-gradient text-white font-bold active:scale-95 duration-150 shadow-lg shadow-primary/20">
                 <span className="material-symbols-outlined">call</span>
-                <span>Call</span>
+                <span>{t('roomDetail.call')}</span>
               </button>
               <button className="h-14 flex items-center justify-center gap-2 rounded-2xl bg-secondary-container text-on-secondary-container font-bold active:scale-95 duration-150">
                 <span className="material-symbols-outlined">forum</span>
-                <span>Chat</span>
+                <span>{t('roomDetail.chat')}</span>
               </button>
             </div>
           )}
@@ -149,12 +151,12 @@ export default function RoomDetailPage() {
           {/* Lease Dates */}
           <div className="space-y-4 pt-4 border-t border-surface-container">
             <div className="flex justify-between items-center">
-              <span className="text-on-surface-variant font-medium">Move-in Date</span>
-              <span className="text-on-surface font-semibold">Oct 01, 2025</span>
+              <span className="text-on-surface-variant font-medium">{t('roomDetail.moveInDate')}</span>
+              <span className="text-on-surface font-semibold">{t('roomDetail.moveInDateValue')}</span>
             </div>
             <div className="flex justify-between items-center bg-error-container/20 p-3 rounded-xl">
-              <span className="text-on-tertiary-fixed-variant font-bold">Contract Expires</span>
-              <span className="text-error font-extrabold">Sep 30, 2026</span>
+              <span className="text-on-tertiary-fixed-variant font-bold">{t('roomDetail.contractExpires')}</span>
+              <span className="text-error font-extrabold">{t('roomDetail.contractExpiresValue')}</span>
             </div>
           </div>
         </section>
@@ -162,13 +164,13 @@ export default function RoomDetailPage() {
         {/* Current Month Quick View */}
         <section className="bg-primary-container rounded-3xl p-6 text-white shadow-xl">
           <h3 className="text-sm font-bold uppercase tracking-widest opacity-80 mb-4">
-            LAST RECORDED METER (March 2026)
+            {t('roomDetail.lastRecordedMeter')}
           </h3>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-1">
                 <span className="material-symbols-outlined text-sm">bolt</span>
-                <span className="text-xs font-bold uppercase opacity-70">Electricity</span>
+                <span className="text-xs font-bold uppercase opacity-70">{t('roomDetail.electricity')}</span>
               </div>
               <p className="text-xl font-bold">
                 120 <span className="text-sm font-medium opacity-80">kWh</span>
@@ -177,7 +179,7 @@ export default function RoomDetailPage() {
             <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-1">
                 <span className="material-symbols-outlined text-sm">water_drop</span>
-                <span className="text-xs font-bold uppercase opacity-70">Water</span>
+                <span className="text-xs font-bold uppercase opacity-70">{t('roomDetail.water')}</span>
               </div>
               <p className="text-xl font-bold">
                 8 <span className="text-sm font-medium opacity-80">m³</span>
@@ -185,7 +187,7 @@ export default function RoomDetailPage() {
             </div>
           </div>
           <div className="flex justify-between items-center pt-4 border-t border-white/20">
-            <span className="font-bold opacity-90">Base Room Rate</span>
+            <span className="font-bold opacity-90">{t('roomDetail.baseRoomRate')}</span>
             <span className="text-2xl font-black">{formatCurrency(room.baseRent)}</span>
           </div>
         </section>
@@ -194,7 +196,7 @@ export default function RoomDetailPage() {
         <section className="bg-surface-container-lowest rounded-3xl p-6 shadow-[0_20px_50px_rgba(18,28,40,0.05)] space-y-4">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-extrabold tracking-tight text-on-surface">
-              Additional Charge Assignment
+              {t('roomDetail.additionalChargeAssignment')}
             </h3>
             <span
               className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -203,19 +205,21 @@ export default function RoomDetailPage() {
                   : 'bg-primary/10 text-primary'
               }`}
             >
-              {isUsingGlobalChargeRules ? 'Global Rules' : 'Room Override'}
+              {isUsingGlobalChargeRules
+                ? t('roomDetail.globalRules')
+                : t('roomDetail.roomOverride')}
             </span>
           </div>
 
           <div className="flex items-center justify-between rounded-xl bg-surface-container-low p-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-                Applied This Month
+                {t('roomDetail.appliedThisMonth')}
               </p>
               <p className="text-sm font-medium text-on-surface-variant">
                 {room.occupancy === 'occupied'
-                  ? 'Calculated from effective charge rules'
-                  : 'Vacant room has no additional charges'}
+                  ? t('roomDetail.calculatedFromEffectiveRules')
+                  : t('roomDetail.vacantNoAdditionalCharges')}
               </p>
             </div>
             <p className="text-2xl font-black text-on-surface">
@@ -225,7 +229,7 @@ export default function RoomDetailPage() {
 
           {effectiveChargeRules.length === 0 ? (
             <div className="rounded-xl bg-surface-container-low p-4 text-sm font-medium text-on-surface-variant text-center">
-              No active additional charge rules currently apply to this room.
+              {t('roomDetail.noActiveRulesApply')}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -236,7 +240,9 @@ export default function RoomDetailPage() {
                 >
                   <p className="text-sm font-bold text-on-surface">{rule.name}</p>
                   <p className="text-xs font-medium text-on-surface-variant">
-                    {formatCurrency(Math.round(rule.amount))} per month
+                    {t('roomDetail.perMonth', {
+                      amount: formatCurrency(Math.round(rule.amount)),
+                    })}
                   </p>
                 </div>
               ))}
@@ -245,23 +251,23 @@ export default function RoomDetailPage() {
 
           {ignoredOverrideRuleIds.length > 0 && (
             <div className="rounded-xl bg-error-container/20 p-3 text-xs font-medium text-error">
-              Ignored override rule id
-              {ignoredOverrideRuleIds.length === 1 ? '' : 's'}: {ignoredOverrideRuleIds.join(', ')}
+              {t('roomDetail.ignoredOverrideRuleIds')}
+              : {ignoredOverrideRuleIds.join(', ')}
             </div>
           )}
 
           <p className="text-xs text-on-surface-variant font-medium leading-relaxed">
             {isUsingGlobalChargeRules
-              ? 'This room currently follows all active global additional charge rules from Property Settings.'
-              : 'This room currently uses a custom additional charge selection from Bulk Room Setup.'}
+              ? t('roomDetail.followsGlobalRules')
+              : t('roomDetail.usesCustomSelection')}
           </p>
         </section>
 
         {/* Billing History */}
         <section>
           <div className="flex justify-between items-end px-2 mb-4">
-            <h3 className="text-xl font-extrabold tracking-tight">Billing History</h3>
-            <span className="text-primary font-bold text-sm">View All</span>
+            <h3 className="text-xl font-extrabold tracking-tight">{t('roomDetail.billingHistory')}</h3>
+            <span className="text-primary font-bold text-sm">{t('roomDetail.viewAll')}</span>
           </div>
           <div className="space-y-3">
             {roomBills.map((bill) => (
@@ -286,7 +292,7 @@ export default function RoomDetailPage() {
             {roomBills.length === 0 && (
               <div className="bg-surface-container-low p-6 rounded-2xl text-center text-on-surface-variant">
                 <span className="material-symbols-outlined text-3xl mb-2 block">receipt_long</span>
-                <p className="font-medium">No billing history available for this room.</p>
+                <p className="font-medium">{t('roomDetail.noBillingHistory')}</p>
               </div>
             )}
           </div>
@@ -296,13 +302,13 @@ export default function RoomDetailPage() {
         {room.tenantName && (
           <section className="space-y-3 pt-6">
             <button className="w-full h-14 rounded-2xl border-2 border-primary-container text-primary-container font-extrabold active:scale-95 duration-150">
-              Send Manual Reminder
+              {t('roomDetail.sendManualReminder')}
             </button>
             <button
               onClick={() => setShowModal(true)}
               className="w-full h-14 rounded-2xl bg-error-container/10 text-error font-bold active:scale-95 duration-150"
             >
-              Terminate Lease
+              {t('roomDetail.terminateLease')}
             </button>
           </section>
         )}
@@ -317,11 +323,12 @@ export default function RoomDetailPage() {
                 <span className="material-symbols-outlined text-error text-4xl">warning</span>
               </div>
               <h3 className="text-2xl font-black text-on-surface mb-3 leading-tight">
-                Confirm Lease Termination?
+                {t('roomDetail.confirmLeaseTermination')}
               </h3>
               <p className="text-on-surface-variant font-medium leading-relaxed">
-                This will calculate the final refund amount for{' '}
-                <span className="font-bold text-on-surface">Room {room.number}</span>.
+                {t('roomDetail.finalRefundMessage', {
+                  room: room.number,
+                })}
               </p>
             </div>
             <div className="p-6 pt-0 space-y-3">
@@ -329,13 +336,13 @@ export default function RoomDetailPage() {
                 onClick={() => setShowModal(false)}
                 className="w-full h-14 rounded-2xl bg-error text-white font-extrabold active:scale-95 duration-150 shadow-lg shadow-error/20"
               >
-                Confirm Termination
+                {t('roomDetail.confirmTermination')}
               </button>
               <button
                 onClick={() => setShowModal(false)}
                 className="w-full h-14 rounded-2xl bg-surface-container-high text-on-surface font-bold active:scale-95 duration-150"
               >
-                Keep Lease
+                {t('roomDetail.keepLease')}
               </button>
             </div>
           </div>

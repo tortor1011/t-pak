@@ -1,6 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+export const TOP_APP_BAR_MOBILE_QUERY = '(max-width: 1023px)';
+
+export function isTopAppBarMobileViewport(): boolean {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return false;
+  }
+
+  return window.matchMedia(TOP_APP_BAR_MOBILE_QUERY).matches;
+}
 
 interface TopAppBarProps {
   title: string;
@@ -22,11 +32,32 @@ export default function TopAppBar({
   rightAction,
 }: TopAppBarProps) {
   const [hasNotification] = useState(true);
+  const [isMobileViewport, setIsMobileViewport] = useState(() =>
+    isTopAppBarMobileViewport()
+  );
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia(TOP_APP_BAR_MOBILE_QUERY);
+
+    const handleViewportChange = (event: MediaQueryListEvent) => {
+      setIsMobileViewport(event.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleViewportChange);
+
+    return () => {
+      mediaQuery.removeEventListener('change', handleViewportChange);
+    };
+  }, []);
 
   return (
-    <header className="bg-white sticky top-0 z-40 shadow-[0_20px_50px_rgba(18,28,40,0.05)]">
+    <header className="bg-white z-40 shadow-[0_20px_50px_rgba(18,28,40,0.05)]">
       <div className="flex justify-between items-center w-full px-6 py-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 min-w-0">
           {showBack && (
             <button
               onClick={onBackClick}
@@ -36,15 +67,15 @@ export default function TopAppBar({
             </button>
           )}
           {/* Menu button only on mobile */}
-          {showMenu && !showBack && (
+          {showMenu && !showBack && isMobileViewport && (
             <button
               onClick={onMenuClick}
-              className="material-symbols-outlined text-on-surface hover:bg-slate-50 p-2 rounded-full transition-transform active:scale-95 duration-200 lg:hidden"
+              className="material-symbols-outlined text-on-surface hover:bg-slate-50 p-2 rounded-full transition-transform active:scale-95 duration-200"
             >
               menu
             </button>
           )}
-          <h1 className="font-bold text-2xl tracking-tight text-slate-900">
+          <h1 className="font-bold text-2xl tracking-tight text-slate-900 truncate">
             {title}
           </h1>
         </div>

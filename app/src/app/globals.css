@@ -85,7 +85,7 @@
 
 /* ── Global Styles ── */
 body {
-  font-family: var(--font-kanit);
+  font-family: var(--font-app), "Kanit", sans-serif;
   background-color: var(--color-surface);
   color: var(--color-on-surface);
   -webkit-tap-highlight-color: transparent;

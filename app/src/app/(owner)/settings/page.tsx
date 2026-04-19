@@ -10,6 +10,7 @@ import {
   type PropertySettingsValues,
 } from '@/services/propertySettings';
 import { formatCurrency } from '@/utils/currency';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface AdditionalChargeRuleFormItem {
   id: string;
@@ -27,15 +28,16 @@ interface SettingsFormState {
 }
 
 interface AdditionalChargePreset {
-  name: string;
+  nameTh: string;
+  nameEn: string;
   amount: number;
 }
 
 const ADDITIONAL_CHARGE_PRESETS: AdditionalChargePreset[] = [
-  { name: 'Common Area Fee', amount: 200 },
-  { name: 'Elevator Fee', amount: 150 },
-  { name: 'Pool Fee', amount: 250 },
-  { name: 'Maintenance Fee', amount: 120 },
+  { nameTh: 'ค่าส่วนกลาง', nameEn: 'Common Area Fee', amount: 200 },
+  { nameTh: 'ค่าลิฟต์', nameEn: 'Elevator Fee', amount: 150 },
+  { nameTh: 'ค่าสระว่ายน้ำ', nameEn: 'Pool Fee', amount: 250 },
+  { nameTh: 'ค่าบำรุงรักษา', nameEn: 'Maintenance Fee', amount: 120 },
 ];
 
 function buildAdditionalChargeRuleId(): string {
@@ -107,6 +109,110 @@ function areAdditionalChargeRulesEqual(
 }
 
 export default function SettingsPage() {
+  const { language } = useLanguage();
+  const text = useMemo(
+    () =>
+      language === 'th'
+      ? {
+          title: 'ตั้งค่าอาคาร',
+          propertyName: 'หอพัก A',
+          propertyGroup: 'กลุ่มทรัพย์สิน A',
+          totalRooms: 'จำนวนห้องทั้งหมด',
+          floors: 'จำนวนชั้น',
+          utilityTitle: 'กติกาคิดค่าสาธารณูปโภค',
+          electricityRate: 'ค่าไฟฟ้า (ต่อหน่วย kWh)',
+          waterRate: 'ค่าน้ำ (ต่อหน่วย m³)',
+          additionalTitle: 'ค่าบริการเพิ่มเติม',
+          addCharge: 'เพิ่มรายการ',
+          additionalDescription:
+            'เพิ่มค่าบริการรายเดือน (เช่น ค่าส่วนกลาง ค่าลิฟต์ ค่าสระว่ายน้ำ หรือค่าบำรุงรักษา) สำหรับห้องที่มีผู้เช่า',
+          noAdditionalCharges: 'ยังไม่มีค่าบริการเพิ่มเติม กดเพิ่มรายการเพื่อเริ่มต้น',
+          chargeNumber: 'รายการที่',
+          remove: 'ลบ',
+          chargeName: 'ชื่อรายการ',
+          chargeNamePlaceholder: 'ค่าส่วนกลาง',
+          amountPerMonth: 'จำนวนเงิน (บาท/เดือน)',
+          includedInBilling: 'รวมในยอดเรียกเก็บแล้ว',
+          excludedInBilling: 'ไม่รวมในยอดเรียกเก็บ',
+          active: 'ใช้งาน',
+          inactive: 'ปิดใช้งาน',
+          activeRulesSummary: 'กฎที่ใช้งาน',
+          additionalPerRoomSummary: 'ค่าบริการต่อห้องที่มีผู้พัก',
+          lateFeeTitle: 'ค่าปรับชำระล่าช้า',
+          fineAmount: 'ค่าปรับ (บาท/วัน)',
+          gracePeriod: 'ระยะผ่อนผัน (วันหลังวันครบกำหนด)',
+          lateFeePreview: 'จะคิดค่าปรับ ฿{{fee}}/วัน หลังเลยกำหนด {{days}} วัน',
+          saving: 'กำลังบันทึก...',
+          saveSettings: 'บันทึกการตั้งค่า',
+          settingsSaved: 'บันทึกแล้ว',
+          appPreview: 'ตัวอย่างระบบฝั่งเจ้าของ',
+          numericFields: 'กรุณากรอกทุกช่องด้วยตัวเลขที่ถูกต้อง',
+          electricityRateInvalid: 'ค่าไฟฟ้าต้องมากกว่า 0',
+          waterRateInvalid: 'ค่าน้ำต้องมากกว่า 0',
+          lateFeeInvalid: 'ค่าปรับต้องมากกว่า 0',
+          gracePeriodInvalid: 'ระยะผ่อนผันต้องเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป',
+          ruleLimit: `เพิ่มได้สูงสุด ${ADDITIONAL_CHARGE_RULE_LIMIT} รายการ`,
+          invalidRuleId: 'รหัสรายการไม่ถูกต้อง',
+          duplicateRule: 'พบรายการซ้ำ',
+          ruleNameRequired: 'กรุณากรอกชื่อรายการ',
+          ruleNameLength: `ชื่อรายการต้องไม่เกิน ${ADDITIONAL_CHARGE_NAME_MAX_LENGTH} ตัวอักษร`,
+          ruleAmountInvalid: 'จำนวนเงินต้องมากกว่า 0',
+          checkFormValues: 'กรุณาตรวจสอบค่าที่กรอกในแบบฟอร์ม',
+          noChanges: 'ไม่มีการเปลี่ยนแปลงให้บันทึก',
+          savedAt: 'บันทึกการตั้งค่าเมื่อ {{time}}',
+        }
+      : {
+          title: 'Property Settings',
+          propertyName: 'Dormitory A',
+          propertyGroup: 'Property Group A',
+          totalRooms: 'Total Rooms',
+          floors: 'Floors',
+          utilityTitle: 'Utility Pricing Rules',
+          electricityRate: 'Electricity Rate (per kWh)',
+          waterRate: 'Water Rate (per m³)',
+          additionalTitle: 'Additional Charges',
+          addCharge: 'Add Charge',
+          additionalDescription:
+            'Add recurring monthly charges (for example: common area, elevator, pool, or maintenance) that apply to occupied rooms.',
+          noAdditionalCharges: 'No additional charges yet. Use Add Charge to create one.',
+          chargeNumber: 'Charge #',
+          remove: 'Remove',
+          chargeName: 'Charge Name',
+          chargeNamePlaceholder: 'Common Area Fee',
+          amountPerMonth: 'Amount (THB/month)',
+          includedInBilling: 'Included in billing totals',
+          excludedInBilling: 'Excluded from billing totals',
+          active: 'Active',
+          inactive: 'Inactive',
+          activeRulesSummary: 'Active rules',
+          additionalPerRoomSummary: 'Additional charges per occupied room',
+          lateFeeTitle: 'Late Payment Fine',
+          fineAmount: 'Fine Amount (THB/day)',
+          gracePeriod: 'Grace Period (days after due date)',
+          lateFeePreview:
+            'Late fee of ฿{{fee}}/day will be applied after {{days}} days past due date',
+          saving: 'Saving Settings...',
+          saveSettings: 'Save Settings',
+          settingsSaved: 'Settings Saved',
+          appPreview: 'Frontend Preview - Owner App',
+          numericFields: 'Please fill all fields with numeric values.',
+          electricityRateInvalid: 'Electricity rate must be greater than 0.',
+          waterRateInvalid: 'Water rate must be greater than 0.',
+          lateFeeInvalid: 'Late fee must be greater than 0.',
+          gracePeriodInvalid: 'Grace period must be a whole number that is 0 or greater.',
+          ruleLimit: `You can add up to ${ADDITIONAL_CHARGE_RULE_LIMIT} additional charge rules.`,
+          invalidRuleId: 'invalid rule identifier.',
+          duplicateRule: 'duplicate rule found.',
+          ruleNameRequired: 'name is required.',
+          ruleNameLength: `name must be ${ADDITIONAL_CHARGE_NAME_MAX_LENGTH} characters or less.`,
+          ruleAmountInvalid: 'amount must be greater than 0.',
+          checkFormValues: 'Please check the form values.',
+          noChanges: 'No changes to save.',
+          savedAt: 'Settings saved at {{time}}.',
+        },
+    [language]
+  );
+
   const initialSettings = useMemo<PropertySettingsValues>(() => {
     const loaded = loadPropertySettings();
 
@@ -159,57 +265,67 @@ export default function SettingsPage() {
 
   const validationError = useMemo(() => {
     if (!parsedValues) {
-      return 'Please fill all fields with numeric values.';
+      return text.numericFields;
     }
 
     if (parsedValues.electricityRate <= 0) {
-      return 'Electricity rate must be greater than 0.';
+      return text.electricityRateInvalid;
     }
 
     if (parsedValues.waterRate <= 0) {
-      return 'Water rate must be greater than 0.';
+      return text.waterRateInvalid;
     }
 
     if (parsedValues.lateFee <= 0) {
-      return 'Late fee must be greater than 0.';
+      return text.lateFeeInvalid;
     }
 
     if (!Number.isInteger(parsedValues.lateFeeDay) || parsedValues.lateFeeDay < 0) {
-      return 'Grace period must be a whole number that is 0 or greater.';
+      return text.gracePeriodInvalid;
     }
 
     if (parsedValues.additionalChargeRules.length > ADDITIONAL_CHARGE_RULE_LIMIT) {
-      return `You can add up to ${ADDITIONAL_CHARGE_RULE_LIMIT} additional charge rules.`;
+      return text.ruleLimit;
     }
 
     const seenRuleIds = new Set<string>();
 
     for (const [index, rule] of parsedValues.additionalChargeRules.entries()) {
       if (rule.id.trim() === '') {
-        return `Additional charge #${index + 1}: invalid rule identifier.`;
+        return language === 'th'
+          ? `ค่าบริการเพิ่มเติมรายการที่ ${index + 1}: ${text.invalidRuleId}`
+          : `Additional charge #${index + 1}: ${text.invalidRuleId}`;
       }
 
       if (seenRuleIds.has(rule.id)) {
-        return `Additional charge #${index + 1}: duplicate rule found.`;
+        return language === 'th'
+          ? `ค่าบริการเพิ่มเติมรายการที่ ${index + 1}: ${text.duplicateRule}`
+          : `Additional charge #${index + 1}: ${text.duplicateRule}`;
       }
 
       seenRuleIds.add(rule.id);
 
       if (rule.name.trim() === '') {
-        return `Additional charge #${index + 1}: name is required.`;
+        return language === 'th'
+          ? `ค่าบริการเพิ่มเติมรายการที่ ${index + 1}: ${text.ruleNameRequired}`
+          : `Additional charge #${index + 1}: ${text.ruleNameRequired}`;
       }
 
       if (rule.name.length > ADDITIONAL_CHARGE_NAME_MAX_LENGTH) {
-        return `Additional charge #${index + 1}: name must be ${ADDITIONAL_CHARGE_NAME_MAX_LENGTH} characters or less.`;
+        return language === 'th'
+          ? `ค่าบริการเพิ่มเติมรายการที่ ${index + 1}: ${text.ruleNameLength}`
+          : `Additional charge #${index + 1}: ${text.ruleNameLength}`;
       }
 
       if (!Number.isFinite(rule.amount) || rule.amount <= 0) {
-        return `Additional charge #${index + 1}: amount must be greater than 0.`;
+        return language === 'th'
+          ? `ค่าบริการเพิ่มเติมรายการที่ ${index + 1}: ${text.ruleAmountInvalid}`
+          : `Additional charge #${index + 1}: ${text.ruleAmountInvalid}`;
       }
     }
 
     return null;
-  }, [parsedValues]);
+  }, [language, parsedValues, text]);
 
   const hasUnsavedChanges = useMemo(() => {
     if (!parsedValues) {
@@ -270,9 +386,7 @@ export default function SettingsPage() {
 
   const handleAddChargeRule = (preset?: AdditionalChargePreset) => {
     if (form.additionalChargeRules.length >= ADDITIONAL_CHARGE_RULE_LIMIT) {
-      setSaveError(
-        `You can add up to ${ADDITIONAL_CHARGE_RULE_LIMIT} additional charge rules.`
-      );
+      setSaveError(text.ruleLimit);
       return;
     }
 
@@ -282,7 +396,7 @@ export default function SettingsPage() {
         ...prev.additionalChargeRules,
         {
           id: buildAdditionalChargeRuleId(),
-          name: preset?.name ?? '',
+          name: preset ? (language === 'th' ? preset.nameTh : preset.nameEn) : '',
           amount: preset ? preset.amount.toString() : '',
           isActive: true,
         },
@@ -364,12 +478,12 @@ export default function SettingsPage() {
     if (isSaving) return;
 
     if (validationError || !parsedValues) {
-      setSaveError(validationError ?? 'Please check the form values.');
+      setSaveError(validationError ?? text.checkFormValues);
       return;
     }
 
     if (!hasUnsavedChanges) {
-      setSaveFeedback('No changes to save.');
+      setSaveFeedback(text.noChanges);
       return;
     }
 
@@ -388,7 +502,10 @@ export default function SettingsPage() {
       setForm(toFormState(parsedValues));
       window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
       setSaveFeedback(
-        `Settings saved at ${new Date(savedSnapshot.updatedAt).toLocaleTimeString()}.`
+        text.savedAt.replace(
+          '{{time}}',
+          new Date(savedSnapshot.updatedAt).toLocaleTimeString()
+        )
       );
     } finally {
       setIsSaving(false);
@@ -397,7 +514,7 @@ export default function SettingsPage() {
 
   return (
     <div className="px-6 py-8 space-y-8 page-transition">
-      <h2 className="text-2xl font-bold tracking-tight">Property Settings</h2>
+      <h2 className="text-2xl font-bold tracking-tight">{text.title}</h2>
 
       {/* Property Info */}
       <section className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_10px_40px_rgba(18,28,40,0.03)] space-y-4">
@@ -406,17 +523,17 @@ export default function SettingsPage() {
             <span className="material-symbols-outlined text-white text-2xl">apartment</span>
           </div>
           <div>
-            <h3 className="text-xl font-bold text-on-surface">Dormitory A</h3>
-            <p className="text-on-surface-variant font-medium text-sm">Property Group A</p>
+            <h3 className="text-xl font-bold text-on-surface">{text.propertyName}</h3>
+            <p className="text-on-surface-variant font-medium text-sm">{text.propertyGroup}</p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-surface-container">
           <div>
-            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Total Rooms</p>
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">{text.totalRooms}</p>
             <p className="text-lg font-bold text-on-surface">12</p>
           </div>
           <div>
-            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Floors</p>
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">{text.floors}</p>
             <p className="text-lg font-bold text-on-surface">3</p>
           </div>
         </div>
@@ -424,13 +541,13 @@ export default function SettingsPage() {
 
       {/* Utility Rates */}
       <section className="space-y-4">
-        <h3 className="text-lg font-bold tracking-tight">Utility Pricing Rules</h3>
+        <h3 className="text-lg font-bold tracking-tight">{text.utilityTitle}</h3>
         <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_10px_40px_rgba(18,28,40,0.03)] space-y-6">
           {/* Electricity */}
           <div>
             <label className="flex items-center gap-2 text-sm font-bold text-on-surface mb-3">
               <span className="material-symbols-outlined text-primary text-lg">bolt</span>
-              Electricity Rate (per kWh)
+              {text.electricityRate}
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">
@@ -451,7 +568,7 @@ export default function SettingsPage() {
           <div>
             <label className="flex items-center gap-2 text-sm font-bold text-on-surface mb-3">
               <span className="material-symbols-outlined text-cyan-500 text-lg">water_drop</span>
-              Water Rate (per m³)
+              {text.waterRate}
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">
@@ -471,7 +588,7 @@ export default function SettingsPage() {
       {/* Additional Charges */}
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="text-lg font-bold tracking-tight">Additional Charges</h3>
+          <h3 className="text-lg font-bold tracking-tight">{text.additionalTitle}</h3>
           <button
             type="button"
             onClick={() => handleAddChargeRule()}
@@ -483,20 +600,19 @@ export default function SettingsPage() {
             }`}
           >
             <span className="material-symbols-outlined text-base">add</span>
-            Add Charge
+            {text.addCharge}
           </button>
         </div>
 
         <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_10px_40px_rgba(18,28,40,0.03)] space-y-5">
           <p className="text-sm text-on-surface-variant font-medium leading-relaxed">
-            Add recurring monthly charges (for example: common area, elevator,
-            pool, or maintenance) that apply to occupied rooms.
+            {text.additionalDescription}
           </p>
 
           <div className="flex flex-wrap gap-2">
             {ADDITIONAL_CHARGE_PRESETS.map((preset) => (
               <button
-                key={preset.name}
+                key={preset.nameEn}
                 type="button"
                 onClick={() => handleAddChargeRule(preset)}
                 disabled={form.additionalChargeRules.length >= ADDITIONAL_CHARGE_RULE_LIMIT}
@@ -506,14 +622,14 @@ export default function SettingsPage() {
                     : 'active:scale-95 hover:bg-surface-container-low'
                 }`}
               >
-                + {preset.name}
+                + {language === 'th' ? preset.nameTh : preset.nameEn}
               </button>
             ))}
           </div>
 
           {form.additionalChargeRules.length === 0 ? (
             <div className="rounded-xl bg-surface-container-low p-5 text-on-surface-variant text-sm font-medium text-center">
-              No additional charges yet. Use Add Charge to create one.
+              {text.noAdditionalCharges}
             </div>
           ) : (
             <div className="space-y-4">
@@ -524,21 +640,21 @@ export default function SettingsPage() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-bold text-on-surface">
-                      Charge #{index + 1}
+                      {text.chargeNumber} {index + 1}
                     </p>
                     <button
                       type="button"
                       onClick={() => handleRemoveChargeRule(rule.id)}
                       className="h-8 px-3 rounded-lg text-xs font-bold border border-error/40 text-error hover:bg-error/10 active:scale-95 transition-all"
                     >
-                      Remove
+                      {text.remove}
                     </button>
                   </div>
 
                   <div className="space-y-3">
                     <div>
                       <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 block">
-                        Charge Name
+                        {text.chargeName}
                       </label>
                       <input
                         className="w-full h-12 px-4 rounded-xl bg-surface-container-lowest border-none focus:ring-2 focus:ring-primary font-semibold"
@@ -547,7 +663,7 @@ export default function SettingsPage() {
                         onChange={(e) =>
                           handleAdditionalChargeNameChange(rule.id, e.target.value)
                         }
-                        placeholder="Common Area Fee"
+                        placeholder={text.chargeNamePlaceholder}
                         maxLength={ADDITIONAL_CHARGE_NAME_MAX_LENGTH}
                       />
                       <p className="text-[11px] text-on-surface-variant mt-1 font-medium">
@@ -557,7 +673,7 @@ export default function SettingsPage() {
 
                     <div>
                       <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 block">
-                        Amount (THB/month)
+                        {text.amountPerMonth}
                       </label>
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">
@@ -580,8 +696,8 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between gap-3 pt-1">
                     <p className="text-xs text-on-surface-variant font-medium">
                       {rule.isActive
-                        ? 'Included in billing totals'
-                        : 'Excluded from billing totals'}
+                        ? text.includedInBilling
+                        : text.excludedInBilling}
                     </p>
                     <button
                       type="button"
@@ -592,7 +708,7 @@ export default function SettingsPage() {
                           : 'bg-surface-container-high text-on-surface-variant border border-outline-variant'
                       }`}
                     >
-                      {rule.isActive ? 'Active' : 'Inactive'}
+                      {rule.isActive ? text.active : text.inactive}
                     </button>
                   </div>
                 </div>
@@ -605,8 +721,8 @@ export default function SettingsPage() {
               info
             </span>
             <p className="text-xs text-secondary font-medium leading-relaxed">
-              Active rules: {additionalChargePreview.activeRuleCount} | Additional
-              charges per occupied room: {formatCurrency(additionalChargePreview.totalPerRoom)}
+              {text.activeRulesSummary}: {additionalChargePreview.activeRuleCount} |{' '}
+              {text.additionalPerRoomSummary}: {formatCurrency(additionalChargePreview.totalPerRoom)}
             </p>
           </div>
         </div>
@@ -614,11 +730,11 @@ export default function SettingsPage() {
 
       {/* Late Fee Settings */}
       <section className="space-y-4">
-        <h3 className="text-lg font-bold tracking-tight">Late Payment Fine</h3>
+        <h3 className="text-lg font-bold tracking-tight">{text.lateFeeTitle}</h3>
         <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_10px_40px_rgba(18,28,40,0.03)] space-y-6">
           <div>
             <label className="text-sm font-bold text-on-surface mb-3 block">
-              Fine Amount (THB/day)
+              {text.fineAmount}
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant font-bold">
@@ -634,7 +750,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="text-sm font-bold text-on-surface mb-3 block">
-              Grace Period (days after due date)
+              {text.gracePeriod}
             </label>
             <input
               className="w-full h-14 px-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary font-bold text-lg"
@@ -646,7 +762,9 @@ export default function SettingsPage() {
           <div className="flex items-start space-x-2 p-3 bg-tertiary-fixed/20 rounded-xl">
             <span className="material-symbols-outlined text-tertiary text-lg mt-0.5">info</span>
             <p className="text-xs text-tertiary font-medium leading-relaxed">
-              Late fee of ฿{form.lateFee || '0'}/day will be applied after {form.lateFeeDay || '0'} days past due date
+              {text.lateFeePreview
+                .replace('{{fee}}', form.lateFee || '0')
+                .replace('{{days}}', form.lateFeeDay || '0')}
             </p>
           </div>
         </div>
@@ -661,7 +779,7 @@ export default function SettingsPage() {
         }`}
       >
         <span className="material-symbols-outlined">save</span>
-        {isSaving ? 'Saving Settings...' : hasUnsavedChanges ? 'Save Settings' : 'Settings Saved'}
+        {isSaving ? text.saving : hasUnsavedChanges ? text.saveSettings : text.settingsSaved}
       </button>
 
       {saveError && (
@@ -679,7 +797,7 @@ export default function SettingsPage() {
       {/* App Info */}
       <div className="text-center pt-4">
         <p className="text-outline text-sm font-medium">Estate Clarity v1.0.0</p>
-        <p className="text-outline text-xs mt-1">Frontend Preview — Owner App</p>
+        <p className="text-outline text-xs mt-1">{text.appPreview}</p>
       </div>
     </div>
   );

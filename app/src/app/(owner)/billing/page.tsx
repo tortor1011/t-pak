@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
+import { useLanguage } from '@/hooks/useLanguage';
 import { formatCurrency } from '@/utils/currency';
 
 export default function BillingPage() {
   const { billingState } = useOwnerBillingState();
+  const { t } = useLanguage();
 
   const summary = billingState.summary;
   const pendingSlipCount = billingState.pendingSlipCount;
@@ -15,43 +17,43 @@ export default function BillingPage() {
   const billingActions = useMemo(
     () => [
       {
-        title: 'Read Meters',
-        description: 'Record electricity & water usage',
+        title: t('billing.readMetersTitle'),
+        description: t('billing.readMetersDescription'),
         icon: 'speed',
         href: '/billing/meter-reading',
         gradient: true,
       },
       {
-        title: 'Generate Bills',
-        description: 'Create invoices for unbilled rooms',
+        title: t('billing.generateBillsTitle'),
+        description: t('billing.generateBillsDescription'),
         icon: 'receipt_long',
         href: '/billing/generate',
         gradient: false,
       },
       {
-        title: 'Verify Slips',
+        title: t('billing.verifySlipsTitle'),
         description:
           pendingSlipCount > 0
-            ? `${pendingSlipCount} slips waiting for review`
-            : 'No slips waiting for review',
+            ? t('billing.verifySlipsWaiting', { count: pendingSlipCount })
+            : t('billing.verifySlipsEmpty'),
         icon: 'fact_check',
         href: '/billing/verify',
         gradient: false,
         badge: pendingSlipCount > 0 ? pendingSlipCount : undefined,
       },
       {
-        title: 'Debt Collection',
+        title: t('billing.debtCollectionTitle'),
         description:
           activeDebtCount > 0
-            ? `${activeDebtCount} rooms with outstanding balance`
-            : 'No rooms with outstanding balance',
+            ? t('billing.debtCollectionWaiting', { count: activeDebtCount })
+            : t('billing.debtCollectionEmpty'),
         icon: 'account_balance_wallet',
         href: '/billing/debt',
         gradient: false,
         badge: activeDebtCount > 0 ? activeDebtCount : undefined,
       },
     ],
-    [activeDebtCount, pendingSlipCount]
+    [activeDebtCount, pendingSlipCount, t]
   );
 
   return (
@@ -61,7 +63,7 @@ export default function BillingPage() {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
           <div>
             <p className="text-on-surface-variant text-sm uppercase tracking-widest mb-1 font-medium">
-              Monthly Revenue
+              {t('billing.monthlyRevenue')}
             </p>
             <h2 className="text-4xl font-black text-on-surface">
               {formatCurrency(summary.totalRevenue)}
@@ -73,13 +75,13 @@ export default function BillingPage() {
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1 bg-secondary-container/20 px-4 py-3 rounded-xl">
-            <p className="text-xs font-bold text-on-secondary-container uppercase tracking-wider">Collected</p>
+            <p className="text-xs font-bold text-on-secondary-container uppercase tracking-wider">{t('billing.collected')}</p>
             <p className="text-lg font-bold text-on-secondary-container">
               {formatCurrency(summary.collectedRevenue)}
             </p>
           </div>
           <div className="flex-1 bg-tertiary-fixed/40 px-4 py-3 rounded-xl">
-            <p className="text-xs font-bold text-tertiary uppercase tracking-wider">Pending</p>
+            <p className="text-xs font-bold text-tertiary uppercase tracking-wider">{t('billing.pending')}</p>
             <p className="text-lg font-bold text-tertiary">
               {formatCurrency(summary.pendingPayments)}
             </p>
@@ -89,7 +91,7 @@ export default function BillingPage() {
 
       {/* Billing Lifecycle Actions */}
       <section className="space-y-4">
-        <h3 className="text-lg font-bold tracking-tight">Billing Lifecycle</h3>
+        <h3 className="text-lg font-bold tracking-tight">{t('billing.lifecycle')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {billingActions.map((action) => (
             <Link key={action.href} href={action.href}>

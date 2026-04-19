@@ -5,12 +5,15 @@ import TopAppBar from '@/components/layout/TopAppBar';
 import BottomNavBar from '@/components/layout/BottomNavBar';
 import NavigationDrawer from '@/components/layout/NavigationDrawer';
 import Sidebar from '@/components/layout/Sidebar';
+import LanguageToggle from '@/components/layout/LanguageToggle';
+import { LanguageProvider, useLanguage } from '@/hooks/useLanguage';
 
-export default function OwnerLayout({
+function OwnerShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { t } = useLanguage();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
@@ -27,8 +30,9 @@ export default function OwnerLayout({
       {/* Main content area — shifted right on desktop for sidebar */}
       <div className="lg:pl-72 pb-32 lg:pb-0">
         <TopAppBar
-          title="Dormitory Manager"
+          title={t('common.appTitle')}
           onMenuClick={() => setDrawerOpen(true)}
+          rightAction={<LanguageToggle />}
         />
         <main className="max-w-7xl mx-auto">{children}</main>
       </div>
@@ -36,5 +40,17 @@ export default function OwnerLayout({
       {/* Bottom nav — mobile only */}
       <BottomNavBar />
     </div>
+  );
+}
+
+export default function OwnerLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <LanguageProvider>
+      <OwnerShell>{children}</OwnerShell>
+    </LanguageProvider>
   );
 }

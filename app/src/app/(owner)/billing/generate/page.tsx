@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { MOCK_ROOMS } from '@/services/mockData';
+import { useLanguage } from '@/hooks/useLanguage';
 import { applyRoomPricingOverrides } from '@/services/roomPricingOverrides';
 import {
   buildRoomAdditionalChargeContext,
@@ -13,6 +14,7 @@ import PageHeader from '@/components/layout/PageHeader';
 
 export default function GenerateBillsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const rooms = useMemo(() => applyRoomPricingOverrides(MOCK_ROOMS), []);
   const additionalChargeContext = useMemo(
     () => buildRoomAdditionalChargeContext(),
@@ -87,11 +89,16 @@ export default function GenerateBillsPage() {
       });
 
       setGenerationFeedback(
-        `Generated ${selectedRooms.length} invoice(s) totaling ${formatCurrency(estimatedRevenue)}${
-          revenueBreakdown.additionalRevenue > 0
-            ? ` (including ${formatCurrency(revenueBreakdown.additionalRevenue)} additional charges).`
-            : '.'
-        }`
+        revenueBreakdown.additionalRevenue > 0
+          ? t('generate.generatedFeedbackWithExtra', {
+            count: selectedRooms.length,
+            total: formatCurrency(estimatedRevenue),
+            extra: formatCurrency(revenueBreakdown.additionalRevenue),
+          })
+          : t('generate.generatedFeedback', {
+            count: selectedRooms.length,
+            total: formatCurrency(estimatedRevenue),
+          })
       );
     } finally {
       setIsGenerating(false);
@@ -101,7 +108,7 @@ export default function GenerateBillsPage() {
   return (
     <div className="min-h-screen bg-surface pb-32 lg:pb-8">
       <PageHeader
-        title="Generate Bills"
+        title={t('page.generateBillsTitle')}
         onBack={() => router.back()}
         rightAction={
           <span className="material-symbols-outlined text-slate-400">more_vert</span>
@@ -114,11 +121,11 @@ export default function GenerateBillsPage() {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-on-surface-variant font-semibold text-sm uppercase tracking-wider mb-1">
-                Total Pending
+                {t('generate.totalPending')}
               </p>
               <h2 className="text-4xl font-extrabold text-on-surface tracking-tight">
                 {selectedIds.size}{' '}
-                <span className="text-xl font-medium text-slate-400">Rooms</span>
+                <span className="text-xl font-medium text-slate-400">{t('common.rooms')}</span>
               </h2>
             </div>
             <div className="w-12 h-12 rounded-2xl bg-surface-container flex items-center justify-center">
@@ -128,15 +135,16 @@ export default function GenerateBillsPage() {
             </div>
           </div>
           <div className="pt-4 space-y-1">
-            <p className="text-on-surface-variant text-sm font-medium">Estimated Revenue</p>
+            <p className="text-on-surface-variant text-sm font-medium">{t('generate.estimatedRevenue')}</p>
             <p className="text-2xl font-bold text-on-surface">
               {formatCurrency(estimatedRevenue)}
             </p>
             {activeAdditionalChargeRuleCount > 0 && (
               <p className="text-xs font-medium text-on-surface-variant">
-                Includes {formatCurrency(revenueBreakdown.additionalRevenue)} additional charges
-                from {activeAdditionalChargeRuleCount} active rule
-                {activeAdditionalChargeRuleCount === 1 ? '' : 's'}.
+                {t('generate.includesAdditionalCharges', {
+                  amount: formatCurrency(revenueBreakdown.additionalRevenue),
+                  count: activeAdditionalChargeRuleCount,
+                })}
               </p>
             )}
           </div>
@@ -153,10 +161,10 @@ export default function GenerateBillsPage() {
                 : 'active:scale-95'
             }`}
           >
-            <span>{isGenerating ? 'Generating Invoices...' : 'Generate & Send All Invoices'}</span>
+            <span>{isGenerating ? t('generate.generateInProgress') : t('generate.generateAndSend')}</span>
           </button>
           <p className="text-center text-on-surface-variant text-sm px-4 leading-relaxed">
-            Automatically calculates utilities and notifies tenants via SMS and Email.
+            {t('generate.autoNotifyHint')}
           </p>
           {generationFeedback && (
             <p className="text-center text-sm font-medium text-secondary">
@@ -167,7 +175,7 @@ export default function GenerateBillsPage() {
 
         {/* Room List */}
         <div className="flex justify-between items-center px-2">
-          <h3 className="text-lg font-bold text-on-surface">Select Rooms</h3>
+          <h3 className="text-lg font-bold text-on-surface">{t('generate.selectRooms')}</h3>
           <button
             onClick={toggleAll}
             disabled={isGenerating}
@@ -175,7 +183,9 @@ export default function GenerateBillsPage() {
               isGenerating ? 'opacity-40 cursor-not-allowed' : 'hover:opacity-80'
             }`}
           >
-            {selectedIds.size === unbilledRooms.length ? 'Deselect All' : `Select All (${unbilledRooms.length})`}
+            {selectedIds.size === unbilledRooms.length
+              ? t('generate.deselectAll')
+              : t('generate.selectAll', { count: unbilledRooms.length })}
           </button>
         </div>
 
@@ -213,9 +223,9 @@ export default function GenerateBillsPage() {
                   </div>
                 </div>
                 <div className="grow">
-                  <h4 className="text-lg font-bold text-on-surface">Room {room.number}</h4>
+                  <h4 className="text-lg font-bold text-on-surface">{t('common.room')} {room.number}</h4>
                   <p className="text-on-surface-variant text-sm font-medium">
-                    {room.tenantName ?? 'Vacant'}
+                    {room.tenantName ?? t('roomCard.vacant')}
                   </p>
                 </div>
                 <div className="text-right">
@@ -224,11 +234,14 @@ export default function GenerateBillsPage() {
                   </p>
                   {roomAdditionalCharge > 0 && (
                     <p className="text-[10px] font-medium text-on-surface-variant">
-                      Base {formatCurrency(room.baseRent)} + Extra {formatCurrency(roomAdditionalCharge)}
+                      {t('generate.basePlusExtra', {
+                        base: formatCurrency(room.baseRent),
+                        extra: formatCurrency(roomAdditionalCharge),
+                      })}
                     </p>
                   )}
                   <span className="inline-block px-2 py-0.5 rounded-sm bg-surface-container text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter mt-1">
-                    Meter: Apr 01
+                    {t('generate.meterDate')}
                   </span>
                 </div>
               </div>

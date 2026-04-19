@@ -1,9 +1,13 @@
-import { BillingStatus } from '@/types/room';
+'use client';
 
-const STATUS_STYLES: Record<BillingStatus, { bg: string; text: string; label: string }> = {
-  paid:    { bg: 'bg-secondary-container', text: 'text-on-secondary-container', label: 'PAID' },
-  pending: { bg: 'bg-error-container', text: 'text-on-error-container', label: 'PENDING' },
-  unpaid:  { bg: 'bg-tertiary-fixed', text: 'text-on-tertiary-fixed-variant', label: 'UNPAID' },
+import { BillingStatus } from '@/types/room';
+import { useLanguage } from '@/hooks/useLanguage';
+import type { TranslationKey } from '@/services/i18n';
+
+const STATUS_STYLES: Record<BillingStatus, { bg: string; text: string; labelKey: TranslationKey }> = {
+  paid: { bg: 'bg-secondary-container', text: 'text-on-secondary-container', labelKey: 'status.paid' },
+  pending: { bg: 'bg-error-container', text: 'text-on-error-container', labelKey: 'status.pending' },
+  unpaid: { bg: 'bg-tertiary-fixed', text: 'text-on-tertiary-fixed-variant', labelKey: 'status.unpaid' },
 };
 
 interface StatusBadgeProps {
@@ -12,12 +16,14 @@ interface StatusBadgeProps {
 }
 
 export default function StatusBadge({ status, className = '' }: StatusBadgeProps) {
+  const { t } = useLanguage();
   const style = STATUS_STYLES[status];
+
   return (
     <span
       className={`${style.bg} ${style.text} text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter ${className}`}
     >
-      {style.label}
+      {t(style.labelKey)}
     </span>
   );
 }

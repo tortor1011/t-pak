@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DRAWER_NAV_ITEMS } from '@/types/navigation';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface NavigationDrawerProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface NavigationDrawerProps {
 
 export default function NavigationDrawer({ isOpen, onClose }: NavigationDrawerProps) {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   if (!isOpen) return null;
 
@@ -23,7 +25,7 @@ export default function NavigationDrawer({ isOpen, onClose }: NavigationDrawerPr
       />
 
       {/* Drawer */}
-      <nav className="fixed inset-y-0 left-0 z-50 flex flex-col p-4 h-full w-80 rounded-r-xl bg-surface-container-low shadow-[0_20px_50px_rgba(18,28,40,0.05)] slide-in-left">
+      <nav className="fixed inset-y-0 left-0 z-50 flex flex-col p-4 h-full w-[85vw] max-w-80 sm:w-80 rounded-r-xl bg-surface-container-low shadow-[0_20px_50px_rgba(18,28,40,0.05)] slide-in-left">
         {/* Profile Header */}
         <div className="flex flex-col items-start px-4 pt-6 pb-8">
           <div className="flex items-center gap-4 mb-6">
@@ -31,13 +33,13 @@ export default function NavigationDrawer({ isOpen, onClose }: NavigationDrawerPr
               <span className="material-symbols-outlined text-2xl">person</span>
             </div>
             <div>
-              <h3 className="text-xl font-bold text-on-surface leading-tight">Admin Manager</h3>
-              <p className="text-sm font-medium text-primary">Senior Overseer</p>
+              <h3 className="text-xl font-bold text-on-surface leading-tight">{t('drawer.profileName')}</h3>
+              <p className="text-sm font-medium text-primary">{t('drawer.profileRole')}</p>
             </div>
           </div>
           <div className="bg-surface-container px-3 py-1.5 rounded-full">
             <span className="text-xs font-bold text-on-surface-variant tracking-wider uppercase">
-              Property Group A
+              {t('drawer.profileGroup')}
             </span>
           </div>
         </div>
@@ -58,7 +60,7 @@ export default function NavigationDrawer({ isOpen, onClose }: NavigationDrawerPr
                 }`}
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </Link>
             );
           })}
@@ -68,7 +70,7 @@ export default function NavigationDrawer({ isOpen, onClose }: NavigationDrawerPr
         <div className="mt-auto pt-4">
           <button className="flex items-center gap-4 px-4 py-4 text-error hover:bg-error-container/20 rounded-xl transition-transform active:scale-95 w-full">
             <span className="material-symbols-outlined">logout</span>
-            <span className="font-bold">Logout</span>
+            <span className="font-bold">{t('common.logout')}</span>
           </button>
         </div>
       </nav>

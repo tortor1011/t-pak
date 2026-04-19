@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BOTTOM_NAV_ITEMS } from '@/types/navigation';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function BottomNavBar() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard' || pathname === '/';
@@ -33,7 +35,7 @@ export default function BottomNavBar() {
               {item.icon}
             </span>
             <span className="font-bold text-[14px] leading-tight mt-1">
-              {item.label}
+              {t(item.labelKey)}
             </span>
           </Link>
         );

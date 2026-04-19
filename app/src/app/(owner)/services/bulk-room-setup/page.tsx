@@ -9,6 +9,7 @@ import {
   applyBulkRoomAdditionalChargeRuleIds,
   resetBulkRoomAdditionalChargeOverrides,
 } from '@/services/roomAdditionalChargeOverrides';
+import { useLanguage } from '@/hooks/useLanguage';
 
 const FLOORS = [1, 2, 3, 4];
 const ROOMS_PER_FLOOR = 12;
@@ -19,6 +20,7 @@ function buildRoomsOnFloor(floor: number): number[] {
 }
 
 export default function BulkRoomSetupPage() {
+  const { language } = useLanguage();
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedRooms, setSelectedRooms] = useState<number[]>(() =>
     buildRoomsOnFloor(1).slice(0, 10)
@@ -33,6 +35,66 @@ export default function BulkRoomSetupPage() {
   const [baseRentInput, setBaseRentInput] = useState('5000');
   const [baseRentFeedback, setBaseRentFeedback] = useState<string | null>(null);
   const [chargeFeedback, setChargeFeedback] = useState<string | null>(null);
+  const text =
+    language === 'th'
+      ? {
+          roomsSelected: 'ห้องที่เลือก',
+          baseRentLabel: 'ค่าเช่าพื้นฐาน (บาท)',
+          baseRentPlaceholder: '5000',
+          baseRentInvalid: 'กรุณากรอกค่าเช่าพื้นฐานที่มากกว่า 0',
+          applyBaseRent: 'ปรับค่าเช่าพื้นฐาน',
+          additionalChargeRules: 'กฎค่าบริการเพิ่มเติม',
+          selected: 'เลือก',
+          noActiveRules:
+            'ยังไม่มีกฎค่าบริการเพิ่มเติมที่เปิดใช้งาน กรุณาเพิ่มจากหน้าตั้งค่าก่อน',
+          perRoom: '/ห้อง',
+          selectAll: 'เลือกทั้งหมด',
+          clearSelection: 'ล้างรายการที่เลือก',
+          selectedAdditionalCharges: 'ค่าบริการเพิ่มเติมที่เลือก',
+          perOccupiedRoom: 'ต่อห้องที่มีผู้พัก',
+          applyRulesToSelected: 'ใช้กฎค่าบริการกับห้องที่เลือก',
+          resetToGlobal: 'รีเซ็ตห้องที่เลือกให้ใช้กฎส่วนกลาง',
+          title: 'ตั้งค่าห้องแบบกลุ่ม',
+          selectFloor: 'เลือกชั้น',
+          floor: 'ชั้น',
+          selectRooms: 'เลือกห้อง',
+          deselectAll: 'ยกเลิกเลือกทั้งหมด',
+          applyBaseRentFeedback: 'ตั้งค่า {{amount}} ให้ {{count}} ห้อง ที่ชั้น {{floor}} แล้ว',
+          applyNoChargesFeedback: 'ลบค่าบริการเพิ่มเติมออกจาก {{count}} ห้อง ที่ชั้น {{floor}} แล้ว',
+          applyChargeRulesFeedback:
+            'ใช้กฎค่าบริการ {{ruleCount}} รายการกับ {{count}} ห้อง ที่ชั้น {{floor}} แล้ว',
+          resetGlobalFeedback: 'รีเซ็ต {{count}} ห้องให้ใช้กฎค่าบริการส่วนกลางแล้ว',
+        }
+      : {
+          roomsSelected: 'Rooms Selected',
+          baseRentLabel: 'Base Rent (THB)',
+          baseRentPlaceholder: '5000',
+          baseRentInvalid: 'Please enter a valid base rent amount greater than 0.',
+          applyBaseRent: 'Apply Base Rent',
+          additionalChargeRules: 'Additional Charge Rules',
+          selected: 'selected',
+          noActiveRules:
+            'No active additional charge rules found. Add rules in Property Settings first.',
+          perRoom: '/room',
+          selectAll: 'Select All',
+          clearSelection: 'Clear Selection',
+          selectedAdditionalCharges: 'Selected additional charges',
+          perOccupiedRoom: 'per occupied room',
+          applyRulesToSelected: 'Apply Charge Rules to Selected Rooms',
+          resetToGlobal: 'Reset Selected Rooms to Global Rules',
+          title: 'Bulk Room Setup',
+          selectFloor: 'Select Floor',
+          floor: 'Floor',
+          selectRooms: 'Select Rooms',
+          deselectAll: 'Deselect All',
+          applyBaseRentFeedback: 'Applied {{amount}} to {{count}} room(s) on Floor {{floor}}.',
+          applyNoChargesFeedback:
+            'Applied no additional charges to {{count}} room(s) on Floor {{floor}}.',
+          applyChargeRulesFeedback:
+            'Applied {{ruleCount}} charge rule(s) to {{count}} room(s) on Floor {{floor}}.',
+          resetGlobalFeedback:
+            'Reset {{count}} room(s) to use global additional charge rules.',
+        };
 
   const allRoomsOnFloor = useMemo(
     () => buildRoomsOnFloor(selectedFloor),
@@ -86,7 +148,10 @@ export default function BulkRoomSetupPage() {
     applyBulkBaseRentOverrides(selectedRooms, parsedBaseRent);
     window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
     setBaseRentFeedback(
-      `Applied ${formatCurrency(parsedBaseRent)} to ${selectedRooms.length} room(s) on Floor ${selectedFloor}.`
+      text.applyBaseRentFeedback
+        .replace('{{amount}}', formatCurrency(parsedBaseRent))
+        .replace('{{count}}', selectedRooms.length.toString())
+        .replace('{{floor}}', selectedFloor.toString())
     );
     setChargeFeedback(null);
   };
@@ -127,11 +192,16 @@ export default function BulkRoomSetupPage() {
 
     if (selectedChargeRuleIds.length === 0) {
       setChargeFeedback(
-        `Applied no additional charges to ${selectedRooms.length} room(s) on Floor ${selectedFloor}.`
+        text.applyNoChargesFeedback
+          .replace('{{count}}', selectedRooms.length.toString())
+          .replace('{{floor}}', selectedFloor.toString())
       );
     } else {
       setChargeFeedback(
-        `Applied ${selectedChargeRuleIds.length} charge rule(s) to ${selectedRooms.length} room(s) on Floor ${selectedFloor}.`
+        text.applyChargeRulesFeedback
+          .replace('{{ruleCount}}', selectedChargeRuleIds.length.toString())
+          .replace('{{count}}', selectedRooms.length.toString())
+          .replace('{{floor}}', selectedFloor.toString())
       );
     }
 
@@ -146,7 +216,7 @@ export default function BulkRoomSetupPage() {
     resetBulkRoomAdditionalChargeOverrides(selectedRooms);
     window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
     setChargeFeedback(
-      `Reset ${selectedRooms.length} room(s) to use global additional charge rules.`
+      text.resetGlobalFeedback.replace('{{count}}', selectedRooms.length.toString())
     );
     setBaseRentFeedback(null);
   };
@@ -154,7 +224,9 @@ export default function BulkRoomSetupPage() {
   const actionFormContent = (
     <>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold font-headline text-on-surface">{selectedRooms.length} Rooms Selected</h2>
+        <h2 className="text-2xl font-bold font-headline text-on-surface">
+          {selectedRooms.length} {text.roomsSelected}
+        </h2>
         <button
           onClick={() => setSelectedRooms([])}
           className="text-on-surface-variant p-2 rounded-full hover:bg-surface-container-low"
@@ -166,7 +238,7 @@ export default function BulkRoomSetupPage() {
       <div className="space-y-5 mb-8">
         {/* Base Rent Input */}
         <div className="flex flex-col">
-          <label className="text-sm font-bold text-on-surface-variant mb-2 ml-1">Base Rent (THB)</label>
+          <label className="text-sm font-bold text-on-surface-variant mb-2 ml-1">{text.baseRentLabel}</label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-on-surface-variant font-medium">฿</span>
             <input
@@ -175,12 +247,12 @@ export default function BulkRoomSetupPage() {
               inputMode="numeric"
               value={baseRentInput}
               onChange={(e) => handleBaseRentChange(e.target.value)}
-              placeholder="5000"
+              placeholder={text.baseRentPlaceholder}
             />
           </div>
           {!isBaseRentValid && (
             <p className="mt-2 text-sm font-medium text-error">
-              Please enter a valid base rent amount greater than 0.
+              {text.baseRentInvalid}
             </p>
           )}
           {baseRentFeedback && (
@@ -199,21 +271,21 @@ export default function BulkRoomSetupPage() {
               : 'opacity-50 cursor-not-allowed'
           }`}
         >
-          Apply Base Rent
+          {text.applyBaseRent}
         </button>
       </div>
 
       <div className="border-t border-surface-container pt-6 space-y-5">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="text-lg font-bold text-on-surface">Additional Charge Rules</h3>
+          <h3 className="text-lg font-bold text-on-surface">{text.additionalChargeRules}</h3>
           <span className="text-xs font-bold text-on-surface-variant bg-surface-container-low px-2 py-1 rounded-lg">
-            {selectedChargeRuleIds.length}/{activeAdditionalChargeRules.length} selected
+            {selectedChargeRuleIds.length}/{activeAdditionalChargeRules.length} {text.selected}
           </span>
         </div>
 
         {!hasActiveAdditionalChargeRules ? (
           <div className="rounded-xl bg-surface-container-low p-4 text-sm font-medium text-on-surface-variant text-center">
-            No active additional charge rules found. Add rules in Property Settings first.
+            {text.noActiveRules}
           </div>
         ) : (
           <>
@@ -233,7 +305,7 @@ export default function BulkRoomSetupPage() {
                   >
                     <p className="text-sm font-bold text-on-surface">{rule.name}</p>
                     <p className="text-xs font-medium text-on-surface-variant">
-                      {formatCurrency(Math.round(rule.amount))}/room
+                      {formatCurrency(Math.round(rule.amount))}{text.perRoom}
                     </p>
                   </button>
                 );
@@ -245,18 +317,19 @@ export default function BulkRoomSetupPage() {
                 onClick={handleSelectAllChargeRules}
                 className="h-10 px-3 rounded-lg text-xs font-bold border border-outline-variant text-on-surface hover:bg-surface-container-low transition-all active:scale-95"
               >
-                Select All
+                {text.selectAll}
               </button>
               <button
                 onClick={handleClearChargeRules}
                 className="h-10 px-3 rounded-lg text-xs font-bold border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-all active:scale-95"
               >
-                Clear Selection
+                {text.clearSelection}
               </button>
             </div>
 
             <p className="text-xs font-medium text-on-surface-variant">
-              Selected additional charges: {formatCurrency(Math.round(selectedChargeTotal))} per occupied room
+              {text.selectedAdditionalCharges}: {formatCurrency(Math.round(selectedChargeTotal))}{' '}
+              {text.perOccupiedRoom}
             </p>
           </>
         )}
@@ -270,7 +343,7 @@ export default function BulkRoomSetupPage() {
               : 'hover:opacity-90 active:scale-[0.98]'
           }`}
         >
-          Apply Charge Rules to Selected Rooms
+          {text.applyRulesToSelected}
         </button>
 
         <button
@@ -282,7 +355,7 @@ export default function BulkRoomSetupPage() {
               : 'hover:bg-surface-container-low active:scale-[0.98]'
           }`}
         >
-          Reset Selected Rooms to Global Rules
+          {text.resetToGlobal}
         </button>
 
         {chargeFeedback && (
@@ -299,7 +372,7 @@ export default function BulkRoomSetupPage() {
         <Link href="/services" className="text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors p-2 rounded-full flex items-center justify-center">
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>arrow_back</span>
         </Link>
-        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 font-headline">Bulk Room Setup</h1>
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 font-headline">{text.title}</h1>
         <button className="text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors p-2 rounded-full flex items-center justify-center">
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>help_outline</span>
         </button>
@@ -308,12 +381,12 @@ export default function BulkRoomSetupPage() {
       {/* Main Content Area */}
       <main className="grow flex flex-col pt-4 pb-85 px-4 md:px-0 lg:px-8 xl:px-12 md:pb-8">
         <div className="hidden md:flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold tracking-tight">Bulk Room Setup</h2>
+          <h2 className="text-2xl font-bold tracking-tight">{text.title}</h2>
         </div>
 
         {/* Floor Selector */}
         <div className="mb-8">
-          <h2 className="text-lg font-bold font-headline mb-4 text-on-surface">Select Floor</h2>
+          <h2 className="text-lg font-bold font-headline mb-4 text-on-surface">{text.selectFloor}</h2>
           <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
             {FLOORS.map((floor) => (
               <button
@@ -325,7 +398,7 @@ export default function BulkRoomSetupPage() {
                     : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-dim'
                 }`}
               >
-                Floor {floor}
+                {text.floor} {floor}
               </button>
             ))}
           </div>
@@ -334,9 +407,9 @@ export default function BulkRoomSetupPage() {
         {/* Selection Grid */}
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold font-headline text-on-surface">Select Rooms</h2>
+            <h2 className="text-lg font-bold font-headline text-on-surface">{text.selectRooms}</h2>
             <button onClick={handleSelectAll} className="text-primary font-bold text-sm hover:underline">
-              {selectedRooms.length === allRoomsOnFloor.length ? 'Deselect All' : 'Select All'}
+              {selectedRooms.length === allRoomsOnFloor.length ? text.deselectAll : text.selectAll}
             </button>
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">

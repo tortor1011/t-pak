@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
   getPendingSlipVerificationQueue,
   loadSlipVerificationQueue,
@@ -14,6 +15,7 @@ import PageHeader from '@/components/layout/PageHeader';
 
 export default function VerifySlipsPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [queue, setQueue] = useState<SlipVerificationQueueItem[]>(() =>
     loadSlipVerificationQueue()
   );
@@ -47,8 +49,8 @@ export default function VerifySlipsPage() {
 
       setActionFeedback(
         decision === 'approved'
-          ? `Room ${slip.roomNumber} was approved and marked as paid.`
-          : `Room ${slip.roomNumber} was rejected and moved back to unpaid.`
+          ? t('verify.approvedFeedback', { room: slip.roomNumber })
+          : t('verify.rejectedFeedback', { room: slip.roomNumber })
       );
     } finally {
       setActiveAction(null);
@@ -58,7 +60,7 @@ export default function VerifySlipsPage() {
   return (
     <div className="min-h-screen bg-surface pb-32 lg:pb-8">
       <PageHeader
-        title="Verify Payments"
+        title={t('page.verifyPaymentsTitle')}
         onBack={() => router.back()}
         rightAction={
           <span className="bg-tertiary text-on-tertiary w-7 h-7 rounded-full flex items-center justify-center text-xs font-black">
@@ -70,9 +72,9 @@ export default function VerifySlipsPage() {
       <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-5xl mx-auto space-y-6 page-transition">
         {/* Queue Header */}
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-bold text-on-surface">Verification Queue</h3>
+          <h3 className="text-lg font-bold text-on-surface">{t('verify.queueTitle')}</h3>
           <span className="text-on-surface-variant text-sm font-medium">
-            {pendingQueue.length} pending
+            {t('verify.pendingCount', { count: pendingQueue.length })}
           </span>
         </div>
 
@@ -101,11 +103,11 @@ export default function VerifySlipsPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xl font-black text-on-surface">
-                      Room {slip.roomNumber}
+                      {t('common.room')} {slip.roomNumber}
                     </span>
                     {slip.isAmountMatch && (
                       <span className="bg-secondary-container text-on-secondary-container text-[10px] font-black px-2 py-0.5 rounded-full uppercase">
-                        MATCH
+                        {t('verify.match')}
                       </span>
                     )}
                   </div>
@@ -122,7 +124,7 @@ export default function VerifySlipsPage() {
                   </p>
                   {slip.detectedAmount && (
                     <p className="text-xs font-medium text-secondary">
-                      AI detected: {formatCurrency(slip.detectedAmount)}
+                      {t('verify.aiDetected', { amount: formatCurrency(slip.detectedAmount) })}
                     </p>
                   )}
                 </div>
@@ -132,7 +134,7 @@ export default function VerifySlipsPage() {
               <div className="w-full h-32 bg-surface-container rounded-2xl flex items-center justify-center overflow-hidden">
                 <div className="text-center text-on-surface-variant">
                   <span className="material-symbols-outlined text-3xl">receipt</span>
-                  <p className="text-xs font-medium mt-1">Payment Slip</p>
+                  <p className="text-xs font-medium mt-1">{t('verify.paymentSlip')}</p>
                 </div>
               </div>
 
@@ -148,7 +150,7 @@ export default function VerifySlipsPage() {
                   }`}
                 >
                   <span className="material-symbols-outlined text-xl">check_circle</span>
-                  {isApproving ? 'Approving...' : 'Approve'}
+                  {isApproving ? t('verify.approving') : t('verify.approve')}
                 </button>
                 <button
                   onClick={() => handleReview(slip, 'rejected')}
@@ -160,7 +162,7 @@ export default function VerifySlipsPage() {
                   }`}
                 >
                   <span className="material-symbols-outlined text-xl">cancel</span>
-                  {isRejecting ? 'Rejecting...' : 'Reject'}
+                  {isRejecting ? t('verify.rejecting') : t('verify.reject')}
                 </button>
               </div>
             </div>
@@ -173,8 +175,8 @@ export default function VerifySlipsPage() {
             <span className="material-symbols-outlined text-5xl mb-4 block text-secondary">
               verified
             </span>
-            <h3 className="text-xl font-bold mb-2">All Clear!</h3>
-            <p className="font-medium">No slips waiting for verification</p>
+            <h3 className="text-xl font-bold mb-2">{t('verify.allClearTitle')}</h3>
+            <p className="font-medium">{t('verify.allClearDescription')}</p>
           </div>
         )}
       </div>

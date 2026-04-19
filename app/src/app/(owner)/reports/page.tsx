@@ -2,14 +2,58 @@
 
 import { MOCK_FINANCIAL } from '@/services/mockData';
 import { formatCurrency } from '@/utils/currency';
+import { useLanguage } from '@/hooks/useLanguage';
 
 export default function ReportsPage() {
+  const { language } = useLanguage();
   const maxRevenue = Math.max(...MOCK_FINANCIAL.monthlyData.map((d) => d.revenue));
+  const text =
+    language === 'th'
+      ? {
+          title: 'รายงานการเงิน',
+          totalRevenue: 'รายรับรวม',
+          totalExpenses: 'รายจ่ายรวม',
+          netProfit: 'กำไรสุทธิ',
+          monthlyTrend: 'แนวโน้มรายเดือน',
+          revenue: 'รายรับ',
+          expenses: 'รายจ่าย',
+          occupancyRate: 'อัตราการเข้าพัก',
+          roomsSuffix: 'ห้อง',
+          exportData: 'ส่งออกข้อมูล',
+          excel: 'เอ็กเซล',
+          period: 'เมษายน 2026',
+        }
+      : {
+          title: 'Financial Reports',
+          totalRevenue: 'Total Revenue',
+          totalExpenses: 'Total Expenses',
+          netProfit: 'Net Profit',
+          monthlyTrend: 'Monthly Trend',
+          revenue: 'Revenue',
+          expenses: 'Expenses',
+          occupancyRate: 'Occupancy Rate',
+          roomsSuffix: 'rooms',
+          exportData: 'Export Data',
+          excel: 'Excel',
+          period: 'April 2026',
+        };
+
+  const monthLabels: Record<string, string> =
+    language === 'th'
+      ? {
+          Nov: 'พ.ย.',
+          Dec: 'ธ.ค.',
+          Jan: 'ม.ค.',
+          Feb: 'ก.พ.',
+          Mar: 'มี.ค.',
+          Apr: 'เม.ย.',
+        }
+      : {};
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8 page-transition">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold tracking-tight">Financial Reports</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{text.title}</h2>
         <button className="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-xl text-on-surface font-semibold hover:bg-surface-container transition-colors text-sm">
           <span>2026</span>
           <span className="material-symbols-outlined text-sm">arrow_drop_down</span>
@@ -27,7 +71,7 @@ export default function ReportsPage() {
               </div>
             </div>
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">
-              Total Revenue
+              {text.totalRevenue}
             </p>
             <p className="text-2xl font-black text-on-surface">
               {formatCurrency(MOCK_FINANCIAL.totalRevenue)}
@@ -40,7 +84,7 @@ export default function ReportsPage() {
               </div>
             </div>
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">
-              Total Expenses
+              {text.totalExpenses}
             </p>
             <p className="text-2xl font-black text-on-surface">
               {formatCurrency(47000)}
@@ -50,11 +94,11 @@ export default function ReportsPage() {
 
         {/* Net Profit */}
         <div className="bg-primary-container rounded-3xl p-6 text-white shadow-xl flex flex-col justify-center">
-          <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-1">Net Profit</p>
+          <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-1">{text.netProfit}</p>
           <h2 className="text-4xl font-black">
             {formatCurrency(MOCK_FINANCIAL.totalRevenue - 47000)}
           </h2>
-          <p className="text-sm font-medium opacity-70 mt-1">April 2026</p>
+          <p className="text-sm font-medium opacity-70 mt-1">{text.period}</p>
         </div>
       </div>
 
@@ -62,7 +106,7 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Monthly Chart — takes 2 cols */}
         <section className="lg:col-span-2 space-y-4">
-          <h3 className="text-lg font-bold tracking-tight">Monthly Trend</h3>
+          <h3 className="text-lg font-bold tracking-tight">{text.monthlyTrend}</h3>
           <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
             <div className="flex items-end gap-3 h-48">
               {MOCK_FINANCIAL.monthlyData.map((item) => {
@@ -80,7 +124,9 @@ export default function ReportsPage() {
                         style={{ height: `${expenseHeight}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-bold text-on-surface-variant">{item.month}</span>
+                    <span className="text-[10px] font-bold text-on-surface-variant">
+                      {monthLabels[item.month] ?? item.month}
+                    </span>
                   </div>
                 );
               })}
@@ -88,11 +134,11 @@ export default function ReportsPage() {
             <div className="flex items-center gap-6 mt-4 pt-4 border-t border-surface-container">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm bg-primary/80" />
-                <span className="text-xs font-medium text-on-surface-variant">Revenue</span>
+                <span className="text-xs font-medium text-on-surface-variant">{text.revenue}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-sm bg-tertiary-fixed" />
-                <span className="text-xs font-medium text-on-surface-variant">Expenses</span>
+                <span className="text-xs font-medium text-on-surface-variant">{text.expenses}</span>
               </div>
             </div>
           </div>
@@ -100,14 +146,14 @@ export default function ReportsPage() {
 
         {/* Occupancy */}
         <section className="space-y-4">
-          <h3 className="text-lg font-bold tracking-tight">Occupancy Rate</h3>
+          <h3 className="text-lg font-bold tracking-tight">{text.occupancyRate}</h3>
           <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
             <div className="flex justify-between items-center mb-4">
               <span className="text-3xl font-black text-primary">
                 {Math.round((MOCK_FINANCIAL.occupiedRooms / MOCK_FINANCIAL.totalRooms) * 100)}%
               </span>
               <span className="text-on-surface-variant font-medium text-sm">
-                {MOCK_FINANCIAL.occupiedRooms}/{MOCK_FINANCIAL.totalRooms} rooms
+                {MOCK_FINANCIAL.occupiedRooms}/{MOCK_FINANCIAL.totalRooms} {text.roomsSuffix}
               </span>
             </div>
             <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden">
@@ -121,11 +167,11 @@ export default function ReportsPage() {
           </div>
 
           {/* Export */}
-          <h3 className="text-lg font-bold tracking-tight pt-4">Export Data</h3>
+          <h3 className="text-lg font-bold tracking-tight pt-4">{text.exportData}</h3>
           <div className="grid grid-cols-2 gap-3">
             <button className="h-14 bg-surface-container-high text-on-surface rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
               <span className="material-symbols-outlined text-primary">table_chart</span>
-              Excel
+              {text.excel}
             </button>
             <button className="h-14 bg-surface-container-high text-on-surface rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
               <span className="material-symbols-outlined text-tertiary">picture_as_pdf</span>
