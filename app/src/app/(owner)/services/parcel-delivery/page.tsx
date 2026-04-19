@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import PageHeader from '@/components/layout/PageHeader';
 import SearchInput from '@/components/ui/SearchInput';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRepositories } from '@/hooks/useRepositories';
@@ -154,110 +155,109 @@ export default function ParcelDeliveryPage() {
   };
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6 page-transition">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight text-on-surface">{text.title}</h2>
-        <p className="text-on-surface-variant font-medium">{text.subtitle}</p>
-      </div>
+    <div className="min-h-screen bg-surface pb-32 lg:pb-8">
+      <PageHeader title={text.title} onBack={() => router.back()} />
 
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
-          <p className="text-on-surface-variant text-xs uppercase tracking-wide">{text.pending}</p>
-          <p className="text-3xl font-extrabold text-primary">{pendingCount}</p>
-        </div>
-        <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
-          <p className="text-on-surface-variant text-xs uppercase tracking-wide">{text.inProgress}</p>
-          <p className="text-3xl font-extrabold text-amber-600">{inProgressCount}</p>
-        </div>
-        <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
-          <p className="text-on-surface-variant text-xs uppercase tracking-wide">{text.delivered}</p>
-          <p className="text-3xl font-extrabold text-secondary">{deliveredCount}</p>
-        </div>
-        <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
-          <p className="text-on-surface-variant text-xs uppercase tracking-wide">{text.pushQueued}</p>
-          <p className="text-3xl font-extrabold text-primary">{notificationOutboxCount}</p>
-        </div>
-      </section>
-
-      {/* <section className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
-        <p className="text-sm font-medium text-on-surface-variant">{text.requestSourceHint}</p>
-      </section> */}
-
-      {errorMessage && (
-        <div className="rounded-xl bg-error-container p-3 text-sm font-medium text-on-error-container">
-          {errorMessage}
-        </div>
-      )}
-
-      <section className="space-y-4">
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-on-surface">{text.activeList}</h3>
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder={text.searchPlaceholder}
-          />
+      <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6 page-transition">
+        <div className="space-y-2">
+          <p className="text-on-surface-variant font-medium">{text.subtitle}</p>
         </div>
 
-        <div className="space-y-3">
-          {visibleTasks.map((task) => (
-            <article
-              key={task.id}
-              className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_12px_30px_rgba(18,28,40,0.04)]"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xl font-extrabold text-on-surface">{task.roomNumber}</p>
-                  <p className="text-sm font-medium text-primary">{task.tenantName}</p>
-                  <p className="text-xs text-on-surface-variant font-medium">
-                    {text.requestedAgo} {getRelativeTime(task.requestedAt, language)}
-                  </p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${getStatusClass(
-                    task.status
-                  )}`}
-                >
-                  {text.statuses[task.status]}
-                </span>
-              </div>
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
+            <p className="text-on-surface-variant text-xs uppercase tracking-wide">{text.pending}</p>
+            <p className="text-3xl font-extrabold text-primary">{pendingCount}</p>
+          </div>
+          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
+            <p className="text-on-surface-variant text-xs uppercase tracking-wide">{text.inProgress}</p>
+            <p className="text-3xl font-extrabold text-amber-600">{inProgressCount}</p>
+          </div>
+          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
+            <p className="text-on-surface-variant text-xs uppercase tracking-wide">{text.delivered}</p>
+            <p className="text-3xl font-extrabold text-secondary">{deliveredCount}</p>
+          </div>
+          <div className="bg-surface-container-lowest rounded-2xl p-4 shadow-[0_12px_30px_rgba(18,28,40,0.04)]">
+            <p className="text-on-surface-variant text-xs uppercase tracking-wide">{text.pushQueued}</p>
+            <p className="text-3xl font-extrabold text-primary">{notificationOutboxCount}</p>
+          </div>
+        </section>
 
-              <div className="mt-4 space-y-1 text-sm text-on-surface-variant font-medium">
-                <p>Tracking: {task.trackingNumber}</p>
-                <p>Phone: {task.phone}</p>
-                {task.deliveredAt && (
-                  <p>{language === 'th' ? 'ส่งเมื่อ' : 'Delivered'}: {getRelativeTime(task.deliveredAt, language)}</p>
-                )}
-              </div>
+        {errorMessage && (
+          <div className="rounded-xl bg-error-container p-3 text-sm font-medium text-on-error-container">
+            {errorMessage}
+          </div>
+        )}
 
-              <div className="mt-4">
-                {task.status === 'delivered' ? (
-                  <div className="inline-flex items-center gap-2 text-sm font-bold text-secondary">
-                    <span className="material-symbols-outlined">verified</span>
-                    <span>{text.deliveredWithProof}</span>
+        <section className="space-y-4">
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-on-surface">{text.activeList}</h3>
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder={text.searchPlaceholder}
+            />
+          </div>
+
+          <div className="space-y-3">
+            {visibleTasks.map((task) => (
+              <article
+                key={task.id}
+                className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_12px_30px_rgba(18,28,40,0.04)]"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xl font-extrabold text-on-surface">{task.roomNumber}</p>
+                    <p className="text-sm font-medium text-primary">{task.tenantName}</p>
+                    <p className="text-xs text-on-surface-variant font-medium">
+                      {text.requestedAgo} {getRelativeTime(task.requestedAt, language)}
+                    </p>
                   </div>
-                ) : (
-                  <button
-                    className="w-full h-11 rounded-xl btn-primary-gradient text-on-primary font-bold"
-                    onClick={() => handleOpenProofFlow(task)}
-                    type="button"
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${getStatusClass(
+                      task.status
+                    )}`}
                   >
-                    {task.status === 'pending'
-                      ? text.startDelivery
-                      : text.continueDelivery}
-                  </button>
-                )}
-              </div>
-            </article>
-          ))}
+                    {text.statuses[task.status]}
+                  </span>
+                </div>
 
-          {visibleTasks.length === 0 && (
-            <div className="rounded-2xl bg-surface-container-low p-6 text-center text-on-surface-variant font-medium">
-              {text.noTasks}
-            </div>
-          )}
-        </div>
-      </section>
+                <div className="mt-4 space-y-1 text-sm text-on-surface-variant font-medium">
+                  <p>Tracking: {task.trackingNumber}</p>
+                  <p>Phone: {task.phone}</p>
+                  {task.deliveredAt && (
+                    <p>{language === 'th' ? 'ส่งเมื่อ' : 'Delivered'}: {getRelativeTime(task.deliveredAt, language)}</p>
+                  )}
+                </div>
+
+                <div className="mt-4">
+                  {task.status === 'delivered' ? (
+                    <div className="inline-flex items-center gap-2 text-sm font-bold text-secondary">
+                      <span className="material-symbols-outlined">verified</span>
+                      <span>{text.deliveredWithProof}</span>
+                    </div>
+                  ) : (
+                    <button
+                      className="w-full h-11 rounded-xl btn-primary-gradient text-on-primary font-bold"
+                      onClick={() => handleOpenProofFlow(task)}
+                      type="button"
+                    >
+                      {task.status === 'pending'
+                        ? text.startDelivery
+                        : text.continueDelivery}
+                    </button>
+                  )}
+                </div>
+              </article>
+            ))}
+
+            {visibleTasks.length === 0 && (
+              <div className="rounded-2xl bg-surface-container-low p-6 text-center text-on-surface-variant font-medium">
+                {text.noTasks}
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

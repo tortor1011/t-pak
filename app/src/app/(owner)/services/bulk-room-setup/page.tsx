@@ -1,8 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { formatCurrency } from '@/utils/currency';
+import PageHeader from '@/components/layout/PageHeader';
 import { applyBulkBaseRentOverrides } from '@/services/roomPricingOverrides';
 import { loadActiveAdditionalChargeRules } from '@/services/additionalChargeRules';
 import {
@@ -20,6 +21,7 @@ function buildRoomsOnFloor(floor: number): number[] {
 }
 
 export default function BulkRoomSetupPage() {
+  const router = useRouter();
   const { language } = useLanguage();
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedRooms, setSelectedRooms] = useState<number[]>(() =>
@@ -366,24 +368,19 @@ export default function BulkRoomSetupPage() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-surface md:bg-transparent">
-      {/* TopAppBar for mobile */}
-      <header className="md:hidden bg-white dark:bg-slate-900 shadow-[0_20px_50px_rgba(18,28,40,0.05)] docked full-width top-0 z-10 flex justify-between items-center w-full px-6 py-4">
-        <Link href="/services" className="text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors p-2 rounded-full flex items-center justify-center">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>arrow_back</span>
-        </Link>
-        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 font-headline">{text.title}</h1>
-        <button className="text-blue-600 dark:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors p-2 rounded-full flex items-center justify-center">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>help_outline</span>
-        </button>
-      </header>
+    <div className="flex flex-col min-h-screen bg-surface pb-32 lg:pb-8">
+      <PageHeader
+        title={text.title}
+        onBack={() => router.back()}
+        rightAction={
+          <button className="p-2 rounded-full hover:bg-slate-100 transition-colors">
+            <span className="material-symbols-outlined text-slate-500">help_outline</span>
+          </button>
+        }
+      />
 
       {/* Main Content Area */}
       <main className="grow flex flex-col pt-4 pb-85 px-4 md:px-0 lg:px-8 xl:px-12 md:pb-8">
-        <div className="hidden md:flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold tracking-tight">{text.title}</h2>
-        </div>
-
         {/* Floor Selector */}
         <div className="mb-8">
           <h2 className="text-lg font-bold font-headline mb-4 text-on-surface">{text.selectFloor}</h2>
