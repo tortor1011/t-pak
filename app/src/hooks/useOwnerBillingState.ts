@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   buildOwnerBillingState,
+  buildOwnerBillingStateResult,
   type OwnerBillingState,
 } from '@/services/ownerBillingState';
 
@@ -16,7 +17,10 @@ export function useOwnerBillingState(
   );
 
   const refreshBillingState = useCallback(() => {
-    setBillingState(buildOwnerBillingState());
+    const nextState = buildOwnerBillingStateResult();
+    if (nextState.ok) {
+      setBillingState(nextState.value);
+    }
   }, []);
 
   useEffect(() => {

@@ -3,22 +3,23 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/useLanguage';
-import {
-  getPendingSlipVerificationQueue,
-  loadSlipVerificationQueue,
-  reviewSlipVerification,
-  type SlipVerificationQueueItem,
-} from '@/services/slipVerificationQueue';
+import { useRepositories } from '@/hooks/useRepositories';
+import type {
+  SlipReviewDecision,
+  SlipVerificationQueueItem,
+} from '@/repositories/billing/types';
 import { formatCurrency } from '@/utils/currency';
 import { getRelativeTime } from '@/utils/date';
 import PageHeader from '@/components/layout/PageHeader';
 
 export default function VerifySlipsPage() {
   const router = useRouter();
+  const { billingRepository } = useRepositories();
   const { t } = useLanguage();
-  const [queue, setQueue] = useState<SlipVerificationQueueItem[]>(() =>
-    loadSlipVerificationQueue()
-  );
+  const [queue, setQueue] = useState<SlipVerificationQueueItem[]>(() => {
+    const queueResult = billingRepository.loadSlipVerificationQueue();
+    return queueResult.ok ? queueResult.value : [];
+  });
   const [activeAction, setActiveAction] = useState<{
     slipId: string;
     decision: 'approved' | 'rejected';
@@ -26,13 +27,13 @@ export default function VerifySlipsPage() {
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
 
   const pendingQueue = useMemo(
-    () => getPendingSlipVerificationQueue(queue),
+    () => queue.filter((item) => item.decision === 'pending'),
     [queue]
   );
 
   const handleReview = async (
     slip: SlipVerificationQueueItem,
-    decision: 'approved' | 'rejected'
+    decision: SlipReviewDecision
   ) => {
     if (activeAction) return;
 
@@ -44,8 +45,16 @@ export default function VerifySlipsPage() {
         window.setTimeout(() => resolve(), 450);
       });
 
-      const nextQueue = reviewSlipVerification(slip.id, decision);
-      setQueue(nextQueue);
+      const nextQueueResult = billingRepository.reviewSlipVerification(
+        slip.id,
+        decision
+      );
+      if (!nextQueueResult.ok) {
+        setActionFeedback(nextQueueResult.error.message);
+        return;
+      }
+
+      setQueue(nextQueueResult.value);
 
       setActionFeedback(
         decision === 'approved'

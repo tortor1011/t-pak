@@ -1,6 +1,6 @@
-import { MOCK_ROOMS } from '@/services/mockData';
 import { BillingSummary, calculateBillingSummary } from '@/services/billingSummary';
-import { buildOwnerRooms } from '@/services/ownerRooms';
+import { getRepositories } from '@/repositories';
+import { err, type Result } from '@/repositories/common/Result';
 import {
   countPendingSlipVerifications,
   loadSlipVerificationQueue,
@@ -20,6 +20,22 @@ export interface OwnerBillingState {
   totalOutstanding: number;
 }
 
+const EMPTY_OWNER_BILLING_STATE: OwnerBillingState = {
+  rooms: [],
+  summary: {
+    totalRevenue: 0,
+    pendingPayments: 0,
+    collectedRevenue: 0,
+    totalRooms: 0,
+    occupiedRooms: 0,
+    vacantRooms: 0,
+  },
+  pendingSlipCount: 0,
+  debtQueue: [],
+  activeDebtQueue: [],
+  totalOutstanding: 0,
+};
+
 function getActiveDebtQueue(
   debtQueue: DebtCollectionQueueItem[],
   rooms: Room[]
@@ -34,7 +50,14 @@ function getActiveDebtQueue(
 }
 
 export function buildOwnerBillingState(): OwnerBillingState {
-  const rooms = buildOwnerRooms(MOCK_ROOMS);
+  const { roomRepository } = getRepositories();
+  const roomsResult = roomRepository.listRooms();
+
+  if (!roomsResult.ok) {
+    return EMPTY_OWNER_BILLING_STATE;
+  }
+
+  const rooms = roomsResult.value;
   const summary = calculateBillingSummary(rooms);
   const pendingSlipCount = countPendingSlipVerifications(loadSlipVerificationQueue());
   const debtQueue = loadDebtCollectionQueue();
@@ -52,4 +75,19 @@ export function buildOwnerBillingState(): OwnerBillingState {
     activeDebtQueue,
     totalOutstanding,
   };
+}
+
+export function buildOwnerBillingStateResult(): Result<OwnerBillingState> {
+  try {
+    return {
+      ok: true,
+      value: buildOwnerBillingState(),
+    };
+  } catch (error) {
+    return err({
+      code: 'UNKNOWN_ERROR',
+      message: 'Failed to build owner billing state.',
+      details: error,
+    });
+  }
 }

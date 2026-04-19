@@ -3,20 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
+import { useRepositories } from '@/hooks/useRepositories';
 import { useLanguage } from '@/hooks/useLanguage';
-import {
-  settleDebtByRoomNumber,
-  sendBulkDebtRemindersByIds,
-  sendDebtReminder,
-  type DebtCollectionQueueItem,
-} from '@/services/debtReminderQueue';
-import { setRoomBillingStatusOverride } from '@/services/roomBillingStatusOverrides';
+import type { DebtCollectionQueueItem } from '@/repositories/billing/types';
 import { formatCurrency } from '@/utils/currency';
 import { getRelativeTime } from '@/utils/date';
 import PageHeader from '@/components/layout/PageHeader';
 
 export default function DebtCollectionPage() {
   const router = useRouter();
+  const { billingRepository } = useRepositories();
   const { t } = useLanguage();
   const { billingState, refreshBillingState } = useOwnerBillingState();
   const [isBulkSending, setIsBulkSending] = useState(false);
@@ -42,7 +38,12 @@ export default function DebtCollectionPage() {
       });
 
       const debtIds = debts.map((debt) => debt.id);
-      sendBulkDebtRemindersByIds(debtIds);
+      const nextQueueResult = billingRepository.sendBulkDebtRemindersByIds(debtIds);
+      if (!nextQueueResult.ok) {
+        setFeedback(nextQueueResult.error.message);
+        return;
+      }
+
       refreshBillingState();
       setFeedback(t('debt.bulkReminderFeedback', { count: debtIds.length }));
     } finally {
@@ -61,7 +62,12 @@ export default function DebtCollectionPage() {
         window.setTimeout(() => resolve(), 450);
       });
 
-      sendDebtReminder(debt.id);
+      const nextQueueResult = billingRepository.sendDebtReminder(debt.id);
+      if (!nextQueueResult.ok) {
+        setFeedback(nextQueueResult.error.message);
+        return;
+      }
+
       refreshBillingState();
       setFeedback(t('debt.singleReminderFeedback', { room: debt.roomNumber }));
     } finally {
@@ -91,9 +97,14 @@ export default function DebtCollectionPage() {
         window.setTimeout(() => resolve(), 500);
       });
 
-      settleDebtByRoomNumber(debt.roomNumber);
-      setRoomBillingStatusOverride(debt.roomNumber, 'paid');
-      window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
+      const nextQueueResult = billingRepository.settleDebtAndMarkRoomPaid(
+        debt.roomNumber
+      );
+      if (!nextQueueResult.ok) {
+        setFeedback(nextQueueResult.error.message);
+        return;
+      }
+
       refreshBillingState();
       setFeedback(t('debt.markedSettledFeedback', { room: debt.roomNumber }));
     } finally {
