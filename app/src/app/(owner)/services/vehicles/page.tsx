@@ -33,7 +33,9 @@ export default function VehiclesPage() {
   const [search, setSearch] = useState('');
   const [exactMatch, setExactMatch] = useState(false);
   const [activeTenantOnly, setActiveTenantOnly] = useState(true);
+  const [directoryRoomFilter, setDirectoryRoomFilter] = useState('');
   const [refreshVersion, setRefreshVersion] = useState(0);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -62,6 +64,8 @@ export default function VehiclesPage() {
           total: 'ทะเบียนทั้งหมด',
           active: 'กำลังใช้งาน',
           addTitle: 'ลงทะเบียนรถลูกหอ',
+          addVehicle: '+ เพิ่มทะเบียนรถ',
+          closeForm: 'ปิด',
           room: 'ห้อง',
           plate: 'ป้ายทะเบียน',
           vehicleType: 'ประเภทรถ',
@@ -69,6 +73,8 @@ export default function VehiclesPage() {
           searchPlaceholder: 'ค้นหาจากทะเบียน ห้อง หรือชื่อผู้เช่า',
           exactMatch: 'ค้นหาแบบทะเบียนตรงตัว',
           activeOnly: 'แสดงเฉพาะผู้เช่า active',
+          roomFilter: 'กรองตามห้อง',
+          allRooms: 'ทุกห้อง',
           directory: 'Vehicle Directory',
           noResult: 'ไม่พบรายการทะเบียน',
           deactivate: 'ปิดใช้งาน',
@@ -91,6 +97,8 @@ export default function VehiclesPage() {
           total: 'Total Vehicles',
           active: 'Active Records',
           addTitle: 'Register Resident Vehicle',
+          addVehicle: '+ Add Vehicle',
+          closeForm: 'Close',
           room: 'Room',
           plate: 'License Plate',
           vehicleType: 'Vehicle Type',
@@ -98,6 +106,8 @@ export default function VehiclesPage() {
           searchPlaceholder: 'Search by plate, room, or tenant',
           exactMatch: 'Exact plate match only',
           activeOnly: 'Show active tenants only',
+          roomFilter: 'Filter by room',
+          allRooms: 'All rooms',
           directory: 'Vehicle Directory',
           noResult: 'No vehicles matched your filters.',
           deactivate: 'Deactivate',
@@ -148,6 +158,7 @@ export default function VehiclesPage() {
     const searchOptions: VehicleSearchOptions = {
       exactMatch,
       activeTenantOnly,
+      roomNumber: directoryRoomFilter || undefined,
     };
 
     if (refreshVersion < 0) {
@@ -158,6 +169,7 @@ export default function VehiclesPage() {
     return result.ok ? result.value : [];
   }, [
     activeTenantOnly,
+    directoryRoomFilter,
     exactMatch,
     refreshVersion,
     search,
@@ -196,6 +208,7 @@ export default function VehiclesPage() {
     setForm({ roomId: '', plate: '', vehicleType: 'car' });
     setFeedback(text.registerSuccess);
     setRefreshVersion((current) => current + 1);
+    setIsAddModalOpen(false);
   };
 
   const handleDeactivateVehicle = (vehicleId: string) => {
@@ -217,9 +230,21 @@ export default function VehiclesPage() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 space-y-6 page-transition">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight text-on-surface">{text.title}</h2>
-        <p className="text-on-surface-variant font-medium">{text.subtitle}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold tracking-tight text-on-surface">{text.title}</h2>
+          <p className="text-on-surface-variant font-medium">{text.subtitle}</p>
+        </div>
+        <button
+          className="h-11 px-4 rounded-xl btn-primary-gradient text-on-primary font-bold whitespace-nowrap"
+          type="button"
+          onClick={() => {
+            setErrorMessage(null);
+            setIsAddModalOpen(true);
+          }}
+        >
+          {text.addVehicle}
+        </button>
       </div>
 
       <section className="grid grid-cols-2 gap-4">
@@ -231,64 +256,6 @@ export default function VehiclesPage() {
           <p className="text-xs uppercase tracking-wide text-on-surface-variant">{text.active}</p>
           <p className="text-3xl font-extrabold text-secondary">{activeVehicles}</p>
         </div>
-      </section>
-
-      <section className="bg-surface-container-lowest rounded-2xl p-5 shadow-[0_12px_30px_rgba(18,28,40,0.04)] space-y-4">
-        <h3 className="text-lg font-bold text-on-surface">{text.addTitle}</h3>
-        <form className="grid grid-cols-1 md:grid-cols-3 gap-4" onSubmit={handleRegisterVehicle}>
-          <div>
-            <label className="block text-sm font-bold text-on-surface mb-2">{text.room}</label>
-            <select
-              className="w-full h-12 px-3 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary"
-              value={form.roomId}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, roomId: event.target.value }))
-              }
-              required
-            >
-              <option value="">--</option>
-              {rooms.map((room) => (
-                <option key={room.id} value={room.id}>
-                  {room.number} - {room.tenantName}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-on-surface mb-2">{text.plate}</label>
-            <input
-              className="w-full h-12 px-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary"
-              value={form.plate}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, plate: event.target.value }))
-              }
-              type="text"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-on-surface mb-2">{text.vehicleType}</label>
-            <select
-              className="w-full h-12 px-3 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary"
-              value={form.vehicleType}
-              onChange={(event) =>
-                setForm((prev) => ({
-                  ...prev,
-                  vehicleType: event.target.value as VehicleType,
-                }))
-              }
-            >
-              <option value="car">{text.type.car}</option>
-              <option value="motorcycle">{text.type.motorcycle}</option>
-              <option value="other">{text.type.other}</option>
-            </select>
-          </div>
-          <div className="md:col-span-3">
-            <button className="w-full h-12 rounded-xl btn-primary-gradient text-on-primary font-bold" type="submit">
-              {text.addButton}
-            </button>
-          </div>
-        </form>
       </section>
 
       {feedback && (
@@ -311,6 +278,22 @@ export default function VehiclesPage() {
         />
 
         <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-on-surface-variant">
+          <label className="inline-flex items-center gap-2">
+            <span>{text.roomFilter}</span>
+            <select
+              className="h-9 px-2 rounded-lg bg-surface-container-low border-none"
+              value={directoryRoomFilter}
+              onChange={(event) => setDirectoryRoomFilter(event.target.value)}
+            >
+              <option value="">{text.allRooms}</option>
+              {rooms.map((room) => (
+                <option key={room.id} value={room.number}>
+                  {room.number}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <label className="inline-flex items-center gap-2">
             <input
               type="checkbox"
@@ -387,6 +370,78 @@ export default function VehiclesPage() {
           )}
         </div>
       </section>
+
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-[1px] flex items-end sm:items-center justify-center p-4">
+          <div className="w-full max-w-xl bg-surface-container-lowest rounded-2xl p-5 shadow-[0_20px_60px_rgba(18,28,40,0.25)]">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h3 className="text-lg font-bold text-on-surface">{text.addTitle}</h3>
+              <button
+                className="h-9 px-3 rounded-lg bg-surface-container-low text-on-surface font-medium"
+                type="button"
+                onClick={() => setIsAddModalOpen(false)}
+              >
+                {text.closeForm}
+              </button>
+            </div>
+
+            <form className="grid grid-cols-1 gap-4" onSubmit={handleRegisterVehicle}>
+              <div>
+                <label className="block text-sm font-bold text-on-surface mb-2">{text.room}</label>
+                <select
+                  className="w-full h-12 px-3 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary"
+                  value={form.roomId}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, roomId: event.target.value }))
+                  }
+                  required
+                >
+                  <option value="">--</option>
+                  {rooms.map((room) => (
+                    <option key={room.id} value={room.id}>
+                      {room.number} - {room.tenantName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-on-surface mb-2">{text.plate}</label>
+                <input
+                  className="w-full h-12 px-4 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary"
+                  value={form.plate}
+                  onChange={(event) =>
+                    setForm((prev) => ({ ...prev, plate: event.target.value }))
+                  }
+                  type="text"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-on-surface mb-2">{text.vehicleType}</label>
+                <select
+                  className="w-full h-12 px-3 rounded-xl bg-surface-container-low border-none focus:ring-2 focus:ring-primary"
+                  value={form.vehicleType}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      vehicleType: event.target.value as VehicleType,
+                    }))
+                  }
+                >
+                  <option value="car">{text.type.car}</option>
+                  <option value="motorcycle">{text.type.motorcycle}</option>
+                  <option value="other">{text.type.other}</option>
+                </select>
+              </div>
+              <div className="pt-2">
+                <button className="w-full h-12 rounded-xl btn-primary-gradient text-on-primary font-bold" type="submit">
+                  {text.addButton}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -171,8 +171,17 @@ function shouldIncludeVehicle(
   vehicle: VehicleRecord,
   options: VehicleSearchOptions
 ): boolean {
+  const normalizedRoomNumber = options.roomNumber?.trim();
+  if (normalizedRoomNumber && vehicle.roomNumber !== normalizedRoomNumber) {
+    return false;
+  }
+
   if (!options.activeTenantOnly) {
     return true;
+  }
+
+  if (vehicle.status === 'inactive') {
+    return false;
   }
 
   return isTenantActive(vehicle.tenantId);

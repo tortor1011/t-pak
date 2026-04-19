@@ -99,4 +99,59 @@ describe('MockVehicleRepository', () => {
 
     expect(filteredResult.value).toBeNull();
   });
+
+  it('returns only selected room records when room filter is set', () => {
+    const repository = new MockVehicleRepository();
+
+    const result = repository.searchVehicles('', {
+      roomNumber: '101',
+      activeTenantOnly: false,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      throw new Error('Expected room-filtered search to succeed.');
+    }
+
+    expect(result.value.length).toBeGreaterThan(0);
+    expect(result.value.every((vehicle) => vehicle.roomNumber === '101')).toBe(true);
+  });
+
+  it('does not return deactivated vehicle when active tenant filter is enabled', () => {
+    const repository = new MockVehicleRepository();
+
+    const registerResult = repository.registerVehicle({
+      tenantId: 't1',
+      tenantName: 'สมชาย ศรีสุข',
+      roomNumber: '101',
+      plate: 'CC 8877',
+      vehicleType: 'car',
+      status: 'verified',
+    });
+
+    expect(registerResult.ok).toBe(true);
+    if (!registerResult.ok) {
+      throw new Error('Expected vehicle registration to succeed.');
+    }
+
+    const createdVehicle = registerResult.value.find((item) => item.plate === 'CC 8877');
+    expect(createdVehicle).toBeTruthy();
+    if (!createdVehicle) {
+      throw new Error('Expected created vehicle to exist.');
+    }
+
+    const deactivateResult = repository.deactivateVehicle(createdVehicle.id);
+    expect(deactivateResult.ok).toBe(true);
+
+    const activeOnlyResult = repository.searchVehicles('', {
+      activeTenantOnly: true,
+    });
+
+    expect(activeOnlyResult.ok).toBe(true);
+    if (!activeOnlyResult.ok) {
+      throw new Error('Expected active-only search to succeed.');
+    }
+
+    expect(activeOnlyResult.value.some((item) => item.id === createdVehicle.id)).toBe(false);
+  });
 });

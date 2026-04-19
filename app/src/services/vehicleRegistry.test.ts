@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  deactivateVehicleRecord,
   lookupVehicleByPlateExact,
   registerVehicleRecord,
+  searchVehicleRegistry,
 } from '@/services/vehicleRegistry';
 
 class MemoryStorage implements Storage {
@@ -110,5 +112,41 @@ describe('vehicleRegistry', () => {
     });
 
     expect(filteredOutVehicle).toBeNull();
+  });
+
+  it('filters directory by selected room only', () => {
+    const filtered = searchVehicleRegistry('', {
+      roomNumber: '101',
+      activeTenantOnly: false,
+    });
+
+    expect(filtered.length).toBeGreaterThan(0);
+    expect(filtered.every((vehicle) => vehicle.roomNumber === '101')).toBe(true);
+  });
+
+  it('excludes deactivated vehicles when active tenant filter is enabled', () => {
+    const registered = registerVehicleRecord({
+      tenantId: 't1',
+      tenantName: 'สมชาย ศรีสุข',
+      roomNumber: '101',
+      plate: 'BB 9988',
+      vehicleType: 'car',
+      status: 'verified',
+    });
+
+    const created = registered.find((item) => item.plate === 'BB 9988');
+    expect(created).toBeTruthy();
+
+    if (!created) {
+      throw new Error('Expected created vehicle to exist.');
+    }
+
+    deactivateVehicleRecord(created.id);
+
+    const activeOnly = searchVehicleRegistry('', {
+      activeTenantOnly: true,
+    });
+
+    expect(activeOnly.some((item) => item.id === created.id)).toBe(false);
   });
 });

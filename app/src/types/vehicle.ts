@@ -32,4 +32,5 @@ export interface VehicleUpdateInput {
 export interface VehicleSearchOptions {
   exactMatch?: boolean;
   activeTenantOnly?: boolean;
+  roomNumber?: string;
 }
