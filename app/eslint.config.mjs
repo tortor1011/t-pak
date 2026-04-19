@@ -22,20 +22,6 @@ const eslintConfig = defineConfig([
       ],
     },
   },
-  {
-    // Temporary allowlist while legacy pages are migrated to repositories.
-    files: [
-      "src/app/**/rooms/page.tsx",
-      "src/app/**/rooms/*/page.tsx",
-      "src/app/**/billing/generate/page.tsx",
-      "src/app/**/billing/meter-reading/page.tsx",
-      "src/app/**/services/complaints/page.tsx",
-      "src/app/**/reports/page.tsx",
-    ],
-    rules: {
-      "no-restricted-imports": "off",
-    },
-  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

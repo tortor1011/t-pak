@@ -2,14 +2,19 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { MOCK_COMPLAINTS } from '@/services/mockData';
 import { getRelativeTime } from '@/utils/date';
 import { ComplaintStatus } from '@/types/complaint';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useRepositories } from '@/hooks/useRepositories';
 
 export default function ComplaintsPage() {
   const { language } = useLanguage();
+  const { complaintsRepository } = useRepositories();
   const [activeTab, setActiveTab] = useState<'open' | 'resolved'>('open');
+  const complaints = useMemo(() => {
+    const complaintsResult = complaintsRepository.listComplaints();
+    return complaintsResult.ok ? complaintsResult.value : [];
+  }, [complaintsRepository]);
   const text =
     language === 'th'
       ? {
@@ -45,10 +50,10 @@ export default function ComplaintsPage() {
 
   const filteredComplaints = useMemo(() => {
     if (activeTab === 'open') {
-      return MOCK_COMPLAINTS.filter((c) => c.status !== 'resolved');
+      return complaints.filter((c) => c.status !== 'resolved');
     }
-    return MOCK_COMPLAINTS.filter((c) => c.status === 'resolved');
-  }, [activeTab]);
+    return complaints.filter((c) => c.status === 'resolved');
+  }, [activeTab, complaints]);
 
   const statusBadge = (status: ComplaintStatus) => {
     switch (status) {

@@ -2,52 +2,87 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { MOCK_ROOMS, MOCK_BILLS } from '@/services/mockData';
-import { buildOwnerRooms } from '@/services/ownerRooms';
 import {
   buildRoomAdditionalChargeContext,
   calculateAdditionalChargeForRoomNumber,
 } from '@/services/additionalChargeRules';
 import { getRoomAdditionalChargeRuleIds } from '@/services/roomAdditionalChargeOverrides';
 import type { AdditionalChargeRule } from '@/services/propertySettings';
+import type { BillItem } from '@/types/billing';
 import { formatCurrency } from '@/utils/currency';
 import StatusBadge from '@/components/ui/StatusBadge';
 import PageHeader from '@/components/layout/PageHeader';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useRepositories } from '@/hooks/useRepositories';
 
 export default function RoomDetailPage() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const { roomRepository, billingRepository } = useRepositories();
   const params = useParams();
   const roomId = typeof params.id === 'string' ? params.id : '';
-  const [rooms, setRooms] = useState(() => buildOwnerRooms(MOCK_ROOMS));
+  const [rooms, setRooms] = useState(() => {
+    const roomsResult = roomRepository.listRooms();
+    return roomsResult.ok ? roomsResult.value : [];
+  });
+  const [roomBills, setRoomBills] = useState<BillItem[]>(() => {
+    if (!roomId) {
+      return [];
+    }
+
+    const billsResult = billingRepository.loadRoomBills(roomId);
+    return billsResult.ok ? billsResult.value : [];
+  });
 
   useEffect(() => {
     const refreshRoomsState = () => {
-      setRooms(buildOwnerRooms(MOCK_ROOMS));
+      const roomsResult = roomRepository.listRooms();
+      if (roomsResult.ok) {
+        setRooms(roomsResult.value);
+      }
     };
+
+    const refreshRoomBills = () => {
+      if (!roomId) {
+        setRoomBills([]);
+        return;
+      }
+
+      const billsResult = billingRepository.loadRoomBills(roomId);
+      if (billsResult.ok) {
+        setRoomBills(billsResult.value);
+      }
+    };
+
+    refreshRoomsState();
+    refreshRoomBills();
 
     window.addEventListener('storage', refreshRoomsState);
     window.addEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
+    window.addEventListener('storage', refreshRoomBills);
+    window.addEventListener('estate_clarity.billing_state_updated', refreshRoomBills);
 
     return () => {
       window.removeEventListener('storage', refreshRoomsState);
       window.removeEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
+      window.removeEventListener('storage', refreshRoomBills);
+      window.removeEventListener('estate_clarity.billing_state_updated', refreshRoomBills);
     };
-  }, []);
+  }, [billingRepository, roomId, roomRepository]);
   const room = rooms.find((r) => r.id === roomId);
   const [showModal, setShowModal] = useState(false);
-
-  const roomBills = useMemo(
-    () =>
-      MOCK_BILLS
-        .filter((bill) => bill.roomId === roomId)
-        .sort(
-          (a, b) =>
-            new Date(b.meterReadDate).getTime() - new Date(a.meterReadDate).getTime()
-        ),
-    [roomId]
-  );
+  const lifecycleText =
+    language === 'th'
+      ? {
+          startMoveIn: 'เริ่มย้ายเข้าห้องนี้',
+          openMoveOut: 'ไปหน้าสรุปย้ายออก',
+          reservedHint: 'ห้องนี้อยู่ในสถานะจอง ยังไม่สามารถเริ่มย้ายเข้า/ย้ายออกได้',
+        }
+      : {
+          startMoveIn: 'Move Tenant into This Room',
+          openMoveOut: 'Open Move-out Settlement',
+          reservedHint: 'This room is reserved and not ready for move-in or move-out yet.',
+        };
 
   const additionalChargeContext = buildRoomAdditionalChargeContext();
 
@@ -299,19 +334,42 @@ export default function RoomDetailPage() {
         </section>
 
         {/* Action Buttons */}
-        {room.tenantName && (
-          <section className="space-y-3 pt-6">
-            <button className="w-full h-14 rounded-2xl border-2 border-primary-container text-primary-container font-extrabold active:scale-95 duration-150">
-              {t('roomDetail.sendManualReminder')}
-            </button>
+        <section className="space-y-3 pt-6">
+          {room.occupancy === 'occupied' && (
+            <>
+              <button className="w-full h-14 rounded-2xl border-2 border-primary-container text-primary-container font-extrabold active:scale-95 duration-150">
+                {t('roomDetail.sendManualReminder')}
+              </button>
+              <button
+                onClick={() => router.push(`/tenants/move-out/${room.id}`)}
+                className="w-full h-14 rounded-2xl bg-surface-container-high text-on-surface font-bold active:scale-95 duration-150"
+              >
+                {lifecycleText.openMoveOut}
+              </button>
+              <button
+                onClick={() => setShowModal(true)}
+                className="w-full h-14 rounded-2xl bg-error-container/10 text-error font-bold active:scale-95 duration-150"
+              >
+                {t('roomDetail.terminateLease')}
+              </button>
+            </>
+          )}
+
+          {room.occupancy === 'vacant' && (
             <button
-              onClick={() => setShowModal(true)}
-              className="w-full h-14 rounded-2xl bg-error-container/10 text-error font-bold active:scale-95 duration-150"
+              onClick={() => router.push(`/tenants/move-in/${room.id}`)}
+              className="w-full h-14 rounded-2xl btn-primary-gradient text-on-primary font-extrabold active:scale-95 duration-150 shadow-lg shadow-primary/20"
             >
-              {t('roomDetail.terminateLease')}
+              {lifecycleText.startMoveIn}
             </button>
-          </section>
-        )}
+          )}
+
+          {room.occupancy === 'reserved' && (
+            <div className="rounded-2xl bg-surface-container-low p-4 text-sm font-medium text-on-surface-variant text-center">
+              {lifecycleText.reservedHint}
+            </div>
+          )}
+        </section>
       </div>
 
       {/* Terminate Modal */}
@@ -333,7 +391,10 @@ export default function RoomDetailPage() {
             </div>
             <div className="p-6 pt-0 space-y-3">
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  router.push(`/tenants/move-out/${room.id}`);
+                }}
                 className="w-full h-14 rounded-2xl bg-error text-white font-extrabold active:scale-95 duration-150 shadow-lg shadow-error/20"
               >
                 {t('roomDetail.confirmTermination')}

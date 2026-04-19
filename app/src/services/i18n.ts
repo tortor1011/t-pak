@@ -137,8 +137,8 @@ export const TRANSLATIONS_TH = {
   'meter.saving': 'กำลังบันทึก...',
   'meter.save': 'บันทึกข้อมูล',
 
-  'page.moveInTitle': 'ย้ายเข้า: ห้อง 105',
-  'page.moveOutTitle': 'สรุปย้ายออก',
+  'page.moveInTitle': 'เลือกห้องสำหรับย้ายเข้า',
+  'page.moveOutTitle': 'เลือกห้องสำหรับย้ายออก',
 
   'roomDetail.notFound': 'ไม่พบห้องนี้',
   'roomDetail.title': 'รายละเอียดห้อง {{room}}',
@@ -308,8 +308,8 @@ export const TRANSLATIONS_EN: TranslationDictionary = {
   'meter.saving': 'Saving...',
   'meter.save': 'Save Data',
 
-  'page.moveInTitle': 'Move-in: Room 105',
-  'page.moveOutTitle': 'Move-out Settlement',
+  'page.moveInTitle': 'Select Room for Move-in',
+  'page.moveOutTitle': 'Select Room for Move-out',
 
   'roomDetail.notFound': 'Room not found',
   'roomDetail.title': 'Room {{room}} Details',

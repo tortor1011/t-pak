@@ -2,9 +2,8 @@
 
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { MOCK_ROOMS } from '@/services/mockData';
 import { useLanguage } from '@/hooks/useLanguage';
-import { applyRoomPricingOverrides } from '@/services/roomPricingOverrides';
+import { useRepositories } from '@/hooks/useRepositories';
 import {
   buildRoomAdditionalChargeContext,
   calculateAdditionalChargeForRoomNumber,
@@ -15,7 +14,11 @@ import PageHeader from '@/components/layout/PageHeader';
 export default function GenerateBillsPage() {
   const router = useRouter();
   const { t } = useLanguage();
-  const rooms = useMemo(() => applyRoomPricingOverrides(MOCK_ROOMS), []);
+  const { roomRepository } = useRepositories();
+  const rooms = useMemo(() => {
+    const roomsResult = roomRepository.listRooms();
+    return roomsResult.ok ? roomsResult.value : [];
+  }, [roomRepository]);
   const additionalChargeContext = useMemo(
     () => buildRoomAdditionalChargeContext(),
     []

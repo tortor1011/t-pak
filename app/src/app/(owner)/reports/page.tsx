@@ -1,12 +1,33 @@
 'use client';
 
-import { MOCK_FINANCIAL } from '@/services/mockData';
+import { useMemo } from 'react';
+import { useRepositories } from '@/hooks/useRepositories';
 import { formatCurrency } from '@/utils/currency';
 import { useLanguage } from '@/hooks/useLanguage';
 
 export default function ReportsPage() {
   const { language } = useLanguage();
-  const maxRevenue = Math.max(...MOCK_FINANCIAL.monthlyData.map((d) => d.revenue));
+  const { reportsRepository } = useRepositories();
+  const financialSummary = useMemo(() => {
+    const summaryResult = reportsRepository.loadFinancialSummary();
+    if (!summaryResult.ok) {
+      return {
+        totalRevenue: 0,
+        pendingPayments: 0,
+        totalRooms: 0,
+        occupiedRooms: 0,
+        vacantRooms: 0,
+        monthlyData: [],
+      };
+    }
+
+    return summaryResult.value;
+  }, [reportsRepository]);
+  const maxRevenue = Math.max(1, ...financialSummary.monthlyData.map((d) => d.revenue));
+  const occupancyRate =
+    financialSummary.totalRooms > 0
+      ? (financialSummary.occupiedRooms / financialSummary.totalRooms) * 100
+      : 0;
   const text =
     language === 'th'
       ? {
@@ -74,7 +95,7 @@ export default function ReportsPage() {
               {text.totalRevenue}
             </p>
             <p className="text-2xl font-black text-on-surface">
-              {formatCurrency(MOCK_FINANCIAL.totalRevenue)}
+              {formatCurrency(financialSummary.totalRevenue)}
             </p>
           </div>
           <div className="bg-surface-container-lowest p-5 rounded-2xl shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
@@ -96,7 +117,7 @@ export default function ReportsPage() {
         <div className="bg-primary-container rounded-3xl p-6 text-white shadow-xl flex flex-col justify-center">
           <p className="text-sm font-bold uppercase tracking-widest opacity-80 mb-1">{text.netProfit}</p>
           <h2 className="text-4xl font-black">
-            {formatCurrency(MOCK_FINANCIAL.totalRevenue - 47000)}
+            {formatCurrency(financialSummary.totalRevenue - 47000)}
           </h2>
           <p className="text-sm font-medium opacity-70 mt-1">{text.period}</p>
         </div>
@@ -109,7 +130,7 @@ export default function ReportsPage() {
           <h3 className="text-lg font-bold tracking-tight">{text.monthlyTrend}</h3>
           <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
             <div className="flex items-end gap-3 h-48">
-              {MOCK_FINANCIAL.monthlyData.map((item) => {
+              {financialSummary.monthlyData.map((item) => {
                 const height = (item.revenue / maxRevenue) * 100;
                 const expenseHeight = (item.expenses / maxRevenue) * 100;
                 return (
@@ -150,17 +171,17 @@ export default function ReportsPage() {
           <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
             <div className="flex justify-between items-center mb-4">
               <span className="text-3xl font-black text-primary">
-                {Math.round((MOCK_FINANCIAL.occupiedRooms / MOCK_FINANCIAL.totalRooms) * 100)}%
+                {Math.round(occupancyRate)}%
               </span>
               <span className="text-on-surface-variant font-medium text-sm">
-                {MOCK_FINANCIAL.occupiedRooms}/{MOCK_FINANCIAL.totalRooms} {text.roomsSuffix}
+                {financialSummary.occupiedRooms}/{financialSummary.totalRooms} {text.roomsSuffix}
               </span>
             </div>
             <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary rounded-full transition-all duration-1000"
                 style={{
-                  width: `${(MOCK_FINANCIAL.occupiedRooms / MOCK_FINANCIAL.totalRooms) * 100}%`,
+                  width: `${occupancyRate}%`,
                 }}
               />
             </div>

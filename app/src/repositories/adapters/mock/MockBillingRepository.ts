@@ -16,6 +16,8 @@ import {
   settleDebtByRoomNumber,
 } from '@/services/debtReminderQueue';
 import { setRoomBillingStatusOverride } from '@/services/roomBillingStatusOverrides';
+import { MOCK_BILLS, MOCK_METER_READINGS } from '@/services/mockData';
+import type { BillItem, MeterReading } from '@/types/billing';
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined';
@@ -30,6 +32,36 @@ function dispatchBillingStateUpdated(): void {
 }
 
 export class MockBillingRepository implements BillingRepository {
+  loadRoomBills(roomId: string): Result<BillItem[]> {
+    try {
+      const bills = MOCK_BILLS
+        .filter((bill) => bill.roomId === roomId)
+        .sort(
+          (a, b) =>
+            new Date(b.meterReadDate).getTime() - new Date(a.meterReadDate).getTime()
+        );
+      return ok(bills);
+    } catch (error) {
+      return err({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to load room bills.',
+        details: error,
+      });
+    }
+  }
+
+  loadMeterReadings(): Result<MeterReading[]> {
+    try {
+      return ok(MOCK_METER_READINGS);
+    } catch (error) {
+      return err({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to load meter readings.',
+        details: error,
+      });
+    }
+  }
+
   loadSlipVerificationQueue(): Result<SlipVerificationQueueItem[]> {
     try {
       return ok(loadSlipVerificationQueue());

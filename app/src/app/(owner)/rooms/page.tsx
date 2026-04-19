@@ -2,17 +2,20 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { MOCK_ROOMS } from '@/services/mockData';
-import { buildOwnerRooms } from '@/services/ownerRooms';
 import { formatCurrency } from '@/utils/currency';
 import SearchInput from '@/components/ui/SearchInput';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useRepositories } from '@/hooks/useRepositories';
 
 export default function RoomsPage() {
   const { language } = useLanguage();
+  const { roomRepository } = useRepositories();
   const [search, setSearch] = useState('');
-  const [rooms, setRooms] = useState(() => buildOwnerRooms(MOCK_ROOMS));
+  const [rooms, setRooms] = useState(() => {
+    const roomsResult = roomRepository.listRooms();
+    return roomsResult.ok ? roomsResult.value : [];
+  });
   const text =
     language === 'th'
       ? {
@@ -38,7 +41,10 @@ export default function RoomsPage() {
 
   useEffect(() => {
     const refreshRoomsState = () => {
-      setRooms(buildOwnerRooms(MOCK_ROOMS));
+      const roomsResult = roomRepository.listRooms();
+      if (roomsResult.ok) {
+        setRooms(roomsResult.value);
+      }
     };
 
     window.addEventListener('storage', refreshRoomsState);
@@ -48,7 +54,7 @@ export default function RoomsPage() {
       window.removeEventListener('storage', refreshRoomsState);
       window.removeEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
     };
-  }, []);
+  }, [roomRepository]);
 
   const filteredRooms = useMemo(() => {
     if (!search) return rooms;

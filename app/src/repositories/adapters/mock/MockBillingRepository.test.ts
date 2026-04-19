@@ -2,6 +2,32 @@ import { describe, expect, it } from 'vitest';
 import { MockBillingRepository } from '@/repositories/adapters/mock/MockBillingRepository';
 
 describe('MockBillingRepository', () => {
+  it('loads room bills via repository contract', () => {
+    const repository = new MockBillingRepository();
+
+    const result = repository.loadRoomBills('r101');
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.length).toBeGreaterThan(0);
+      expect(result.value[0]).toHaveProperty('roomId', 'r101');
+      expect(result.value[0]).toHaveProperty('totalAmount');
+    }
+  });
+
+  it('loads meter readings via repository contract', () => {
+    const repository = new MockBillingRepository();
+
+    const result = repository.loadMeterReadings();
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.length).toBeGreaterThan(0);
+      expect(result.value[0]).toHaveProperty('roomNumber');
+      expect(result.value[0]).toHaveProperty('electricity');
+    }
+  });
+
   it('loads slip verification queue from repository contract', () => {
     const repository = new MockBillingRepository();
 

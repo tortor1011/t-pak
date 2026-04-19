@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/useLanguage';
-import { MOCK_METER_READINGS } from '@/services/mockData';
+import { useRepositories } from '@/hooks/useRepositories';
 import {
   loadMeterReadingDrafts,
   parseReadingInput,
@@ -11,6 +11,7 @@ import {
   type MeterReadingDraftMap,
 } from '@/services/meterReadingDrafts';
 import type { TranslationKey, TranslationParams } from '@/services/i18n';
+import type { MeterReading } from '@/types/billing';
 import PageHeader from '@/components/layout/PageHeader';
 
 interface ValidationResult {
@@ -20,10 +21,14 @@ interface ValidationResult {
 
 type Translate = (key: TranslationKey, params?: TranslationParams) => string;
 
-function validateMeterReadings(readings: MeterReadingDraftMap, t: Translate): ValidationResult {
+function validateMeterReadings(
+  readings: MeterReadingDraftMap,
+  meterReadings: MeterReading[],
+  t: Translate
+): ValidationResult {
   let incompleteCount = 0;
 
-  for (const room of MOCK_METER_READINGS) {
+  for (const room of meterReadings) {
     const roomReading = readings[room.roomId];
     const electricText = roomReading?.electric ?? '';
     const waterText = roomReading?.water ?? '';
@@ -67,9 +72,14 @@ function validateMeterReadings(readings: MeterReadingDraftMap, t: Translate): Va
 export default function MeterReadingPage() {
   const router = useRouter();
   const { t } = useLanguage();
+  const { billingRepository } = useRepositories();
+  const meterReadings = useMemo(() => {
+    const meterReadingsResult = billingRepository.loadMeterReadings();
+    return meterReadingsResult.ok ? meterReadingsResult.value : [];
+  }, [billingRepository]);
 
   const [readings, setReadings] = useState<MeterReadingDraftMap>(() =>
-    loadMeterReadingDrafts(MOCK_METER_READINGS)
+    loadMeterReadingDrafts(meterReadings)
   );
   const [isSaving, setIsSaving] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
@@ -92,9 +102,10 @@ export default function MeterReadingPage() {
     setSaveFeedback(null);
   };
 
-  const validation = validateMeterReadings(readings, t);
+  const validation = validateMeterReadings(readings, meterReadings, t);
 
-  const canSave = !isSaving && validation.incompleteCount === 0 && !validation.error;
+  const canSave =
+    !isSaving && meterReadings.length > 0 && validation.incompleteCount === 0 && !validation.error;
 
   const handleSave = async () => {
     if (isSaving) return;
@@ -121,7 +132,7 @@ export default function MeterReadingPage() {
       });
 
       saveMeterReadingDrafts(readings);
-      setSaveFeedback(t('meter.savedFeedback', { count: MOCK_METER_READINGS.length }));
+      setSaveFeedback(t('meter.savedFeedback', { count: meterReadings.length }));
     } finally {
       setIsSaving(false);
     }
@@ -165,7 +176,7 @@ export default function MeterReadingPage() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_METER_READINGS.map((room) => (
+                {meterReadings.map((room) => (
                   <tr key={room.roomId} className="border-b border-outline-variant/30 hover:bg-slate-50/50 transition-colors">
                     <td className="py-3 px-4">
                       <div className="font-bold text-lg text-on-surface">

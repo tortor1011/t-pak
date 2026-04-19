@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { setRepositories } from '@/repositories';
 import { MockBillingRepository } from '@/repositories/adapters/mock/MockBillingRepository';
+import { MockComplaintsRepository } from '@/repositories/adapters/mock/MockComplaintsRepository';
+import { MockReportsRepository } from '@/repositories/adapters/mock/MockReportsRepository';
 import { MockRoomRepository } from '@/repositories/adapters/mock/MockRoomRepository';
 import { MockSettingsRepository } from '@/repositories/adapters/mock/MockSettingsRepository';
 import { buildOwnerBillingState } from '@/services/ownerBillingState';
@@ -11,6 +13,8 @@ describe('MockRoomRepository', () => {
       roomRepository: new MockRoomRepository(),
       billingRepository: new MockBillingRepository(),
       settingsRepository: new MockSettingsRepository(),
+      complaintsRepository: new MockComplaintsRepository(),
+      reportsRepository: new MockReportsRepository(),
     });
   });
 
@@ -41,6 +45,8 @@ describe('MockRoomRepository', () => {
       },
       billingRepository: new MockBillingRepository(),
       settingsRepository: new MockSettingsRepository(),
+      complaintsRepository: new MockComplaintsRepository(),
+      reportsRepository: new MockReportsRepository(),
     });
 
     const state = buildOwnerBillingState();
