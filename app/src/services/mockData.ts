@@ -2,6 +2,8 @@ import { Room } from '@/types/room';
 import { BillItem, DebtItem, SlipVerification, MeterReading } from '@/types/billing';
 import { Tenant } from '@/types/tenant';
 import { Complaint } from '@/types/complaint';
+import { DeliveryTask } from '@/types/delivery';
+import { VehicleRecord } from '@/types/vehicle';
 
 /* ─── Rooms ─── */
 export const MOCK_ROOMS: Room[] = [
@@ -191,6 +193,107 @@ export const MOCK_TENANTS: Tenant[] = [
     contractDuration: '1-year', moveInDate: '2025-11-01', moveOutDate: null,
     contractEnd: '2026-10-31', baseRent: 4500, securityDeposit: 9000,
     initialMeterElectricity: 2000, initialMeterWater: 500, vehiclePlate: null,
+  },
+];
+
+/* ─── Parcel Delivery Tasks ─── */
+export const MOCK_DELIVERY_TASKS: DeliveryTask[] = [
+  {
+    id: 'p1',
+    tenantName: 'พิมพ์ ชาญชัย',
+    roomNumber: '304',
+    trackingNumber: 'TH123456789',
+    phone: '089-100-2200',
+    courierName: null,
+    status: 'pending',
+    requestedAt: '2026-04-18T09:30:00.000Z',
+    startedAt: null,
+    deliveredAt: null,
+    proofPhotoUrl: null,
+    deliveryNote: null,
+    confirmationChecked: false,
+  },
+  {
+    id: 'p2',
+    tenantName: 'สุรีย์ จันทร์ดี',
+    roomNumber: '102',
+    trackingNumber: 'SPX55663311',
+    phone: '082-345-6789',
+    courierName: null,
+    status: 'in-progress',
+    requestedAt: '2026-04-18T11:00:00.000Z',
+    startedAt: '2026-04-18T11:20:00.000Z',
+    deliveredAt: null,
+    proofPhotoUrl: null,
+    deliveryNote: null,
+    confirmationChecked: false,
+  },
+  {
+    id: 'p3',
+    tenantName: 'สมชาย ศรีสุข',
+    roomNumber: '101',
+    trackingNumber: 'KEX99887766',
+    phone: '081-234-5678',
+    courierName: null,
+    status: 'delivered',
+    requestedAt: '2026-04-17T08:10:00.000Z',
+    startedAt: '2026-04-17T08:45:00.000Z',
+    deliveredAt: '2026-04-17T09:00:00.000Z',
+    proofPhotoUrl: '/mock-parcel-proof-101.jpg',
+    deliveryNote: 'Placed near the room door as requested.',
+    confirmationChecked: true,
+  },
+];
+
+/* ─── Vehicles ─── */
+export const MOCK_VEHICLES: VehicleRecord[] = [
+  {
+    id: 'v1',
+    tenantId: 't1',
+    tenantName: 'สมชาย ศรีสุข',
+    roomNumber: '101',
+    plate: '1กข 1234 กทม',
+    vehicleType: 'car',
+    status: 'verified',
+    registeredAt: '2026-03-01T08:00:00.000Z',
+    updatedAt: '2026-03-01T08:00:00.000Z',
+    deactivatedAt: null,
+  },
+  {
+    id: 'v2',
+    tenantId: 't1',
+    tenantName: 'สมชาย ศรีสุข',
+    roomNumber: '101',
+    plate: '7ชพ 9876 สป',
+    vehicleType: 'motorcycle',
+    status: 'verified',
+    registeredAt: '2026-03-05T08:00:00.000Z',
+    updatedAt: '2026-03-05T08:00:00.000Z',
+    deactivatedAt: null,
+  },
+  {
+    id: 'v3',
+    tenantId: 't2',
+    tenantName: 'สุรีย์ จันทร์ดี',
+    roomNumber: '102',
+    plate: 'ขก 4455 เชียงใหม่',
+    vehicleType: 'car',
+    status: 'unregistered',
+    registeredAt: '2026-03-10T08:00:00.000Z',
+    updatedAt: '2026-03-10T08:00:00.000Z',
+    deactivatedAt: null,
+  },
+  {
+    id: 'v4',
+    tenantId: 't8',
+    tenantName: 'Elena Rodriguez',
+    roomNumber: '205',
+    plate: 'ศท 2211 กทม',
+    vehicleType: 'car',
+    status: 'verified',
+    registeredAt: '2026-03-12T08:00:00.000Z',
+    updatedAt: '2026-03-12T08:00:00.000Z',
+    deactivatedAt: null,
   },
 ];
 

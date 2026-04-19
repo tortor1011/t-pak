@@ -13,6 +13,20 @@ const SERVICE_ITEMS = {
       iconColor: 'text-tertiary',
     },
     {
+      title: 'งานส่งพัสดุ',
+      description: 'รับคำขอจากลูกหอ ส่งขึ้นห้อง และยืนยันด้วยรูปภาพ',
+      icon: 'local_shipping',
+      href: '/services/parcel-delivery',
+      iconColor: 'text-primary',
+    },
+    {
+      title: 'ทะเบียนรถลูกหอ',
+      description: 'บันทึกและค้นหาป้ายทะเบียนเพื่อยืนยันรถของลูกหอ',
+      icon: 'directions_car',
+      href: '/services/vehicles',
+      iconColor: 'text-secondary',
+    },
+    {
       title: 'ผังห้องพัก',
       description: 'ดูข้อมูลห้องและผู้เช่าทั้งหมด',
       icon: 'bed',
@@ -55,6 +69,20 @@ const SERVICE_ITEMS = {
       icon: 'emergency_home',
       href: '/services/complaints',
       iconColor: 'text-tertiary',
+    },
+    {
+      title: 'Parcel Delivery Tasks',
+      description: 'Process tenant parcel requests and capture delivery proof',
+      icon: 'local_shipping',
+      href: '/services/parcel-delivery',
+      iconColor: 'text-primary',
+    },
+    {
+      title: 'Resident Vehicle Registry',
+      description: 'Track license plates and verify resident vehicles',
+      icon: 'directions_car',
+      href: '/services/vehicles',
+      iconColor: 'text-secondary',
     },
     {
       title: 'Room Directory',
