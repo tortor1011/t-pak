@@ -102,4 +102,23 @@ describe('TopAppBar responsive behavior', () => {
     expect(html).toContain('arrow_back');
     expect(html).not.toMatch(/>menu<\/button>/);
   });
+
+  it('renders unread notification count when unread notifications exist', () => {
+    const html = renderTopAppBarHtml({
+      showNotification: true,
+      notificationUnreadCount: 8,
+    });
+
+    expect(html).toContain('>8<');
+  });
+
+  it('renders notification panel content when panel is open', () => {
+    const html = renderTopAppBarHtml({
+      showNotification: true,
+      isNotificationPanelOpen: true,
+      notificationPanel: React.createElement('div', null, 'Notification Panel'),
+    });
+
+    expect(html).toContain('Notification Panel');
+  });
 });

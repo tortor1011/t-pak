@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const TOP_APP_BAR_MOBILE_QUERY = '(max-width: 1023px)';
 
@@ -17,6 +17,11 @@ interface TopAppBarProps {
   showMenu?: boolean;
   showBack?: boolean;
   showNotification?: boolean;
+  notificationUnreadCount?: number;
+  isNotificationPanelOpen?: boolean;
+  onNotificationToggle?: () => void;
+  onNotificationClose?: () => void;
+  notificationPanel?: React.ReactNode;
   onMenuClick?: () => void;
   onBackClick?: () => void;
   rightAction?: React.ReactNode;
@@ -27,11 +32,16 @@ export default function TopAppBar({
   showMenu = true,
   showBack = false,
   showNotification = true,
+  notificationUnreadCount = 0,
+  isNotificationPanelOpen = false,
+  onNotificationToggle,
+  onNotificationClose,
+  notificationPanel,
   onMenuClick,
   onBackClick,
   rightAction,
 }: TopAppBarProps) {
-  const [hasNotification] = useState(true);
+  const notificationContainerRef = useRef<HTMLDivElement | null>(null);
   const [isMobileViewport, setIsMobileViewport] = useState(() =>
     isTopAppBarMobileViewport()
   );
@@ -53,6 +63,41 @@ export default function TopAppBar({
       mediaQuery.removeEventListener('change', handleViewportChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isNotificationPanelOpen || !onNotificationClose) {
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const container = notificationContainerRef.current;
+      if (!container) {
+        return;
+      }
+
+      if (!container.contains(event.target as Node)) {
+        onNotificationClose();
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onNotificationClose();
+      }
+    };
+
+    window.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('mousedown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isNotificationPanelOpen, onNotificationClose]);
+
+  const hasUnreadNotifications = notificationUnreadCount > 0;
+  const unreadDisplayValue =
+    notificationUnreadCount > 99 ? '99+' : `${notificationUnreadCount}`;
 
   return (
     <header className="bg-white z-40 shadow-[0_20px_50px_rgba(18,28,40,0.05)]">
@@ -82,12 +127,26 @@ export default function TopAppBar({
         <div className="flex items-center gap-2">
           {rightAction}
           {showNotification && (
-            <div className="relative">
-              <button className="material-symbols-outlined text-slate-900 p-2 rounded-full hover:bg-slate-50 transition-transform active:scale-95 duration-200">
+            <div className="relative" ref={notificationContainerRef}>
+              <button
+                type="button"
+                onClick={onNotificationToggle}
+                aria-label="Open notifications"
+                aria-expanded={isNotificationPanelOpen}
+                aria-haspopup="dialog"
+                className="material-symbols-outlined text-slate-900 p-2 rounded-full hover:bg-slate-50 transition-transform active:scale-95 duration-200"
+              >
                 notifications
               </button>
-              {hasNotification && (
-                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-error rounded-full border-2 border-white" />
+              {hasUnreadNotifications && (
+                <span className="absolute top-1 right-1 min-w-5 h-5 px-1 rounded-full bg-error text-on-error text-[10px] font-black border-2 border-white flex items-center justify-center leading-none">
+                  {unreadDisplayValue}
+                </span>
+              )}
+              {isNotificationPanelOpen && notificationPanel && (
+                <div className="absolute right-0 mt-2 z-50">
+                  {notificationPanel}
+                </div>
               )}
             </div>
           )}

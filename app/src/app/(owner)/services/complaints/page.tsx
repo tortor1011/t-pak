@@ -1,20 +1,45 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { getRelativeTime } from '@/utils/date';
-import { ComplaintStatus } from '@/types/complaint';
+import { Complaint, ComplaintStatus } from '@/types/complaint';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRepositories } from '@/hooks/useRepositories';
+import {
+  COMPLAINT_STATE_UPDATED_EVENT,
+  getNextComplaintStatus,
+} from '@/services/complaintQueue';
 
 export default function ComplaintsPage() {
   const { language } = useLanguage();
   const { complaintsRepository } = useRepositories();
   const [activeTab, setActiveTab] = useState<'open' | 'resolved'>('open');
-  const complaints = useMemo(() => {
+  const [updatingComplaintId, setUpdatingComplaintId] = useState<string | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [complaints, setComplaints] = useState<Complaint[]>(() => {
     const complaintsResult = complaintsRepository.listComplaints();
     return complaintsResult.ok ? complaintsResult.value : [];
+  });
+
+  useEffect(() => {
+    const refreshComplaints = () => {
+      const complaintsResult = complaintsRepository.listComplaints();
+      if (complaintsResult.ok) {
+        setComplaints(complaintsResult.value);
+      }
+    };
+
+    window.addEventListener('storage', refreshComplaints);
+    window.addEventListener(COMPLAINT_STATE_UPDATED_EVENT, refreshComplaints);
+
+    return () => {
+      window.removeEventListener('storage', refreshComplaints);
+      window.removeEventListener(COMPLAINT_STATE_UPDATED_EVENT, refreshComplaints);
+    };
   }, [complaintsRepository]);
+
   const text =
     language === 'th'
       ? {
@@ -26,7 +51,11 @@ export default function ComplaintsPage() {
           tabResolved: 'แก้ไขแล้ว',
           room: 'ห้อง',
           reported: 'แจ้งเมื่อ',
-          updateStatus: 'อัปเดตสถานะ',
+          updateToInProgress: 'รับงานซ่อม',
+          updateToResolved: 'ทำเครื่องหมายว่าเสร็จสิ้น',
+          updating: 'กำลังอัปเดต...',
+          updatedToInProgress: 'อัปเดตคำร้องเป็นกำลังดำเนินการแล้ว',
+          updatedToResolved: 'อัปเดตคำร้องเป็นเสร็จสิ้นแล้ว',
           noOpenIssues: 'ไม่มีปัญหาที่เปิดอยู่',
           noResolvedIssues: 'ยังไม่มีรายการที่ปิดงาน',
           openDescription: 'ภาพรวมอาคารปกติดี ไม่มีคำร้องใหม่ในตอนนี้',
@@ -41,13 +70,54 @@ export default function ComplaintsPage() {
           tabResolved: 'Resolved',
           room: 'Room',
           reported: 'Reported',
-          updateStatus: 'Update Status',
+          updateToInProgress: 'Start Progress',
+          updateToResolved: 'Mark as Resolved',
+          updating: 'Updating...',
+          updatedToInProgress: 'Complaint moved to in-progress.',
+          updatedToResolved: 'Complaint marked as resolved.',
           noOpenIssues: 'No Open Issues!',
           noResolvedIssues: 'No Resolved Issues',
           openDescription: 'Everything is running smoothly',
           resolvedDescription: 'Resolved issues will appear here',
         };
 
+  const handleUpdateComplaintStatus = (complaint: Complaint) => {
+    const nextStatus = getNextComplaintStatus(complaint.status);
+    if (!nextStatus || updatingComplaintId) {
+      return;
+    }
+
+    setUpdatingComplaintId(complaint.id);
+    setFeedbackMessage(null);
+    setErrorMessage(null);
+
+    const updatedComplaintsResult = complaintsRepository.updateComplaintStatus(
+      complaint.id,
+      nextStatus
+    );
+
+    if (!updatedComplaintsResult.ok) {
+      setErrorMessage(updatedComplaintsResult.error.message);
+      setUpdatingComplaintId(null);
+      return;
+    }
+
+    setComplaints(updatedComplaintsResult.value);
+    setFeedbackMessage(
+      nextStatus === 'in-progress'
+        ? text.updatedToInProgress
+        : text.updatedToResolved
+    );
+    setUpdatingComplaintId(null);
+  };
+
+  const getUpdateButtonLabel = (status: ComplaintStatus): string => {
+    if (status === 'new') {
+      return text.updateToInProgress;
+    }
+
+    return text.updateToResolved;
+  };
   const filteredComplaints = useMemo(() => {
     if (activeTab === 'open') {
       return complaints.filter((c) => c.status !== 'resolved');
@@ -112,6 +182,18 @@ export default function ComplaintsPage() {
 
       {/* Complaint Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {feedbackMessage && (
+          <div className="col-span-full rounded-xl bg-secondary-container/25 p-3 text-sm font-medium text-on-secondary-container">
+            {feedbackMessage}
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="col-span-full rounded-xl bg-error-container p-3 text-sm font-medium text-on-error-container">
+            {errorMessage}
+          </div>
+        )}
+
         {filteredComplaints.map((complaint) => (
           <div
             key={complaint.id}
@@ -144,8 +226,19 @@ export default function ComplaintsPage() {
               )}
             </div>
             {complaint.status !== 'resolved' && (
-              <button className="w-full h-14 btn-primary-gradient text-on-primary font-bold rounded-xl active:scale-95 transition-transform">
-                {text.updateStatus}
+              <button
+                type="button"
+                onClick={() => handleUpdateComplaintStatus(complaint)}
+                disabled={updatingComplaintId !== null}
+                className={`w-full h-14 btn-primary-gradient text-on-primary font-bold rounded-xl transition-transform ${
+                  updatingComplaintId !== null
+                    ? 'opacity-60 cursor-not-allowed'
+                    : 'active:scale-95'
+                }`}
+              >
+                {updatingComplaintId === complaint.id
+                  ? text.updating
+                  : getUpdateButtonLabel(complaint.status)}
               </button>
             )}
           </div>

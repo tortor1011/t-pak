@@ -12,10 +12,32 @@ import FilterTabs from '@/components/ui/FilterTabs';
 export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { billingState } = useOwnerBillingState();
   const rooms = billingState.rooms;
   const summary = billingState.summary;
+
+  const monthOptions = useMemo(() => {
+    const now = new Date();
+
+    return Array.from({ length: 12 }, (_, index) => {
+      const date = new Date(now.getFullYear(), now.getMonth() - index, 1);
+      const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+      return {
+        value,
+        label: date.toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
+          month: 'long',
+          year: 'numeric',
+        }),
+      };
+    });
+  }, [language]);
+
+  const [selectedMonthValue, setSelectedMonthValue] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
 
   const filteredRooms = useMemo(() => {
     let filtered = rooms;
@@ -42,6 +64,10 @@ export default function DashboardPage() {
       ? Math.round((summary.occupiedRooms / summary.totalRooms) * 100)
       : 0;
 
+  const selectedMonthLabel =
+    monthOptions.find((option) => option.value === selectedMonthValue)?.label ??
+    t('common.april2026');
+
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8 page-transition">
       {/* ── Top Row: Revenue + Quick Stats ── */}
@@ -49,10 +75,24 @@ export default function DashboardPage() {
         {/* Revenue Card */}
         <div className="lg:col-span-2">
           <div className="flex justify-between items-center mb-4">
-            <button className="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-xl text-on-surface font-semibold hover:bg-surface-container transition-colors">
-              <span>{t('common.april2026')}</span>
-              <span className="material-symbols-outlined text-sm">arrow_drop_down</span>
-            </button>
+            <div className="relative inline-flex items-center">
+              <select
+                value={selectedMonthValue}
+                onChange={(event) => setSelectedMonthValue(event.target.value)}
+                aria-label={t('dashboard.monthlyRevenue')}
+                className="appearance-none bg-surface-container-low px-4 py-2 pr-10 rounded-xl text-on-surface font-semibold hover:bg-surface-container focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-colors"
+              >
+                {monthOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none material-symbols-outlined text-sm absolute right-3 text-on-surface-variant">
+                arrow_drop_down
+              </span>
+              <span className="sr-only">{selectedMonthLabel}</span>
+            </div>
           </div>
           <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_10px_40px_rgba(18,28,40,0.03)] space-y-6">
             <div>
