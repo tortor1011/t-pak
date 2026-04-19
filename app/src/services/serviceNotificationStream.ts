@@ -13,16 +13,16 @@ interface ServiceNotificationStreamInput {
   deliveryTasks: DeliveryTask[];
 }
 
-function isActiveComplaintStatus(
-  status: Complaint['status']
-): status is ActiveComplaintStatus {
-  return status !== 'resolved';
+function isActiveComplaint(
+  complaint: Complaint
+): complaint is Complaint & { status: ActiveComplaintStatus } {
+  return complaint.status !== 'resolved';
 }
 
-function isActiveDeliveryStatus(
-  status: DeliveryTask['status']
-): status is ActiveDeliveryStatus {
-  return status !== 'delivered';
+function isActiveDeliveryTask(
+  deliveryTask: DeliveryTask
+): deliveryTask is DeliveryTask & { status: ActiveDeliveryStatus } {
+  return deliveryTask.status !== 'delivered';
 }
 
 function mapSlipNotifications(
@@ -44,7 +44,7 @@ function mapSlipNotifications(
 
 function mapComplaintNotifications(complaints: Complaint[]): ServiceNotification[] {
   return complaints
-    .filter((item) => isActiveComplaintStatus(item.status))
+    .filter(isActiveComplaint)
     .map((item) => ({
       id: `complaint-${item.id}`,
       kind: 'complaint' as const,
@@ -60,7 +60,7 @@ function mapComplaintNotifications(complaints: Complaint[]): ServiceNotification
 
 function mapParcelNotifications(deliveryTasks: DeliveryTask[]): ServiceNotification[] {
   return deliveryTasks
-    .filter((item) => isActiveDeliveryStatus(item.status))
+    .filter(isActiveDeliveryTask)
     .map((item) => ({
       id: `parcel-${item.id}`,
       kind: 'parcel' as const,
