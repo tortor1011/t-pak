@@ -10,6 +10,7 @@ export interface Room {
   floor: number;
   building: string;
   occupancy: RoomOccupancy;
+  isConnectedWithDorm?: boolean;
   billingStatus: BillingStatus;
   baseRent: number;
   currentBill: number;

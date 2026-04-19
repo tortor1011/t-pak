@@ -148,6 +148,17 @@ describe('i18n service', () => {
     );
   });
 
+  it('resolves new billing generate delivery keys in both languages', () => {
+    expect(translate('generate.deliveryMode', 'th')).toBe('วิธีส่งบิล');
+    expect(translate('generate.tabOnlineDelivery', 'th')).toBe('ส่งบิลออนไลน์');
+    expect(translate('generate.sendOnlineCta', 'en')).toBe(
+      'Generate and Send Online Bills'
+    );
+    expect(translate('generate.printPdfCta', 'en')).toBe(
+      'Generate and Print PDF Bills'
+    );
+  });
+
   it('returns the key when translation key is missing in all dictionaries', () => {
     const missingKey = 'missing.translation.key' as unknown as TranslationKey;
 
