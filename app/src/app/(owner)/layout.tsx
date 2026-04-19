@@ -5,7 +5,6 @@ import { useState } from 'react';
 import ServiceNotificationPanel from '@/components/layout/ServiceNotificationPanel';
 import TopAppBar from '@/components/layout/TopAppBar';
 import BottomNavBar from '@/components/layout/BottomNavBar';
-import NavigationDrawer from '@/components/layout/NavigationDrawer';
 import Sidebar from '@/components/layout/Sidebar';
 import LanguageToggle from '@/components/layout/LanguageToggle';
 import { LanguageProvider, useLanguage } from '@/hooks/useLanguage';
@@ -19,7 +18,6 @@ function OwnerShell({
 }) {
   const router = useRouter();
   const { language, t } = useLanguage();
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const {
     notifications,
@@ -40,17 +38,11 @@ function OwnerShell({
       {/* Desktop sidebar — always visible on lg+ */}
       <Sidebar />
 
-      {/* Mobile drawer overlay */}
-      <NavigationDrawer
-        isOpen={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-      />
-
       {/* Main content area — shifted right on desktop for sidebar */}
       <div className="lg:pl-72 pb-32 lg:pb-0">
         <TopAppBar
           title={t('common.appTitle')}
-          onMenuClick={() => setDrawerOpen(true)}
+          showMenu={false}
           notificationUnreadCount={unreadCount}
           isNotificationPanelOpen={isNotificationPanelOpen}
           onNotificationToggle={() =>
