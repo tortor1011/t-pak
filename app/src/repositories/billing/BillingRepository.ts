@@ -2,6 +2,7 @@ import type { Result } from '@/repositories/common/Result';
 import type {
   BillingAggregationRoom,
   DebtCollectionQueueItem,
+  MeterReadingSubmission,
   OwnerBillingAggregation,
   SlipReviewDecision,
   SlipVerificationQueueItem,
@@ -11,6 +12,9 @@ import type { BillItem, MeterReading } from '@/types/billing';
 export interface BillingRepository {
   loadRoomBills(roomId: string): Result<BillItem[]>;
   loadMeterReadings(): Result<MeterReading[]>;
+  submitMeterReadings(
+    readings: MeterReadingSubmission[]
+  ): Result<MeterReading[]>;
   loadOwnerBillingAggregation(
     rooms: BillingAggregationRoom[]
   ): Result<OwnerBillingAggregation>;

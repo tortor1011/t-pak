@@ -37,6 +37,8 @@ function createBaseBillingRepository(
       createErrorResult<BillItem[]>('Unexpected loadRoomBills call.'),
     loadMeterReadings: () =>
       createErrorResult<MeterReading[]>('Unexpected loadMeterReadings call.'),
+    submitMeterReadings: () =>
+      createErrorResult<MeterReading[]>('Unexpected submitMeterReadings call.'),
     loadOwnerBillingAggregation: () =>
       createErrorResult<OwnerBillingAggregation>('Injected aggregation failure.'),
     loadSlipVerificationQueue: () =>

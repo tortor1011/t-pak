@@ -21,3 +21,9 @@ export interface OwnerBillingAggregation {
   activeDebtQueue: DebtCollectionQueueItem[];
   totalOutstanding: number;
 }
+
+export interface MeterReadingSubmission {
+  roomId: string;
+  electricityCurrent: number;
+  waterCurrent: number;
+}

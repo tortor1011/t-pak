@@ -4,13 +4,8 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatCurrency } from '@/utils/currency';
 import PageHeader from '@/components/layout/PageHeader';
-import { applyBulkBaseRentOverrides } from '@/services/roomPricingOverrides';
-import { loadActiveAdditionalChargeRules } from '@/services/additionalChargeRules';
-import {
-  applyBulkRoomAdditionalChargeRuleIds,
-  resetBulkRoomAdditionalChargeOverrides,
-} from '@/services/roomAdditionalChargeOverrides';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useRepositories } from '@/hooks/useRepositories';
 
 const FLOORS = [1, 2, 3, 4];
 const ROOMS_PER_FLOOR = 12;
@@ -23,13 +18,17 @@ function buildRoomsOnFloor(floor: number): number[] {
 export default function BulkRoomSetupPage() {
   const router = useRouter();
   const { language } = useLanguage();
+  const { roomRepository, settingsRepository } = useRepositories();
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedRooms, setSelectedRooms] = useState<number[]>(() =>
     buildRoomsOnFloor(1).slice(0, 10)
   );
   const activeAdditionalChargeRules = useMemo(
-    () => loadActiveAdditionalChargeRules(),
-    []
+    () => {
+      const result = settingsRepository.loadActiveAdditionalChargeRules();
+      return result.ok ? result.value : [];
+    },
+    [settingsRepository]
   );
   const [selectedChargeRuleIds, setSelectedChargeRuleIds] = useState<string[]>(
     () => activeAdditionalChargeRules.map((rule) => rule.id)
@@ -37,6 +36,7 @@ export default function BulkRoomSetupPage() {
   const [baseRentInput, setBaseRentInput] = useState('5000');
   const [baseRentFeedback, setBaseRentFeedback] = useState<string | null>(null);
   const [chargeFeedback, setChargeFeedback] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const text =
     language === 'th'
       ? {
@@ -135,6 +135,7 @@ export default function BulkRoomSetupPage() {
   const handleBaseRentChange = (value: string) => {
     const digitsOnly = value.replace(/[^\d]/g, '');
     setBaseRentInput(digitsOnly);
+    setActionError(null);
   };
 
   const handleFloorSelect = (floor: number) => {
@@ -142,13 +143,23 @@ export default function BulkRoomSetupPage() {
     setSelectedRooms(buildRoomsOnFloor(floor).slice(0, 10));
     setBaseRentFeedback(null);
     setChargeFeedback(null);
+    setActionError(null);
   };
 
   const handleApplyBaseRent = () => {
     if (!isBaseRentValid || selectedRooms.length === 0) return;
 
-    applyBulkBaseRentOverrides(selectedRooms, parsedBaseRent);
-    window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
+    const result = roomRepository.applyBulkBaseRentOverrides(
+      selectedRooms,
+      parsedBaseRent
+    );
+
+    if (!result.ok) {
+      setActionError(result.error.message);
+      return;
+    }
+
+    setActionError(null);
     setBaseRentFeedback(
       text.applyBaseRentFeedback
         .replace('{{amount}}', formatCurrency(parsedBaseRent))
@@ -168,16 +179,19 @@ export default function BulkRoomSetupPage() {
     });
 
     setChargeFeedback(null);
+    setActionError(null);
   };
 
   const handleSelectAllChargeRules = () => {
     setSelectedChargeRuleIds(activeAdditionalChargeRules.map((rule) => rule.id));
     setChargeFeedback(null);
+    setActionError(null);
   };
 
   const handleClearChargeRules = () => {
     setSelectedChargeRuleIds([]);
     setChargeFeedback(null);
+    setActionError(null);
   };
 
   const handleApplyChargeRules = () => {
@@ -189,8 +203,17 @@ export default function BulkRoomSetupPage() {
       return;
     }
 
-    applyBulkRoomAdditionalChargeRuleIds(selectedRooms, selectedChargeRuleIds);
-    window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
+    const result = roomRepository.applyBulkRoomAdditionalChargeRuleIds(
+      selectedRooms,
+      selectedChargeRuleIds
+    );
+
+    if (!result.ok) {
+      setActionError(result.error.message);
+      return;
+    }
+
+    setActionError(null);
 
     if (selectedChargeRuleIds.length === 0) {
       setChargeFeedback(
@@ -215,8 +238,16 @@ export default function BulkRoomSetupPage() {
       return;
     }
 
-    resetBulkRoomAdditionalChargeOverrides(selectedRooms);
-    window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
+    const result = roomRepository.resetBulkRoomAdditionalChargeOverrides(
+      selectedRooms
+    );
+
+    if (!result.ok) {
+      setActionError(result.error.message);
+      return;
+    }
+
+    setActionError(null);
     setChargeFeedback(
       text.resetGlobalFeedback.replace('{{count}}', selectedRooms.length.toString())
     );
@@ -362,6 +393,10 @@ export default function BulkRoomSetupPage() {
 
         {chargeFeedback && (
           <p className="text-sm font-medium text-secondary">{chargeFeedback}</p>
+        )}
+
+        {actionError && (
+          <p className="text-sm font-medium text-error">{actionError}</p>
         )}
       </div>
     </>

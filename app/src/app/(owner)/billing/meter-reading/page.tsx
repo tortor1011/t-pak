@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRepositories } from '@/hooks/useRepositories';
+import type { MeterReadingSubmission } from '@/repositories/billing/types';
 import {
   loadMeterReadingDrafts,
   parseReadingInput,
@@ -69,6 +70,31 @@ function validateMeterReadings(
   };
 }
 
+function buildMeterReadingSubmissions(
+  readings: MeterReadingDraftMap,
+  meterReadings: MeterReading[]
+): MeterReadingSubmission[] | null {
+  const submissions: MeterReadingSubmission[] = [];
+
+  for (const room of meterReadings) {
+    const roomReading = readings[room.roomId];
+    const electric = parseReadingInput(roomReading?.electric ?? '');
+    const water = parseReadingInput(roomReading?.water ?? '');
+
+    if (electric === null || water === null) {
+      return null;
+    }
+
+    submissions.push({
+      roomId: room.roomId,
+      electricityCurrent: electric,
+      waterCurrent: water,
+    });
+  }
+
+  return submissions;
+}
+
 export default function MeterReadingPage() {
   const router = useRouter();
   const { t } = useLanguage();
@@ -131,8 +157,22 @@ export default function MeterReadingPage() {
         window.setTimeout(() => resolve(), 500);
       });
 
+      // Keep local drafts even when repository submission fails.
       saveMeterReadingDrafts(readings);
-      setSaveFeedback(t('meter.savedFeedback', { count: meterReadings.length }));
+
+      const submissions = buildMeterReadingSubmissions(readings, meterReadings);
+      if (!submissions) {
+        setSaveError(t('meter.invalidValue', { room: '-' }));
+        return;
+      }
+
+      const submitResult = billingRepository.submitMeterReadings(submissions);
+      if (!submitResult.ok) {
+        setSaveError(submitResult.error.message);
+        return;
+      }
+
+      setSaveFeedback(t('meter.savedFeedback', { count: submissions.length }));
     } finally {
       setIsSaving(false);
     }

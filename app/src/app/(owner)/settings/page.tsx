@@ -4,13 +4,13 @@ import { useMemo, useState } from 'react';
 import {
   ADDITIONAL_CHARGE_NAME_MAX_LENGTH,
   ADDITIONAL_CHARGE_RULE_LIMIT,
+  DEFAULT_PROPERTY_SETTINGS,
   type AdditionalChargeRule,
-  loadPropertySettings,
-  savePropertySettings,
   type PropertySettingsValues,
 } from '@/services/propertySettings';
 import { formatCurrency } from '@/utils/currency';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useRepositories } from '@/hooks/useRepositories';
 
 interface AdditionalChargeRuleFormItem {
   id: string;
@@ -110,6 +110,7 @@ function areAdditionalChargeRulesEqual(
 
 export default function SettingsPage() {
   const { language } = useLanguage();
+  const { settingsRepository } = useRepositories();
   const text = useMemo(
     () =>
       language === 'th'
@@ -214,7 +215,13 @@ export default function SettingsPage() {
   );
 
   const initialSettings = useMemo<PropertySettingsValues>(() => {
-    const loaded = loadPropertySettings();
+    const result = settingsRepository.loadPropertySettings();
+    const loaded = result.ok
+      ? result.value
+      : {
+          ...DEFAULT_PROPERTY_SETTINGS,
+          updatedAt: new Date().toISOString(),
+        };
 
     return {
       electricityRate: loaded.electricityRate,
@@ -223,7 +230,7 @@ export default function SettingsPage() {
       lateFeeDay: loaded.lateFeeDay,
       additionalChargeRules: loaded.additionalChargeRules,
     };
-  }, []);
+  }, [settingsRepository]);
 
   const [savedSettings, setSavedSettings] =
     useState<PropertySettingsValues>(initialSettings);
@@ -496,11 +503,16 @@ export default function SettingsPage() {
         window.setTimeout(() => resolve(), 500);
       });
 
-      const savedSnapshot = savePropertySettings(parsedValues);
+      const savedSnapshotResult = settingsRepository.savePropertySettings(parsedValues);
+      if (!savedSnapshotResult.ok) {
+        setSaveError(savedSnapshotResult.error.message);
+        return;
+      }
+
+      const savedSnapshot = savedSnapshotResult.value;
 
       setSavedSettings(parsedValues);
       setForm(toFormState(parsedValues));
-      window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
       setSaveFeedback(
         text.savedAt.replace(
           '{{time}}',

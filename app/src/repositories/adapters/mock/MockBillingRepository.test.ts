@@ -1,8 +1,68 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MockBillingRepository } from '@/repositories/adapters/mock/MockBillingRepository';
-import type { BillingAggregationRoom } from '@/repositories/billing/types';
+import type {
+  BillingAggregationRoom,
+  MeterReadingSubmission,
+} from '@/repositories/billing/types';
+
+class MemoryStorage implements Storage {
+  private store = new Map<string, string>();
+
+  get length(): number {
+    return this.store.size;
+  }
+
+  clear(): void {
+    this.store.clear();
+  }
+
+  getItem(key: string): string | null {
+    return this.store.has(key) ? this.store.get(key) ?? null : null;
+  }
+
+  key(index: number): string | null {
+    return Array.from(this.store.keys())[index] ?? null;
+  }
+
+  removeItem(key: string): void {
+    this.store.delete(key);
+  }
+
+  setItem(key: string, value: string): void {
+    this.store.set(key, String(value));
+  }
+}
+
+function attachMockWindow(
+  localStorage: Storage,
+  dispatchEvent: ReturnType<typeof vi.fn>
+): void {
+  Object.defineProperty(globalThis, 'window', {
+    value: {
+      localStorage,
+      dispatchEvent,
+    },
+    configurable: true,
+    writable: true,
+  });
+}
+
+function detachMockWindow(): void {
+  Reflect.deleteProperty(globalThis, 'window');
+}
 
 describe('MockBillingRepository', () => {
+  let dispatchEvent: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    dispatchEvent = vi.fn();
+    attachMockWindow(new MemoryStorage(), dispatchEvent);
+  });
+
+  afterEach(() => {
+    detachMockWindow();
+  });
+
   it('loads room bills via repository contract', () => {
     const repository = new MockBillingRepository();
 
@@ -27,6 +87,69 @@ describe('MockBillingRepository', () => {
       expect(result.value[0]).toHaveProperty('roomNumber');
       expect(result.value[0]).toHaveProperty('electricity');
     }
+  });
+
+  it('submits meter readings via repository contract and persists current values', () => {
+    const repository = new MockBillingRepository();
+    const submissions: MeterReadingSubmission[] = [
+      {
+        roomId: 'r101',
+        electricityCurrent: 1300.5,
+        waterCurrent: 500,
+      },
+      {
+        roomId: 'r102',
+        electricityCurrent: 2400,
+        waterCurrent: 600.25,
+      },
+    ];
+
+    const submitResult = repository.submitMeterReadings(submissions);
+
+    expect(submitResult.ok).toBe(true);
+    if (submitResult.ok) {
+      const room101 = submitResult.value.find((reading) => reading.roomId === 'r101');
+      const room102 = submitResult.value.find((reading) => reading.roomId === 'r102');
+
+      expect(room101?.electricity.current).toBe(1300.5);
+      expect(room101?.water.current).toBe(500);
+      expect(room102?.electricity.current).toBe(2400);
+      expect(room102?.water.current).toBe(600.25);
+    }
+
+    const loadedResult = repository.loadMeterReadings();
+
+    expect(loadedResult.ok).toBe(true);
+    if (loadedResult.ok) {
+      const room101 = loadedResult.value.find((reading) => reading.roomId === 'r101');
+      const room102 = loadedResult.value.find((reading) => reading.roomId === 'r102');
+
+      expect(room101?.electricity.current).toBe(1300.5);
+      expect(room101?.water.current).toBe(500);
+      expect(room102?.electricity.current).toBe(2400);
+      expect(room102?.water.current).toBe(600.25);
+    }
+
+    expect(dispatchEvent).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns validation error when submitted reading is below previous value', () => {
+    const repository = new MockBillingRepository();
+    const invalidSubmission: MeterReadingSubmission[] = [
+      {
+        roomId: 'r101',
+        electricityCurrent: 1000,
+        waterCurrent: 500,
+      },
+    ];
+
+    const result = repository.submitMeterReadings(invalidSubmission);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('VALIDATION_ERROR');
+    }
+    expect(dispatchEvent).not.toHaveBeenCalled();
   });
 
   it('loads owner billing aggregation with paid-room debt filtering', () => {
