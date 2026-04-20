@@ -40,7 +40,6 @@ Focus only on:
 
 Billing Status must drive the entire UI:
 
-- Unbilled → Show in "Unbilled" tab cut no unbilled need ui we cut this feature (only cut unbilled)
 - Unpaid → Show QR / Payment needed
 - Pending → Hide QR / Show Verification Queue
 - Paid → Move to history + generate receipt
