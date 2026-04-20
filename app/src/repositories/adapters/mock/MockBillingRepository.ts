@@ -1,11 +1,14 @@
 import { err, ok, type Result } from '@/repositories/common/Result';
 import type { BillingRepository } from '@/repositories/billing/BillingRepository';
 import type {
+  BillingAggregationRoom,
   DebtCollectionQueueItem,
+  OwnerBillingAggregation,
   SlipReviewDecision,
   SlipVerificationQueueItem,
 } from '@/repositories/billing/types';
 import {
+  countPendingSlipVerifications,
   loadSlipVerificationQueue,
   reviewSlipVerification,
 } from '@/services/slipVerificationQueue';
@@ -29,6 +32,19 @@ function dispatchBillingStateUpdated(): void {
   }
 
   window.dispatchEvent(new Event('estate_clarity.billing_state_updated'));
+}
+
+function getActiveDebtQueue(
+  debtQueue: DebtCollectionQueueItem[],
+  rooms: BillingAggregationRoom[]
+): DebtCollectionQueueItem[] {
+  const paidRoomNumbers = new Set(
+    rooms
+      .filter((room) => room.billingStatus === 'paid')
+      .map((room) => room.number)
+  );
+
+  return debtQueue.filter((debt) => !paidRoomNumbers.has(debt.roomNumber));
 }
 
 export class MockBillingRepository implements BillingRepository {
@@ -57,6 +73,33 @@ export class MockBillingRepository implements BillingRepository {
       return err({
         code: 'UNKNOWN_ERROR',
         message: 'Failed to load meter readings.',
+        details: error,
+      });
+    }
+  }
+
+  loadOwnerBillingAggregation(
+    rooms: BillingAggregationRoom[]
+  ): Result<OwnerBillingAggregation> {
+    try {
+      const slipQueue = loadSlipVerificationQueue();
+      const debtQueue = loadDebtCollectionQueue();
+      const activeDebtQueue = getActiveDebtQueue(debtQueue, rooms);
+      const totalOutstanding = activeDebtQueue.reduce(
+        (sum, debt) => sum + debt.totalOutstanding,
+        0
+      );
+
+      return ok({
+        pendingSlipCount: countPendingSlipVerifications(slipQueue),
+        debtQueue,
+        activeDebtQueue,
+        totalOutstanding,
+      });
+    } catch (error) {
+      return err({
+        code: 'UNKNOWN_ERROR',
+        message: 'Failed to load owner billing aggregation.',
         details: error,
       });
     }

@@ -1,14 +1,7 @@
 import { BillingSummary, calculateBillingSummary } from '@/services/billingSummary';
 import { getRepositories } from '@/repositories';
 import { err, type Result } from '@/repositories/common/Result';
-import {
-  countPendingSlipVerifications,
-  loadSlipVerificationQueue,
-} from '@/services/slipVerificationQueue';
-import {
-  DebtCollectionQueueItem,
-  loadDebtCollectionQueue,
-} from '@/services/debtReminderQueue';
+import type { DebtCollectionQueueItem } from '@/repositories/billing/types';
 import { Room } from '@/types/room';
 
 export interface OwnerBillingState {
@@ -36,21 +29,8 @@ const EMPTY_OWNER_BILLING_STATE: OwnerBillingState = {
   totalOutstanding: 0,
 };
 
-function getActiveDebtQueue(
-  debtQueue: DebtCollectionQueueItem[],
-  rooms: Room[]
-): DebtCollectionQueueItem[] {
-  const paidRoomNumbers = new Set(
-    rooms
-      .filter((room) => room.billingStatus === 'paid')
-      .map((room) => room.number)
-  );
-
-  return debtQueue.filter((debt) => !paidRoomNumbers.has(debt.roomNumber));
-}
-
 export function buildOwnerBillingState(): OwnerBillingState {
-  const { roomRepository } = getRepositories();
+  const { roomRepository, billingRepository } = getRepositories();
   const roomsResult = roomRepository.listRooms();
 
   if (!roomsResult.ok) {
@@ -58,14 +38,20 @@ export function buildOwnerBillingState(): OwnerBillingState {
   }
 
   const rooms = roomsResult.value;
+  const ownerBillingAggregationResult =
+    billingRepository.loadOwnerBillingAggregation(rooms);
+
+  if (!ownerBillingAggregationResult.ok) {
+    return EMPTY_OWNER_BILLING_STATE;
+  }
+
+  const {
+    pendingSlipCount,
+    debtQueue,
+    activeDebtQueue,
+    totalOutstanding,
+  } = ownerBillingAggregationResult.value;
   const summary = calculateBillingSummary(rooms);
-  const pendingSlipCount = countPendingSlipVerifications(loadSlipVerificationQueue());
-  const debtQueue = loadDebtCollectionQueue();
-  const activeDebtQueue = getActiveDebtQueue(debtQueue, rooms);
-  const totalOutstanding = activeDebtQueue.reduce(
-    (sum, debt) => sum + debt.totalOutstanding,
-    0
-  );
 
   return {
     rooms,
