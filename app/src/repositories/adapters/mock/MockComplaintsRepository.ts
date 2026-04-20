@@ -4,7 +4,9 @@ import { loadComplaintQueue, updateComplaintStatus } from '@/services/complaintQ
 import type { Complaint, ComplaintStatus } from '@/types/complaint';
 
 export class MockComplaintsRepository implements ComplaintsRepository {
-  listComplaints(): Result<Complaint[]> {
+  async listComplaints(): Promise<Result<Complaint[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       return ok(loadComplaintQueue());
     } catch (error) {
@@ -16,10 +18,12 @@ export class MockComplaintsRepository implements ComplaintsRepository {
     }
   }
 
-  updateComplaintStatus(
+  async updateComplaintStatus(
     complaintId: string,
     status: ComplaintStatus
-  ): Result<Complaint[]> {
+  ): Promise<Result<Complaint[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       return ok(updateComplaintStatus(complaintId, status));
     } catch (error) {

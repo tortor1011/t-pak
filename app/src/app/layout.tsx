@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Kanit } from 'next/font/google';
 import './globals.css';
+import QueryProvider from '@/components/providers/QueryProvider';
 
 const kanit = Kanit({
   subsets: ['latin', 'thai'],
@@ -22,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="th" className="h-full antialiased">
       <body className={`${kanit.className} ${kanit.variable} min-h-full flex flex-col bg-surface text-on-surface`}>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

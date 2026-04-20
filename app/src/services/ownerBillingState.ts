@@ -13,7 +13,7 @@ export interface OwnerBillingState {
   totalOutstanding: number;
 }
 
-const EMPTY_OWNER_BILLING_STATE: OwnerBillingState = {
+export const EMPTY_OWNER_BILLING_STATE: OwnerBillingState = {
   rooms: [],
   summary: {
     totalRevenue: 0,

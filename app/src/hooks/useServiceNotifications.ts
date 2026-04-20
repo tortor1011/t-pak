@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Repositories } from '@/repositories';
 import { useRepositories } from '@/hooks/useRepositories';
 import {
@@ -16,15 +17,15 @@ import type { ServiceNotification } from '@/types/serviceNotification';
 
 const BILLING_STATE_UPDATED_EVENT = 'estate_clarity.billing_state_updated';
 
-function loadServiceNotificationSnapshot(
+async function fetchServiceNotificationSnapshot(
   repositories: Pick<
     Repositories,
     'billingRepository' | 'complaintsRepository' | 'deliveryRepository'
   >
-): ServiceNotification[] {
-  const slipQueueResult = repositories.billingRepository.loadSlipVerificationQueue();
-  const complaintsResult = repositories.complaintsRepository.listComplaints();
-  const deliveryTasksResult = repositories.deliveryRepository.listDeliveryTasks();
+): Promise<ServiceNotification[]> {
+  const slipQueueResult = await repositories.billingRepository.loadSlipVerificationQueue();
+  const complaintsResult = await repositories.complaintsRepository.listComplaints();
+  const deliveryTasksResult = await repositories.deliveryRepository.listDeliveryTasks();
 
   return buildServiceNotifications({
     slipQueue: slipQueueResult.ok ? slipQueueResult.value : [],
@@ -43,37 +44,24 @@ export function useServiceNotifications(): {
 } {
   const { billingRepository, complaintsRepository, deliveryRepository } =
     useRepositories();
+  const queryClient = useQueryClient();
 
-  const loadSnapshot = useCallback(
-    () =>
-      loadServiceNotificationSnapshot({
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['serviceNotifications'],
+    queryFn: () =>
+      fetchServiceNotificationSnapshot({
         billingRepository,
         complaintsRepository,
         deliveryRepository,
       }),
-    [billingRepository, complaintsRepository, deliveryRepository]
-  );
+    refetchInterval: 5000,
+  });
 
-  const [notifications, setNotifications] = useState<ServiceNotification[]>(() =>
-    loadServiceNotificationSnapshot({
-      billingRepository,
-      complaintsRepository,
-      deliveryRepository,
-    })
-  );
   const [readIds, setReadIds] = useState<string[]>([]);
 
   const refreshNotifications = useCallback(() => {
-    const nextNotifications = loadSnapshot();
-    setNotifications(nextNotifications);
-    setReadIds((currentReadIds) => {
-      const currentReadIdSet = new Set(currentReadIds);
-
-      return nextNotifications
-        .filter((notification) => currentReadIdSet.has(notification.id))
-        .map((notification) => notification.id);
-    });
-  }, [loadSnapshot]);
+    queryClient.invalidateQueries({ queryKey: ['serviceNotifications'] });
+  }, [queryClient]);
 
   useEffect(() => {
     const handleStateUpdated = () => {

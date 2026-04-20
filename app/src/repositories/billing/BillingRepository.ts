@@ -10,25 +10,25 @@ import type {
 import type { BillItem, MeterReading } from '@/types/billing';
 
 export interface BillingRepository {
-  loadRoomBills(roomId: string): Result<BillItem[]>;
-  loadMeterReadings(): Result<MeterReading[]>;
+  loadRoomBills(roomId: string): Promise<Result<BillItem[]>>;
+  loadMeterReadings(): Promise<Result<MeterReading[]>>;
   submitMeterReadings(
     readings: MeterReadingSubmission[]
-  ): Result<MeterReading[]>;
+  ): Promise<Result<MeterReading[]>>;
   loadOwnerBillingAggregation(
     rooms: BillingAggregationRoom[]
-  ): Result<OwnerBillingAggregation>;
-  loadSlipVerificationQueue(): Result<SlipVerificationQueueItem[]>;
+  ): Promise<Result<OwnerBillingAggregation>>;
+  loadSlipVerificationQueue(): Promise<Result<SlipVerificationQueueItem[]>>;
   reviewSlipVerification(
     slipId: string,
     decision: SlipReviewDecision
-  ): Result<SlipVerificationQueueItem[]>;
-  loadDebtCollectionQueue(): Result<DebtCollectionQueueItem[]>;
-  sendDebtReminder(debtId: string): Result<DebtCollectionQueueItem[]>;
+  ): Promise<Result<SlipVerificationQueueItem[]>>;
+  loadDebtCollectionQueue(): Promise<Result<DebtCollectionQueueItem[]>>;
+  sendDebtReminder(debtId: string): Promise<Result<DebtCollectionQueueItem[]>>;
   sendBulkDebtRemindersByIds(
     debtIds: string[]
-  ): Result<DebtCollectionQueueItem[]>;
+  ): Promise<Result<DebtCollectionQueueItem[]>>;
   settleDebtAndMarkRoomPaid(
     roomNumber: string
-  ): Result<DebtCollectionQueueItem[]>;
+  ): Promise<Result<DebtCollectionQueueItem[]>>;
 }

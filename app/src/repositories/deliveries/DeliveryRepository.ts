@@ -6,14 +6,14 @@ import type {
 } from '@/types/delivery';
 
 export interface DeliveryRepository {
-  listDeliveryTasks(): Result<DeliveryTask[]>;
-  findDeliveryTaskById(taskId: string): Result<DeliveryTask | null>;
+  listDeliveryTasks(): Promise<Result<DeliveryTask[]>>;
+  findDeliveryTaskById(taskId: string): Promise<Result<DeliveryTask | null>>;
   createTaskFromTenantRequest(
     payload: TenantParcelRequestInput
-  ): Result<DeliveryTask[]>;
-  startDeliveryTask(taskId: string): Result<DeliveryTask[]>;
+  ): Promise<Result<DeliveryTask[]>>;
+  startDeliveryTask(taskId: string): Promise<Result<DeliveryTask[]>>;
   completeDeliveryTask(
     taskId: string,
     payload: DeliveryProofInput
-  ): Result<DeliveryTask[]>;
+  ): Promise<Result<DeliveryTask[]>>;
 }

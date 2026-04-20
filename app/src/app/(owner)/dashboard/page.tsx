@@ -8,15 +8,16 @@ import { formatCurrency } from '@/utils/currency';
 import RoomCard from '@/components/ui/RoomCard';
 import SearchInput from '@/components/ui/SearchInput';
 import FilterTabs from '@/components/ui/FilterTabs';
+import Skeleton from '@/components/ui/Skeleton';
 import { getRoomBillingStatusForDisplay } from '@/services/roomBillingDisplay';
 
 export default function DashboardPage() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const { t, language } = useLanguage();
-  const { billingState } = useOwnerBillingState();
-  const rooms = billingState.rooms;
-  const summary = billingState.summary;
+  const { billingState, isLoading, isError } = useOwnerBillingState();
+  const rooms = billingState?.rooms || [];
+  const summary = billingState?.summary || { totalRooms: 0, occupiedRooms: 0, vacantRooms: 0, totalRevenue: 0, pendingPayments: 0 };
 
   const monthOptions = useMemo(() => {
     const now = new Date();
@@ -72,6 +73,19 @@ export default function DashboardPage() {
   const selectedMonthLabel =
     monthOptions.find((option) => option.value === selectedMonthValue)?.label ??
     t('common.april2026');
+
+  if (isLoading) {
+    return (
+      <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8">
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return <div className="text-error text-center mt-10">Failed to load dashboard data. // TODO: Wait for API</div>;
+  }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 space-y-6 lg:space-y-8 page-transition">

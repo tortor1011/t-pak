@@ -50,7 +50,9 @@ export class MockDeliveryRepository implements DeliveryRepository {
     private readonly notificationRepository: NotificationRepository
   ) {}
 
-  listDeliveryTasks(): Result<DeliveryTask[]> {
+  async listDeliveryTasks(): Promise<Result<DeliveryTask[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       return ok(loadDeliveryTasks());
     } catch (error) {
@@ -62,7 +64,9 @@ export class MockDeliveryRepository implements DeliveryRepository {
     }
   }
 
-  findDeliveryTaskById(taskId: string): Result<DeliveryTask | null> {
+  async findDeliveryTaskById(taskId: string): Promise<Result<DeliveryTask | null>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       return ok(findDeliveryTaskById(taskId));
     } catch (error) {
@@ -74,9 +78,11 @@ export class MockDeliveryRepository implements DeliveryRepository {
     }
   }
 
-  createTaskFromTenantRequest(
+  async createTaskFromTenantRequest(
     payload: TenantParcelRequestInput
-  ): Result<DeliveryTask[]> {
+  ): Promise<Result<DeliveryTask[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const queue = createDeliveryTaskFromTenantRequest(payload);
       return ok(queue);
@@ -86,7 +92,9 @@ export class MockDeliveryRepository implements DeliveryRepository {
     }
   }
 
-  startDeliveryTask(taskId: string): Result<DeliveryTask[]> {
+  async startDeliveryTask(taskId: string): Promise<Result<DeliveryTask[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const queue = markDeliveryTaskInProgress(taskId);
       return ok(queue);
@@ -96,10 +104,12 @@ export class MockDeliveryRepository implements DeliveryRepository {
     }
   }
 
-  completeDeliveryTask(
+  async completeDeliveryTask(
     taskId: string,
     payload: DeliveryProofInput
-  ): Result<DeliveryTask[]> {
+  ): Promise<Result<DeliveryTask[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const queue = completeDeliveryTask(taskId, payload);
       const completedTask = queue.find((task) => task.id === taskId);

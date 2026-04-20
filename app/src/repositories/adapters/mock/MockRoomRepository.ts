@@ -32,7 +32,9 @@ function normalizeRoomNumbers(roomNumbers: Array<string | number>): number[] {
 }
 
 export class MockRoomRepository implements RoomRepository {
-  listRooms(): Result<Room[]> {
+  async listRooms(): Promise<Result<Room[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const rooms = buildOwnerRooms(MOCK_ROOMS);
       return ok(rooms);
@@ -45,10 +47,12 @@ export class MockRoomRepository implements RoomRepository {
     }
   }
 
-  applyBulkBaseRentOverrides(
+  async applyBulkBaseRentOverrides(
     roomNumbers: Array<string | number>,
     baseRent: number
-  ): Result<RoomPricingOverrides> {
+  ): Promise<Result<RoomPricingOverrides>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     if (!Number.isFinite(baseRent) || baseRent <= 0) {
       return err({
         code: 'VALIDATION_ERROR',
@@ -74,10 +78,12 @@ export class MockRoomRepository implements RoomRepository {
     }
   }
 
-  applyBulkRoomAdditionalChargeRuleIds(
+  async applyBulkRoomAdditionalChargeRuleIds(
     roomNumbers: Array<string | number>,
     ruleIds: string[]
-  ): Result<RoomAdditionalChargeOverrides> {
+  ): Promise<Result<RoomAdditionalChargeOverrides>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const overrides = applyBulkRoomAdditionalChargeRuleIdsInStorage(
         roomNumbers,
@@ -95,9 +101,11 @@ export class MockRoomRepository implements RoomRepository {
     }
   }
 
-  resetBulkRoomAdditionalChargeOverrides(
+  async resetBulkRoomAdditionalChargeOverrides(
     roomNumbers: Array<string | number>
-  ): Result<RoomAdditionalChargeOverrides> {
+  ): Promise<Result<RoomAdditionalChargeOverrides>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const overrides = resetBulkRoomAdditionalChargeOverridesInStorage(
         roomNumbers

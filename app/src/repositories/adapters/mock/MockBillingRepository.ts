@@ -191,7 +191,9 @@ function getActiveDebtQueue(
 }
 
 export class MockBillingRepository implements BillingRepository {
-  loadRoomBills(roomId: string): Result<BillItem[]> {
+  async loadRoomBills(roomId: string): Promise<Result<BillItem[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const bills = MOCK_BILLS
         .filter((bill) => bill.roomId === roomId)
@@ -209,7 +211,9 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  loadMeterReadings(): Result<MeterReading[]> {
+  async loadMeterReadings(): Promise<Result<MeterReading[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const submittedState = loadSubmittedMeterReadingState();
       const meterReadings = mergeMeterReadingsWithSubmittedState(
@@ -227,9 +231,11 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  submitMeterReadings(
+  async submitMeterReadings(
     readings: MeterReadingSubmission[]
-  ): Result<MeterReading[]> {
+  ): Promise<Result<MeterReading[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     if (readings.length === 0) {
       return err({
         code: 'VALIDATION_ERROR',
@@ -238,7 +244,7 @@ export class MockBillingRepository implements BillingRepository {
     }
 
     try {
-      const meterReadingsResult = this.loadMeterReadings();
+      const meterReadingsResult = await this.loadMeterReadings();
       if (!meterReadingsResult.ok) {
         return meterReadingsResult;
       }
@@ -315,9 +321,11 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  loadOwnerBillingAggregation(
+  async loadOwnerBillingAggregation(
     rooms: BillingAggregationRoom[]
-  ): Result<OwnerBillingAggregation> {
+  ): Promise<Result<OwnerBillingAggregation>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const slipQueue = loadSlipVerificationQueue();
       const debtQueue = loadDebtCollectionQueue();
@@ -342,7 +350,9 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  loadSlipVerificationQueue(): Result<SlipVerificationQueueItem[]> {
+  async loadSlipVerificationQueue(): Promise<Result<SlipVerificationQueueItem[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       return ok(loadSlipVerificationQueue());
     } catch (error) {
@@ -354,10 +364,12 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  reviewSlipVerification(
+  async reviewSlipVerification(
     slipId: string,
     decision: SlipReviewDecision
-  ): Result<SlipVerificationQueueItem[]> {
+  ): Promise<Result<SlipVerificationQueueItem[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const queue = reviewSlipVerification(slipId, decision);
       return ok(queue);
@@ -370,7 +382,9 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  loadDebtCollectionQueue(): Result<DebtCollectionQueueItem[]> {
+  async loadDebtCollectionQueue(): Promise<Result<DebtCollectionQueueItem[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       return ok(loadDebtCollectionQueue());
     } catch (error) {
@@ -382,7 +396,9 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  sendDebtReminder(debtId: string): Result<DebtCollectionQueueItem[]> {
+  async sendDebtReminder(debtId: string): Promise<Result<DebtCollectionQueueItem[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const queue = sendDebtReminder(debtId);
       dispatchBillingStateUpdated();
@@ -396,9 +412,11 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  sendBulkDebtRemindersByIds(
+  async sendBulkDebtRemindersByIds(
     debtIds: string[]
-  ): Result<DebtCollectionQueueItem[]> {
+  ): Promise<Result<DebtCollectionQueueItem[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const queue = sendBulkDebtRemindersByIds(debtIds);
       dispatchBillingStateUpdated();
@@ -412,9 +430,11 @@ export class MockBillingRepository implements BillingRepository {
     }
   }
 
-  settleDebtAndMarkRoomPaid(
+  async settleDebtAndMarkRoomPaid(
     roomNumber: string
-  ): Result<DebtCollectionQueueItem[]> {
+  ): Promise<Result<DebtCollectionQueueItem[]>> {
+    // TODO: wait for API
+    await new Promise(r => setTimeout(r, 500));
     try {
       const queue = settleDebtByRoomNumber(roomNumber);
       setRoomBillingStatusOverride(roomNumber, 'paid');
