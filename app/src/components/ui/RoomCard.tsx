@@ -5,6 +5,7 @@ import Image from 'next/image';
 import StatusBadge from './StatusBadge';
 import { formatCurrency } from '@/utils/currency';
 import { useLanguage } from '@/hooks/useLanguage';
+import { getRoomBillingStatusForDisplay } from '@/services/roomBillingDisplay';
 
 interface RoomCardProps {
   room: Room;
@@ -14,6 +15,7 @@ interface RoomCardProps {
 
 export default function RoomCard({ room, onClick, actionButton }: RoomCardProps) {
   const { t } = useLanguage();
+  const displayBillingStatus = getRoomBillingStatusForDisplay(room);
 
   return (
     <div
@@ -23,7 +25,7 @@ export default function RoomCard({ room, onClick, actionButton }: RoomCardProps)
       <div className="space-y-1 flex-1">
         <div className="flex items-center gap-3">
           <span className="text-2xl font-black text-on-surface">{room.number}</span>
-          <StatusBadge status={room.billingStatus} />
+          {displayBillingStatus && <StatusBadge status={displayBillingStatus} />}
         </div>
         <p className="text-on-surface-variant font-medium">
           {room.tenantName ?? t('roomCard.vacant')}

@@ -9,6 +9,7 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import PageHeader from '@/components/layout/PageHeader';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRepositories } from '@/hooks/useRepositories';
+import { getRoomBillingStatusForDisplay } from '@/services/roomBillingDisplay';
 
 export default function RoomsPage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function RoomsPage() {
           vacant: 'ว่าง',
           total: 'ทั้งหมด',
           vacantBadge: 'ว่าง',
+          reservedBadge: 'จองแล้ว',
           noTenant: 'ไม่มีผู้เช่า',
           base: 'ค่าเช่าพื้นฐาน',
         }
@@ -38,6 +40,7 @@ export default function RoomsPage() {
           vacant: 'Vacant',
           total: 'Total',
           vacantBadge: 'VACANT',
+          reservedBadge: 'RESERVED',
           noTenant: 'No tenant',
           base: 'Base',
         };
@@ -112,30 +115,37 @@ export default function RoomsPage() {
 
         {/* Room List */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {filteredRooms.map((room) => (
-            <Link key={room.id} href={`/rooms/${room.id}`}>
-              <div className="bg-surface-container-lowest p-5 rounded-2xl flex justify-between items-center shadow-[0_10px_40px_rgba(18,28,40,0.03)] hover:bg-surface-container-low transition-colors cursor-pointer">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl font-black text-on-surface">{room.number}</span>
-                    <StatusBadge status={room.billingStatus} />
-                    {room.occupancy === 'vacant' && (
-                      <span className="bg-surface-variant text-on-surface-variant text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                        {text.vacantBadge}
-                      </span>
-                    )}
+          {filteredRooms.map((room) => {
+            const displayBillingStatus = getRoomBillingStatusForDisplay(room);
+
+            return (
+              <Link key={room.id} href={`/rooms/${room.id}`}>
+                <div className="bg-surface-container-lowest p-5 rounded-2xl flex justify-between items-center shadow-[0_10px_40px_rgba(18,28,40,0.03)] hover:bg-surface-container-low transition-colors cursor-pointer">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl font-black text-on-surface">{room.number}</span>
+                      {displayBillingStatus ? (
+                        <StatusBadge status={displayBillingStatus} />
+                      ) : (
+                        <span className="bg-surface-variant text-on-surface-variant text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                          {room.occupancy === 'reserved'
+                            ? text.reservedBadge
+                            : text.vacantBadge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-on-surface-variant font-medium">
+                      {room.tenantName ?? text.noTenant}
+                    </p>
+                    <p className="text-sm font-bold text-on-surface">
+                      {text.base}: {formatCurrency(room.baseRent)}
+                    </p>
                   </div>
-                  <p className="text-on-surface-variant font-medium">
-                    {room.tenantName ?? text.noTenant}
-                  </p>
-                  <p className="text-sm font-bold text-on-surface">
-                    {text.base}: {formatCurrency(room.baseRent)}
-                  </p>
+                  <span className="material-symbols-outlined text-outline">chevron_right</span>
                 </div>
-                <span className="material-symbols-outlined text-outline">chevron_right</span>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

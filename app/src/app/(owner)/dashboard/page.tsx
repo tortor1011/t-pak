@@ -8,6 +8,7 @@ import { formatCurrency } from '@/utils/currency';
 import RoomCard from '@/components/ui/RoomCard';
 import SearchInput from '@/components/ui/SearchInput';
 import FilterTabs from '@/components/ui/FilterTabs';
+import { getRoomBillingStatusForDisplay } from '@/services/roomBillingDisplay';
 
 export default function DashboardPage() {
   const [search, setSearch] = useState('');
@@ -42,7 +43,9 @@ export default function DashboardPage() {
   const filteredRooms = useMemo(() => {
     let filtered = rooms;
     if (activeTab === 'pending') {
-      filtered = filtered.filter((r) => r.billingStatus === 'pending');
+      filtered = filtered.filter(
+        (room) => getRoomBillingStatusForDisplay(room) === 'pending'
+      );
     }
     if (search) {
       const q = search.toLowerCase();
@@ -53,7 +56,9 @@ export default function DashboardPage() {
     return filtered;
   }, [activeTab, rooms, search]);
 
-  const pendingCount = rooms.filter((r) => r.billingStatus === 'pending').length;
+  const pendingCount = rooms.filter(
+    (room) => getRoomBillingStatusForDisplay(room) === 'pending'
+  ).length;
   const tabs = [
     { key: 'all', label: t('common.all') },
     { key: 'pending', label: t('common.pending'), count: pendingCount },
@@ -188,27 +193,31 @@ export default function DashboardPage() {
 
         {/* Room Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredRooms.map((room) => (
-            <RoomCard
-              key={room.id}
-              room={room}
-              actionButton={
-                room.billingStatus === 'pending' ? (
-                  <Link href="/billing/verify">
-                    <button className="bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-bold shadow-[0_4px_12px_rgba(0,74,198,0.2)] active:scale-95 transition-all">
-                      {t('dashboard.verifySlip')}
-                    </button>
-                  </Link>
-                ) : room.billingStatus === 'unpaid' ? (
-                  <Link href="/billing/debt">
-                    <button className="border-2 border-tertiary text-tertiary px-6 py-2 rounded-xl text-sm font-bold active:scale-95 transition-all">
-                      {t('dashboard.remind')}
-                    </button>
-                  </Link>
-                ) : undefined
-              }
-            />
-          ))}
+          {filteredRooms.map((room) => {
+            const displayBillingStatus = getRoomBillingStatusForDisplay(room);
+
+            return (
+              <RoomCard
+                key={room.id}
+                room={room}
+                actionButton={
+                  displayBillingStatus === 'pending' ? (
+                    <Link href="/billing/verify">
+                      <button className="bg-primary text-on-primary px-4 py-2 rounded-xl text-sm font-bold shadow-[0_4px_12px_rgba(0,74,198,0.2)] active:scale-95 transition-all">
+                        {t('dashboard.verifySlip')}
+                      </button>
+                    </Link>
+                  ) : displayBillingStatus === 'unpaid' ? (
+                    <Link href="/billing/debt">
+                      <button className="border-2 border-tertiary text-tertiary px-6 py-2 rounded-xl text-sm font-bold active:scale-95 transition-all">
+                        {t('dashboard.remind')}
+                      </button>
+                    </Link>
+                  ) : undefined
+                }
+              />
+            );
+          })}
           {filteredRooms.length === 0 && (
             <div className="col-span-full text-center py-12 text-on-surface-variant">
               <span className="material-symbols-outlined text-4xl mb-2 block">search_off</span>
