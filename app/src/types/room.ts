@@ -1,5 +1,7 @@
+import type { BillingStatus as SharedBillingStatus } from '@shared/types';
+
 /** Billing status drives the entire UI */
-export type BillingStatus = 'unpaid' | 'pending' | 'paid';
+export type BillingStatus = SharedBillingStatus;
 
 /** Room occupancy status */
 export type RoomOccupancy = 'occupied' | 'vacant' | 'reserved';

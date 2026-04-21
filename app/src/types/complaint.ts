@@ -1,5 +1,7 @@
-export type ComplaintStatus = 'new' | 'in-progress' | 'resolved';
-export type ComplaintCategory = 'plumbing' | 'electrical' | 'appliance' | 'pest' | 'noise' | 'other';
+import type { MaintenanceStatus, MaintenanceCategory } from '@shared/types';
+
+export type ComplaintStatus = MaintenanceStatus;
+export type ComplaintCategory = MaintenanceCategory;
 
 export interface Complaint {
   id: string;

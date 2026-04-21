@@ -17,6 +17,7 @@ function isComplaintCategory(value: unknown): value is Complaint['category'] {
     value === 'plumbing' ||
     value === 'electrical' ||
     value === 'appliance' ||
+    value === 'furniture' ||
     value === 'pest' ||
     value === 'noise' ||
     value === 'other'
