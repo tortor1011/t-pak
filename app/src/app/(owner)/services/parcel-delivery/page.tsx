@@ -35,6 +35,8 @@ function getStatusClass(status: DeliveryTaskStatus): string {
       return 'bg-amber-500/15 text-amber-700';
     case 'delivered':
       return 'bg-secondary-container text-on-secondary-container';
+    default:
+      return '';
   }
 }
 
@@ -46,15 +48,22 @@ export default function ParcelDeliveryPage() {
   const [search, setSearch] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const [tasks, setTasks] = useState<DeliveryTask[]>(() => {
-    const result = deliveryRepository.listDeliveryTasks();
-    return result.ok ? result.value : [];
-  });
+  const [tasks, setTasks] = useState<DeliveryTask[]>([]);
 
-  const [notificationOutboxCount, setNotificationOutboxCount] = useState<number>(() => {
-    const result = notificationRepository.listNotificationOutbox();
-    return result.ok ? result.value.length : 0;
-  });
+  const [notificationOutboxCount, setNotificationOutboxCount] = useState<number>(0);
+
+  useEffect(() => {
+    deliveryRepository.listDeliveryTasks().then((result) => {
+      if (result.ok) {
+        setTasks(result.value);
+      }
+    });
+
+    const resultOutbox = notificationRepository.listNotificationOutbox();
+    if (resultOutbox.ok) {
+      setNotificationOutboxCount(resultOutbox.value.length);
+    }
+  }, [deliveryRepository, notificationRepository]);
 
   const text =
     language === 'th'
@@ -106,8 +115,8 @@ export default function ParcelDeliveryPage() {
         };
 
   useEffect(() => {
-    const refreshTasks = () => {
-      const result = deliveryRepository.listDeliveryTasks();
+    const refreshTasks = async () => {
+      const result = await deliveryRepository.listDeliveryTasks();
       if (result.ok) {
         setTasks(result.value);
       }
@@ -140,9 +149,9 @@ export default function ParcelDeliveryPage() {
   ).length;
   const deliveredCount = visibleTasks.filter((task) => task.status === 'delivered').length;
 
-  const handleOpenProofFlow = (task: DeliveryTask) => {
+  const handleOpenProofFlow = async (task: DeliveryTask) => {
     if (task.status === 'pending') {
-      const startResult = deliveryRepository.startDeliveryTask(task.id);
+      const startResult = await deliveryRepository.startDeliveryTask(task.id);
       if (!startResult.ok) {
         setErrorMessage(startResult.error.message);
         return;
@@ -217,7 +226,7 @@ export default function ParcelDeliveryPage() {
                       task.status
                     )}`}
                   >
-                    {text.statuses[task.status]}
+                    {text.statuses[task.status as keyof typeof text.statuses] || task.status}
                   </span>
                 </div>
 

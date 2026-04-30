@@ -146,10 +146,10 @@ export default function BulkRoomSetupPage() {
     setActionError(null);
   };
 
-  const handleApplyBaseRent = () => {
+  const handleApplyBaseRent = async () => {
     if (!isBaseRentValid || selectedRooms.length === 0) return;
 
-    const result = roomRepository.applyBulkBaseRentOverrides(
+    const result = await roomRepository.applyBulkBaseRentOverrides(
       selectedRooms,
       parsedBaseRent
     );
@@ -194,7 +194,7 @@ export default function BulkRoomSetupPage() {
     setActionError(null);
   };
 
-  const handleApplyChargeRules = () => {
+  const handleApplyChargeRules = async () => {
     if (selectedRooms.length === 0) {
       return;
     }
@@ -203,7 +203,7 @@ export default function BulkRoomSetupPage() {
       return;
     }
 
-    const result = roomRepository.applyBulkRoomAdditionalChargeRuleIds(
+    const result = await roomRepository.applyBulkRoomAdditionalChargeRuleIds(
       selectedRooms,
       selectedChargeRuleIds
     );
@@ -233,12 +233,12 @@ export default function BulkRoomSetupPage() {
     setBaseRentFeedback(null);
   };
 
-  const handleResetChargeOverridesToGlobal = () => {
+  const handleResetChargeOverridesToGlobal = async () => {
     if (selectedRooms.length === 0) {
       return;
     }
 
-    const result = roomRepository.resetBulkRoomAdditionalChargeOverrides(
+    const result = await roomRepository.resetBulkRoomAdditionalChargeOverrides(
       selectedRooms
     );
 

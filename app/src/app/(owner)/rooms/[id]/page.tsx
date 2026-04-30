@@ -21,34 +21,24 @@ export default function RoomDetailPage() {
   const { roomRepository, billingRepository } = useRepositories();
   const params = useParams();
   const roomId = typeof params.id === 'string' ? params.id : '';
-  const [rooms, setRooms] = useState(() => {
-    const roomsResult = roomRepository.listRooms();
-    return roomsResult.ok ? roomsResult.value : [];
-  });
-  const [roomBills, setRoomBills] = useState<BillItem[]>(() => {
-    if (!roomId) {
-      return [];
-    }
-
-    const billsResult = billingRepository.loadRoomBills(roomId);
-    return billsResult.ok ? billsResult.value : [];
-  });
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [roomBills, setRoomBills] = useState<BillItem[]>([]);
 
   useEffect(() => {
-    const refreshRoomsState = () => {
-      const roomsResult = roomRepository.listRooms();
+    const refreshRoomsState = async () => {
+      const roomsResult = await roomRepository.listRooms();
       if (roomsResult.ok) {
         setRooms(roomsResult.value);
       }
     };
 
-    const refreshRoomBills = () => {
+    const refreshRoomBills = async () => {
       if (!roomId) {
         setRoomBills([]);
         return;
       }
 
-      const billsResult = billingRepository.loadRoomBills(roomId);
+      const billsResult = await billingRepository.loadRoomBills(roomId);
       if (billsResult.ok) {
         setRoomBills(billsResult.value);
       }

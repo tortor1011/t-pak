@@ -1,4 +1,5 @@
-import type { MaintenanceStatus, MaintenanceCategory } from '@shared/types';
+export type MaintenanceStatus = 'new' | 'in-progress' | 'resolved';
+export type MaintenanceCategory = 'plumbing' | 'electrical' | 'furniture' | 'cleaning' | 'noise' | 'appliance' | 'other';
 
 export type ComplaintStatus = MaintenanceStatus;
 export type ComplaintCategory = MaintenanceCategory;

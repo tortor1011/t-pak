@@ -21,14 +21,17 @@ export default function ComplaintsPage() {
   const [updatingComplaintId, setUpdatingComplaintId] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [complaints, setComplaints] = useState<Complaint[]>(() => {
-    const complaintsResult = complaintsRepository.listComplaints();
-    return complaintsResult.ok ? complaintsResult.value : [];
-  });
+  const [complaints, setComplaints] = useState<Complaint[]>([]);
 
   useEffect(() => {
-    const refreshComplaints = () => {
-      const complaintsResult = complaintsRepository.listComplaints();
+    complaintsRepository.listComplaints().then((complaintsResult) => {
+      if (complaintsResult.ok) {
+        setComplaints(complaintsResult.value);
+      }
+    });
+
+    const refreshComplaints = async () => {
+      const complaintsResult = await complaintsRepository.listComplaints();
       if (complaintsResult.ok) {
         setComplaints(complaintsResult.value);
       }
@@ -86,7 +89,7 @@ export default function ComplaintsPage() {
           resolvedDescription: 'Resolved issues will appear here',
         };
 
-  const handleUpdateComplaintStatus = (complaint: Complaint) => {
+  const handleUpdateComplaintStatus = async (complaint: Complaint) => {
     const nextStatus = getNextComplaintStatus(complaint.status);
     if (!nextStatus || updatingComplaintId) {
       return;
@@ -96,7 +99,7 @@ export default function ComplaintsPage() {
     setFeedbackMessage(null);
     setErrorMessage(null);
 
-    const updatedComplaintsResult = complaintsRepository.updateComplaintStatus(
+    const updatedComplaintsResult = await complaintsRepository.updateComplaintStatus(
       complaint.id,
       nextStatus
     );

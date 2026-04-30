@@ -1,4 +1,4 @@
-import type { BillingStatus as SharedBillingStatus } from '@shared/types';
+export type SharedBillingStatus = 'draft' | 'pending' | 'unpaid' | 'pending-payment' | 'paid' | 'overdue' | 'none';
 
 /** Billing status drives the entire UI */
 export type BillingStatus = SharedBillingStatus;

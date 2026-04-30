@@ -1,8 +1,16 @@
-import type {
-  DeliveryTaskStatus as SharedDeliveryTaskStatus,
-  TenantParcelRequestInput as SharedTenantParcelRequestInput,
-  DeliveryProofInput as SharedDeliveryProofInput,
-} from '@shared/types';
+export type SharedDeliveryTaskStatus = 'pending' | 'in-progress' | 'delivered' | 'returned';
+export interface SharedTenantParcelRequestInput {
+  tenantName: string;
+  roomNumber: string;
+  trackingNumber: string;
+  phone: string;
+  notes?: string;
+}
+export interface SharedDeliveryProofInput {
+  proofPhotoUrl: string;
+  deliveryNote?: string;
+  confirmationChecked: boolean;
+}
 
 export type DeliveryTaskStatus = SharedDeliveryTaskStatus;
 

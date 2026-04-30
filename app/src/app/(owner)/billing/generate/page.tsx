@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PageHeader from '@/components/layout/PageHeader';
 import FilterTabs from '@/components/ui/FilterTabs';
@@ -232,9 +232,14 @@ export default function GenerateBillsPage() {
   const { language, t } = useLanguage();
   const { notificationRepository, roomRepository } = useRepositories();
 
-  const rooms = useMemo(() => {
-    const roomsResult = roomRepository.listRooms();
-    return roomsResult.ok ? roomsResult.value : [];
+  const [rooms, setRooms] = useState<Room[]>([]);
+
+  useEffect(() => {
+    roomRepository.listRooms().then((roomsResult) => {
+      if (roomsResult.ok) {
+        setRooms(roomsResult.value);
+      }
+    });
   }, [roomRepository]);
 
   const additionalChargeContext = useMemo(

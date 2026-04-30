@@ -38,7 +38,7 @@ export default function DebtCollectionPage() {
       });
 
       const debtIds = debts.map((debt) => debt.id);
-      const nextQueueResult = billingRepository.sendBulkDebtRemindersByIds(debtIds);
+      const nextQueueResult = await billingRepository.sendBulkDebtRemindersByIds(debtIds);
       if (!nextQueueResult.ok) {
         setFeedback(nextQueueResult.error.message);
         return;
@@ -62,7 +62,7 @@ export default function DebtCollectionPage() {
         window.setTimeout(() => resolve(), 450);
       });
 
-      const nextQueueResult = billingRepository.sendDebtReminder(debt.id);
+      const nextQueueResult = await billingRepository.sendDebtReminder(debt.id);
       if (!nextQueueResult.ok) {
         setFeedback(nextQueueResult.error.message);
         return;
@@ -97,7 +97,7 @@ export default function DebtCollectionPage() {
         window.setTimeout(() => resolve(), 500);
       });
 
-      const nextQueueResult = billingRepository.settleDebtAndMarkRoomPaid(
+      const nextQueueResult = await billingRepository.settleDebtAndMarkRoomPaid(
         debt.roomNumber
       );
       if (!nextQueueResult.ok) {

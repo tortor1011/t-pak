@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRepositories } from '@/hooks/useRepositories';
@@ -99,14 +99,17 @@ export default function MeterReadingPage() {
   const router = useRouter();
   const { t } = useLanguage();
   const { billingRepository } = useRepositories();
-  const meterReadings = useMemo(() => {
-    const meterReadingsResult = billingRepository.loadMeterReadings();
-    return meterReadingsResult.ok ? meterReadingsResult.value : [];
-  }, [billingRepository]);
+  const [meterReadings, setMeterReadings] = useState<MeterReading[]>([]);
+  const [readings, setReadings] = useState<MeterReadingDraftMap>({});
 
-  const [readings, setReadings] = useState<MeterReadingDraftMap>(() =>
-    loadMeterReadingDrafts(meterReadings)
-  );
+  useEffect(() => {
+    billingRepository.loadMeterReadings().then((meterReadingsResult) => {
+      if (meterReadingsResult.ok) {
+        setMeterReadings(meterReadingsResult.value);
+        setReadings(loadMeterReadingDrafts(meterReadingsResult.value));
+      }
+    });
+  }, [billingRepository]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -166,7 +169,7 @@ export default function MeterReadingPage() {
         return;
       }
 
-      const submitResult = billingRepository.submitMeterReadings(submissions);
+      const submitResult = await billingRepository.submitMeterReadings(submissions);
       if (!submitResult.ok) {
         setSaveError(submitResult.error.message);
         return;

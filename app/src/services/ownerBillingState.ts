@@ -29,17 +29,16 @@ export const EMPTY_OWNER_BILLING_STATE: OwnerBillingState = {
   totalOutstanding: 0,
 };
 
-export function buildOwnerBillingState(): OwnerBillingState {
+export async function buildOwnerBillingState(): Promise<OwnerBillingState> {
   const { roomRepository, billingRepository } = getRepositories();
-  const roomsResult = roomRepository.listRooms();
+  const roomsResult = await roomRepository.listRooms();
 
   if (!roomsResult.ok) {
     return EMPTY_OWNER_BILLING_STATE;
   }
 
   const rooms = roomsResult.value;
-  const ownerBillingAggregationResult =
-    billingRepository.loadOwnerBillingAggregation(rooms);
+  const ownerBillingAggregationResult = await billingRepository.loadOwnerBillingAggregation(rooms);
 
   if (!ownerBillingAggregationResult.ok) {
     return EMPTY_OWNER_BILLING_STATE;
@@ -63,11 +62,11 @@ export function buildOwnerBillingState(): OwnerBillingState {
   };
 }
 
-export function buildOwnerBillingStateResult(): Result<OwnerBillingState> {
+export async function buildOwnerBillingStateResult(): Promise<Result<OwnerBillingState>> {
   try {
     return {
       ok: true,
-      value: buildOwnerBillingState(),
+      value: await buildOwnerBillingState(),
     };
   } catch (error) {
     return err({

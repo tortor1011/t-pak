@@ -77,10 +77,15 @@ export default function TenantLifecycleRoomSelector({ mode }: TenantLifecycleRoo
   const { roomRepository } = useRepositories();
   const [selectedFloor, setSelectedFloor] = useState<FloorFilter>('all');
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
-  const [rooms, setRooms] = useState<Room[]>(() => {
-    const result = roomRepository.listRooms();
-    return result.ok ? sortRoomsByNumber(result.value) : [];
-  });
+  const [rooms, setRooms] = useState<Room[]>([]);
+
+  useEffect(() => {
+    roomRepository.listRooms().then((result) => {
+      if (result.ok) {
+        setRooms(sortRoomsByNumber(result.value));
+      }
+    });
+  }, [roomRepository]);
 
   const text =
     language === 'th'
@@ -120,8 +125,8 @@ export default function TenantLifecycleRoomSelector({ mode }: TenantLifecycleRoo
         };
 
   useEffect(() => {
-    const refreshRooms = () => {
-      const result = roomRepository.listRooms();
+    const refreshRooms = async () => {
+      const result = await roomRepository.listRooms();
       if (result.ok) {
         setRooms(sortRoomsByNumber(result.value));
       }

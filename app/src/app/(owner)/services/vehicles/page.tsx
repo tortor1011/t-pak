@@ -48,16 +48,19 @@ export default function VehiclesPage() {
     vehicleType: 'car',
   });
 
-  const [rooms, setRooms] = useState<Room[]>(() => {
-    const roomsResult = roomRepository.listRooms();
-    if (!roomsResult.ok) {
-      return [];
-    }
+  const [rooms, setRooms] = useState<Room[]>([]);
 
-    return roomsResult.value.filter(
-      (room) => room.occupancy === 'occupied' && room.tenantId !== null
-    );
-  });
+  useEffect(() => {
+    roomRepository.listRooms().then((roomsResult) => {
+      if (roomsResult.ok) {
+        setRooms(
+          roomsResult.value.filter(
+            (room) => room.occupancy === 'occupied' && room.tenantId !== null
+          )
+        );
+      }
+    });
+  }, [roomRepository]);
 
   const text =
     language === 'th'
@@ -129,8 +132,8 @@ export default function VehiclesPage() {
         };
 
   useEffect(() => {
-    const refreshRooms = () => {
-      const roomsResult = roomRepository.listRooms();
+    const refreshRooms = async () => {
+      const roomsResult = await roomRepository.listRooms();
       if (!roomsResult.ok) {
         return;
       }

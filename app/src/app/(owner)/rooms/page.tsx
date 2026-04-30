@@ -16,10 +16,8 @@ export default function RoomsPage() {
   const { language } = useLanguage();
   const { roomRepository } = useRepositories();
   const [search, setSearch] = useState('');
-  const [rooms, setRooms] = useState(() => {
-    const roomsResult = roomRepository.listRooms();
-    return roomsResult.ok ? roomsResult.value : [];
-  });
+  const [rooms, setRooms] = useState<any[]>([]);
+
   const text =
     language === 'th'
       ? {
@@ -46,12 +44,14 @@ export default function RoomsPage() {
         };
 
   useEffect(() => {
-    const refreshRoomsState = () => {
-      const roomsResult = roomRepository.listRooms();
+    const refreshRoomsState = async () => {
+      const roomsResult = await roomRepository.listRooms();
       if (roomsResult.ok) {
         setRooms(roomsResult.value);
       }
     };
+
+    refreshRoomsState();
 
     window.addEventListener('storage', refreshRoomsState);
     window.addEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
@@ -66,7 +66,7 @@ export default function RoomsPage() {
     if (!search) return rooms;
     const q = search.toLowerCase();
     return rooms.filter(
-      (r) =>
+      (r: any) =>
         r.number.includes(q) ||
         r.tenantName?.toLowerCase().includes(q)
     );
@@ -91,7 +91,7 @@ export default function RoomsPage() {
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-surface-container-lowest p-4 rounded-2xl text-center shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
             <p className="text-2xl font-black text-primary">
-              {rooms.filter((r) => r.occupancy === 'occupied').length}
+              {rooms.filter((r: any) => r.occupancy === 'occupied').length}
             </p>
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
               {text.occupied}
@@ -99,7 +99,7 @@ export default function RoomsPage() {
           </div>
           <div className="bg-surface-container-lowest p-4 rounded-2xl text-center shadow-[0_10px_40px_rgba(18,28,40,0.03)]">
             <p className="text-2xl font-black text-secondary">
-              {rooms.filter((r) => r.occupancy === 'vacant').length}
+              {rooms.filter((r: any) => r.occupancy === 'vacant').length}
             </p>
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">
               {text.vacant}
@@ -115,7 +115,7 @@ export default function RoomsPage() {
 
         {/* Room List */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {filteredRooms.map((room) => {
+          {filteredRooms.map((room: any) => {
             const displayBillingStatus = getRoomBillingStatusForDisplay(room);
 
             return (

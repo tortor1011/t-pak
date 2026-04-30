@@ -9,10 +9,12 @@ import { OwnerBillingState, EMPTY_OWNER_BILLING_STATE } from '@/services/ownerBi
 export function useOwnerBillingState(): {
   billingState: OwnerBillingState;
   refreshBillingState: () => void;
+  isLoading: boolean;
+  isError: boolean;
 } {
   const { roomRepository, billingRepository } = useRepositories();
 
-  const { data: billingState, refetch } = useQuery({
+  const { data: billingState, refetch, isLoading, isError } = useQuery({
     queryKey: ['ownerBillingState'],
     queryFn: async (): Promise<OwnerBillingState> => {
       const roomsResult = await roomRepository.listRooms();
@@ -61,5 +63,7 @@ export function useOwnerBillingState(): {
   return {
     billingState,
     refreshBillingState: () => { refetch(); },
+    isLoading,
+    isError,
   };
 }

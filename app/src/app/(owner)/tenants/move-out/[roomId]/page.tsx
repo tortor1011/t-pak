@@ -20,10 +20,15 @@ export default function MoveOutRoomDetailPage() {
   const { roomRepository } = useRepositories();
   const [showModal, setShowModal] = useState(false);
 
-  const [rooms, setRooms] = useState<Room[]>(() => {
-    const roomsResult = roomRepository.listRooms();
-    return roomsResult.ok ? sortRoomsByNumber(roomsResult.value) : [];
-  });
+  const [rooms, setRooms] = useState<Room[]>([]);
+
+  useEffect(() => {
+    roomRepository.listRooms().then((roomsResult) => {
+      if (roomsResult.ok) {
+        setRooms(sortRoomsByNumber(roomsResult.value));
+      }
+    });
+  }, [roomRepository]);
 
   const text =
     language === 'th'
@@ -79,8 +84,8 @@ export default function MoveOutRoomDetailPage() {
         };
 
   useEffect(() => {
-    const refreshRooms = () => {
-      const roomsResult = roomRepository.listRooms();
+    const refreshRooms = async () => {
+      const roomsResult = await roomRepository.listRooms();
       if (roomsResult.ok) {
         setRooms(sortRoomsByNumber(roomsResult.value));
       }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRepositories } from '@/hooks/useRepositories';
@@ -16,10 +16,15 @@ export default function VerifySlipsPage() {
   const router = useRouter();
   const { billingRepository } = useRepositories();
   const { t } = useLanguage();
-  const [queue, setQueue] = useState<SlipVerificationQueueItem[]>(() => {
-    const queueResult = billingRepository.loadSlipVerificationQueue();
-    return queueResult.ok ? queueResult.value : [];
-  });
+  const [queue, setQueue] = useState<SlipVerificationQueueItem[]>([]);
+
+  useEffect(() => {
+    billingRepository.loadSlipVerificationQueue().then((queueResult) => {
+      if (queueResult.ok) {
+        setQueue(queueResult.value);
+      }
+    });
+  }, [billingRepository]);
   const [activeAction, setActiveAction] = useState<{
     slipId: string;
     decision: 'approved' | 'rejected';
@@ -45,7 +50,7 @@ export default function VerifySlipsPage() {
         window.setTimeout(() => resolve(), 450);
       });
 
-      const nextQueueResult = billingRepository.reviewSlipVerification(
+      const nextQueueResult = await billingRepository.reviewSlipVerification(
         slip.id,
         decision
       );

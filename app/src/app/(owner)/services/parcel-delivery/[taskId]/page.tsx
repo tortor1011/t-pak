@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import PageHeader from '@/components/layout/PageHeader';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -14,10 +14,17 @@ export default function ParcelDeliveryProofPage() {
 
   const taskId = typeof params.taskId === 'string' ? params.taskId : '';
 
-  const taskResult = taskId
-    ? deliveryRepository.findDeliveryTaskById(taskId)
-    : { ok: true as const, value: null };
-  const task = taskResult.ok ? taskResult.value : null;
+  const [task, setTask] = useState<any>(null);
+
+  useEffect(() => {
+    if (taskId) {
+      deliveryRepository.findDeliveryTaskById(taskId).then((taskResult) => {
+        if (taskResult.ok) {
+          setTask(taskResult.value);
+        }
+      });
+    }
+  }, [taskId, deliveryRepository]);
 
   const [proofPhotoUrl, setProofPhotoUrl] = useState('');
   const [deliveryNote, setDeliveryNote] = useState('');
@@ -66,7 +73,7 @@ export default function ParcelDeliveryProofPage() {
           completed: 'Delivery has been completed.',
         };
 
-  const handleCompleteDelivery = () => {
+  const handleCompleteDelivery = async () => {
     if (!taskId) {
       return;
     }
@@ -74,7 +81,7 @@ export default function ParcelDeliveryProofPage() {
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    const result = deliveryRepository.completeDeliveryTask(taskId, {
+    const result = await deliveryRepository.completeDeliveryTask(taskId, {
       proofPhotoUrl,
       deliveryNote,
       confirmationChecked,
