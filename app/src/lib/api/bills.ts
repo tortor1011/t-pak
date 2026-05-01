@@ -61,7 +61,7 @@ export async function getBills(roomId?: string): Promise<BillItem[]> {
   });
 
   const tenantNameByRoomId = new Map(
-    tenants.map((t) => [t.roomId, t.user.fullName]),
+    tenants.map((t) => [t.roomId, t.user?.fullName ?? 'Unknown']),
   );
 
   return bills.map((bill) =>
@@ -95,6 +95,6 @@ export async function getBillById(id: string): Promise<BillItem | null> {
 
   return mapBillToFrontend(
     bill as BillWithRelations,
-    tenant?.user.fullName ?? 'Unknown',
+    tenant?.user?.fullName ?? 'Unknown',
   );
 }

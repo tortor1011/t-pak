@@ -1,5 +1,3 @@
-// ─── Prisma Configuration ───
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -9,7 +7,229 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── Enums ───
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  role         UserRole  @default(TENANT)
+  fullName     String
+  phone        String?
+  lineId       String?
+  avatar       String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  accounts     Account[]
+  sessions     Session[]
+  tenant       Tenant?
+
+  @@map("users")
+}
+
+model Room {
+  id            String         @id @default(cuid())
+  number        String         @unique
+  floor         Int
+  building      String         @default("A")
+  occupancy     RoomOccupancy  @default(vacant)
+  billingStatus BillingStatus  @default(none)
+  baseRent      Float
+  currentBill   Float          @default(0)
+  amenities     String[]       @default([])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bills         Bill[]
+  complaints    Complaint[]
+  deliveryTasks DeliveryTask[]
+  meterReadings MeterReading[]
+  tenant        Tenant?
+  vehicles      Vehicle[]
+
+  @@map("rooms")
+}
+
+model Tenant {
+  id                      String    @id @default(cuid())
+  userId                  String?   @unique
+  roomId                  String    @unique
+  idCardUrl               String?
+  contractDuration        String    @default("1-year")
+  moveInDate              DateTime
+  moveOutDate             DateTime?
+  contractEnd             DateTime
+  baseRent                Float
+  securityDeposit         Float
+  initialMeterElectricity Float
+  initialMeterWater       Float
+  vehiclePlate            String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  inviteCode              String?   @unique
+  room                    Room      @relation(fields: [roomId], references: [id])
+  user                    User?     @relation(fields: [userId], references: [id])
+
+  @@map("tenants")
+}
+
+model Bill {
+  id                String            @id @default(cuid())
+  roomId            String
+  month             String
+  year              Int
+  baseRent          Float
+  electricityUnits  Float
+  electricityRate   Float
+  electricityCost   Float
+  waterUnits        Float
+  waterRate         Float
+  waterCost         Float
+  additionalCharges Float             @default(0)
+  totalAmount       Float
+  status            BillingStatus     @default(unpaid)
+  dueDate           DateTime
+  paidDate          DateTime?
+  slipUrl           String?
+  meterReadDate     DateTime
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  room              Room              @relation(fields: [roomId], references: [id])
+  slipVerification  SlipVerification?
+
+  @@map("bills")
+}
+
+model MeterReading {
+  id                  String   @id @default(cuid())
+  roomId              String
+  electricityPrevious Float
+  electricityCurrent  Float?
+  waterPrevious       Float
+  waterCurrent        Float?
+  readingDate         DateTime @default(now())
+  createdAt           DateTime @default(now())
+  room                Room     @relation(fields: [roomId], references: [id])
+
+  @@map("meter_readings")
+}
+
+model SlipVerification {
+  id             String       @id @default(cuid())
+  billId         String       @unique
+  slipUrl        String
+  uploadedAt     DateTime     @default(now())
+  detectedAmount Float?
+  detectedDate   DateTime?
+  isAmountMatch  Boolean      @default(false)
+  decision       SlipDecision @default(pending)
+  reviewedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  bill           Bill         @relation(fields: [billId], references: [id])
+
+  @@map("slip_verifications")
+}
+
+model Complaint {
+  id                String            @id @default(cuid())
+  roomId            String
+  category          ComplaintCategory
+  title             String
+  description       String
+  status            ComplaintStatus   @default(new_ticket)
+  photoUrl          String?
+  permissionToEnter Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  resolvedAt        DateTime?
+  updatedAt         DateTime          @updatedAt
+  room              Room              @relation(fields: [roomId], references: [id])
+
+  @@map("complaints")
+}
+
+model DeliveryTask {
+  id                  String             @id @default(cuid())
+  roomId              String
+  tenantName          String
+  trackingNumber      String
+  phone               String
+  courierName         String?
+  status              DeliveryTaskStatus @default(pending)
+  requestedAt         DateTime           @default(now())
+  startedAt           DateTime?
+  deliveredAt         DateTime?
+  proofPhotoUrl       String?
+  deliveryNote        String?
+  confirmationChecked Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  room                Room               @relation(fields: [roomId], references: [id])
+
+  @@map("delivery_tasks")
+}
+
+model Vehicle {
+  id            String        @id @default(cuid())
+  tenantId      String
+  roomId        String
+  plate         String
+  vehicleType   VehicleType   @default(car)
+  status        VehicleStatus @default(unregistered)
+  registeredAt  DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deactivatedAt DateTime?
+  room          Room          @relation(fields: [roomId], references: [id])
+
+  @@map("vehicles")
+}
+
+model PropertySettings {
+  id                    String   @id @default(cuid())
+  electricityRate       Float    @default(8)
+  waterRate             Float    @default(20)
+  lateFee               Float    @default(200)
+  lateFeeDay            Int      @default(5)
+  additionalChargeRules Json     @default("[]")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("property_settings")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
 
 enum UserRole {
   ADMIN
@@ -24,7 +244,7 @@ enum RoomOccupancy {
 
 /// Maps to frontend SharedBillingStatus.
 /// Underscore variants map to hyphenated frontend values:
-///   pending_payment → 'pending-payment'
+/// pending_payment → 'pending-payment'
 enum BillingStatus {
   draft
   pending
@@ -46,8 +266,8 @@ enum ComplaintCategory {
 }
 
 /// Maps to frontend MaintenanceStatus / ComplaintStatus.
-///   new_ticket  → 'new'
-///   in_progress → 'in-progress'
+/// new_ticket  → 'new'
+/// in_progress → 'in-progress'
 enum ComplaintStatus {
   new_ticket
   in_progress
@@ -55,7 +275,7 @@ enum ComplaintStatus {
 }
 
 /// Maps to frontend DeliveryTaskStatus.
-///   in_progress → 'in-progress'
+/// in_progress → 'in-progress'
 enum DeliveryTaskStatus {
   pending
   in_progress
@@ -92,239 +312,3 @@ enum SlipDecision {
   approved
   rejected
 }
-
-// ─── Core Models ───
-
-model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  role         UserRole @default(TENANT)
-  fullName     String
-  phone        String?
-  lineId       String?
-  avatar       String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  // Relations
-  tenant   Tenant?
-  accounts Account[]
-  sessions Session[]
-
-  @@map("users")
-}
-
-model Room {
-  id            String        @id @default(cuid())
-  number        String        @unique
-  floor         Int
-  building      String        @default("A")
-  occupancy     RoomOccupancy @default(vacant)
-  billingStatus BillingStatus @default(none)
-  baseRent      Float
-  currentBill   Float         @default(0)
-  amenities     String[]      @default([])
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  // Relations
-  tenant        Tenant?
-  bills         Bill[]
-  meterReadings MeterReading[]
-  complaints    Complaint[]
-  deliveryTasks DeliveryTask[]
-  vehicles      Vehicle[]
-
-  @@map("rooms")
-}
-
-model Tenant {
-  id                      String    @id @default(cuid())
-  userId                  String    @unique
-  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  roomId                  String    @unique
-  room                    Room      @relation(fields: [roomId], references: [id])
-  idCardUrl               String?
-  contractDuration        String    @default("1-year")
-  moveInDate              DateTime
-  moveOutDate             DateTime?
-  contractEnd             DateTime
-  baseRent                Float
-  securityDeposit         Float
-  initialMeterElectricity Float
-  initialMeterWater       Float
-  vehiclePlate            String?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-
-  @@map("tenants")
-}
-
-model Bill {
-  id                String        @id @default(cuid())
-  roomId            String
-  room              Room          @relation(fields: [roomId], references: [id])
-  month             String
-  year              Int
-  baseRent          Float
-  electricityUnits  Float
-  electricityRate   Float
-  electricityCost   Float
-  waterUnits        Float
-  waterRate         Float
-  waterCost         Float
-  additionalCharges Float         @default(0)
-  totalAmount       Float
-  status            BillingStatus @default(unpaid)
-  dueDate           DateTime
-  paidDate          DateTime?
-  slipUrl           String?
-  meterReadDate     DateTime
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-
-  // Relations
-  slipVerification SlipVerification?
-
-  @@map("bills")
-}
-
-model MeterReading {
-  id                  String   @id @default(cuid())
-  roomId              String
-  room                Room     @relation(fields: [roomId], references: [id])
-  electricityPrevious Float
-  electricityCurrent  Float?
-  waterPrevious       Float
-  waterCurrent        Float?
-  readingDate         DateTime @default(now())
-  createdAt           DateTime @default(now())
-
-  @@map("meter_readings")
-}
-
-model SlipVerification {
-  id             String       @id @default(cuid())
-  billId         String       @unique
-  bill           Bill         @relation(fields: [billId], references: [id])
-  slipUrl        String
-  uploadedAt     DateTime     @default(now())
-  detectedAmount Float?
-  detectedDate   DateTime?
-  isAmountMatch  Boolean      @default(false)
-  decision       SlipDecision @default(pending)
-  reviewedAt     DateTime?
-  createdAt      DateTime     @default(now())
-
-  @@map("slip_verifications")
-}
-
-model Complaint {
-  id                String            @id @default(cuid())
-  roomId            String
-  room              Room              @relation(fields: [roomId], references: [id])
-  category          ComplaintCategory
-  title             String
-  description       String
-  status            ComplaintStatus   @default(new_ticket)
-  photoUrl          String?
-  permissionToEnter Boolean           @default(false)
-  createdAt         DateTime          @default(now())
-  resolvedAt        DateTime?
-  updatedAt         DateTime          @updatedAt
-
-  @@map("complaints")
-}
-
-model DeliveryTask {
-  id                  String             @id @default(cuid())
-  roomId              String
-  room                Room               @relation(fields: [roomId], references: [id])
-  tenantName          String
-  trackingNumber      String
-  phone               String
-  courierName         String?
-  status              DeliveryTaskStatus @default(pending)
-  requestedAt         DateTime           @default(now())
-  startedAt           DateTime?
-  deliveredAt         DateTime?
-  proofPhotoUrl       String?
-  deliveryNote        String?
-  confirmationChecked Boolean            @default(false)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-
-  @@map("delivery_tasks")
-}
-
-model Vehicle {
-  id            String        @id @default(cuid())
-  tenantId      String
-  roomId        String
-  room          Room          @relation(fields: [roomId], references: [id])
-  plate         String
-  vehicleType   VehicleType   @default(car)
-  status        VehicleStatus @default(unregistered)
-  registeredAt  DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  deactivatedAt DateTime?
-
-  @@map("vehicles")
-}
-
-model PropertySettings {
-  id                    String   @id @default(cuid())
-  electricityRate       Float    @default(8)
-  waterRate             Float    @default(20)
-  lateFee               Float    @default(200)
-  lateFeeDay            Int      @default(5)
-  additionalChargeRules Json     @default("[]")
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  @@map("property_settings")
-}
-
-// ─── Auth.js Required Models ───
-
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verification_tokens")
-}
-

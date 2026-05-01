@@ -28,8 +28,8 @@ export class PrismaRoomRepository implements RoomRepository {
         baseRent: r.baseRent,
         currentBill: r.currentBill,
         tenantId: r.tenant?.id ?? null,
-        tenantName: r.tenant?.user.fullName ?? null,
-        tenantAvatar: r.tenant?.user.avatar ?? null,
+        tenantName: r.tenant?.user?.fullName ?? null,
+        tenantAvatar: r.tenant?.user?.avatar ?? null,
         amenities: r.amenities,
       }));
 

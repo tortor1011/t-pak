@@ -1,0 +1,73 @@
+[2026-05-01T19:10:06.911Z] Error: 
+Invalid `prisma.tenant.create()` invocation:
+
+{
+  data: {
+    roomId: "r105",
+    inviteCode: "ROOM105-5CC8",
+    contractDuration: "1-year",
+    moveInDate: new Date("2026-05-01T00:00:00.000Z"),
+    contractEnd: new Date("2027-05-01T00:00:00.000Z"),
+    baseRent: 5500,
+    securityDeposit: 11000,
+    initialMeterElectricity: 0,
+    initialMeterWater: 0,
++   user: {
++     create: UserCreateWithoutTenantInput | UserUncheckedCreateWithoutTenantInput,
++     connectOrCreate: UserCreateOrConnectWithoutTenantInput,
++     connect: UserWhereUniqueInput
++   }
+  }
+}
+
+Argument `user` is missing.
+Stack: PrismaClientValidationError: 
+Invalid `prisma.tenant.create()` invocation:
+
+{
+  data: {
+    roomId: "r105",
+    inviteCode: "ROOM105-5CC8",
+    contractDuration: "1-year",
+    moveInDate: new Date("2026-05-01T00:00:00.000Z"),
+    contractEnd: new Date("2027-05-01T00:00:00.000Z"),
+    baseRent: 5500,
+    securityDeposit: 11000,
+    initialMeterElectricity: 0,
+    initialMeterWater: 0,
++   user: {
++     create: UserCreateWithoutTenantInput | UserUncheckedCreateWithoutTenantInput,
++     connectOrCreate: UserCreateOrConnectWithoutTenantInput,
++     connect: UserWhereUniqueInput
++   }
+  }
+}
+
+Argument `user` is missing.
+    at ar (E:\Dev\t-pak\app\.next\dev\server\chunks\Dev_t-pak_app_src_generated_prisma_runtime_client_0i8px39.js:2116:11)
+    at zr.handleRequestError (E:\Dev\t-pak\app\.next\dev\server\chunks\Dev_t-pak_app_src_generated_prisma_runtime_client_0i8px39.js:7500:13)
+    at zr.handleAndLogRequestError (E:\Dev\t-pak\app\.next\dev\server\chunks\Dev_t-pak_app_src_generated_prisma_runtime_client_0i8px39.js:7487:18)
+    at zr.request (E:\Dev\t-pak\app\.next\dev\server\chunks\Dev_t-pak_app_src_generated_prisma_runtime_client_0i8px39.js:7468:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async a (E:\Dev\t-pak\app\.next\dev\server\chunks\Dev_t-pak_app_src_generated_prisma_runtime_client_0i8px39.js:8167:25)
+    at async POST (E:\Dev\t-pak\app\.next\dev\server\chunks\Dev_t-pak_app_src_0oj2wo5._.js:175:27)
+    at async AppRouteRouteModule.do (E:\Dev\t-pak\app\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+    at async AppRouteRouteModule.handle (E:\Dev\t-pak\app\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:47321)
+    at async responseGenerator (E:\Dev\t-pak\app\.next\dev\server\chunks\0-h9_next_02sk855._.js:16466:38)
+    at async AppRouteRouteModule.handleResponse (E:\Dev\t-pak\app\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:227216)
+    at async handleResponse (E:\Dev\t-pak\app\.next\dev\server\chunks\0-h9_next_02sk855._.js:16529:32)
+    at async Module.handler (E:\Dev\t-pak\app\.next\dev\server\chunks\0-h9_next_02sk855._.js:16583:13)
+    at async DevServer.renderToResponseWithComponentsImpl (E:\Dev\t-pak\app\node_modules\next\dist\server\base-server.js:1454:9)
+    at async DevServer.renderPageComponent (E:\Dev\t-pak\app\node_modules\next\dist\server\base-server.js:1506:24)
+    at async DevServer.renderToResponseImpl (E:\Dev\t-pak\app\node_modules\next\dist\server\base-server.js:1556:32)
+    at async DevServer.pipeImpl (E:\Dev\t-pak\app\node_modules\next\dist\server\base-server.js:1043:25)
+    at async NextNodeServer.handleCatchallRenderRequest (E:\Dev\t-pak\app\node_modules\next\dist\server\next-server.js:338:17)
+    at async DevServer.handleRequestImpl (E:\Dev\t-pak\app\node_modules\next\dist\server\base-server.js:934:17)
+    at async E:\Dev\t-pak\app\node_modules\next\dist\server\dev\next-dev-server.js:394:20
+    at async Span.traceAsyncFn (E:\Dev\t-pak\app\node_modules\next\dist\trace\trace.js:164:20)
+    at async DevServer.handleRequest (E:\Dev\t-pak\app\node_modules\next\dist\server\dev\next-dev-server.js:390:24)
+    at async invokeRender (E:\Dev\t-pak\app\node_modules\next\dist\server\lib\router-server.js:266:21)
+    at async handleRequest (E:\Dev\t-pak\app\node_modules\next\dist\server\lib\router-server.js:465:24)
+    at async requestHandlerImpl (E:\Dev\t-pak\app\node_modules\next\dist\server\lib\router-server.js:514:13)
+    at async Server.requestListener (E:\Dev\t-pak\app\node_modules\next\dist\server\lib\start-server.js:225:13)
+

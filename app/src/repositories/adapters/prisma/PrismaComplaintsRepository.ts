@@ -13,7 +13,7 @@ export class PrismaComplaintsRepository implements ComplaintsRepository {
       });
       const items: Complaint[] = rows.map((c) => ({
         id: c.id, roomNumber: c.room.number,
-        tenantName: c.room.tenant?.user.fullName ?? 'Unknown',
+        tenantName: c.room.tenant?.user?.fullName ?? 'Unknown',
         category: c.category, title: c.title, description: c.description,
         status: mapComplaintStatusToFrontend(c.status),
         photoUrl: c.photoUrl, permissionToEnter: c.permissionToEnter,

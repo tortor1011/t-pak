@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateTenant } from '@/lib/tenant-auth';
+import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 /**
  * POST /api/tenant/auth/login
  *
- * Validates tenant credentials and returns tenant profile info.
- * The Tenant app stores the credentials locally for subsequent API calls.
+ * Validates tenant credentials. Returns either:
+ * - Full session (linked: true) if the user has a room assigned
+ * - Partial session (linked: false) if the user registered but not yet linked to a room
  *
  * Body: { email: string, password: string }
- * Response: { userId, tenantId, roomId, roomNumber, fullName, email }
- *
- * TODO: Replace with LINE Login flow for production.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -24,28 +23,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a mock request with Basic auth header to reuse authenticateTenant
-    const basicAuth = Buffer.from(`${email}:${password}`).toString('base64');
-    const mockHeaders = new Headers();
-    mockHeaders.set('Authorization', `Basic ${basicAuth}`);
-    const mockRequest = new Request('http://localhost', { headers: mockHeaders });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        tenant: {
+          include: { room: { select: { number: true, id: true } } },
+        },
+      },
+    });
 
-    const tenant = await authenticateTenant(mockRequest);
-
-    if (!tenant) {
+    if (!user || user.role !== 'TENANT') {
       return NextResponse.json(
-        { error: 'Invalid credentials or user is not a tenant' },
+        { error: 'ไม่พบบัญชีผู้ใช้ หรือบัญชีนี้ไม่ใช่ลูกหอ' },
         { status: 401 },
       );
     }
 
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'รหัสผ่านไม่ถูกต้อง' },
+        { status: 401 },
+      );
+    }
+
+    // Unlinked user — registered but not yet linked to a room
+    if (!user.tenant) {
+      return NextResponse.json({
+        userId: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        linked: false,
+      });
+    }
+
+    // Fully linked user
     return NextResponse.json({
-      userId: tenant.userId,
-      tenantId: tenant.tenantId,
-      roomId: tenant.roomId,
-      roomNumber: tenant.roomNumber,
-      fullName: tenant.fullName,
-      email: tenant.email,
+      userId: user.id,
+      tenantId: user.tenant.id,
+      roomId: user.tenant.roomId,
+      roomNumber: user.tenant.room.number,
+      fullName: user.fullName,
+      email: user.email,
+      linked: true,
     });
   } catch (error) {
     console.error('Tenant login error:', error);

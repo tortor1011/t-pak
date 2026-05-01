@@ -47,8 +47,8 @@ export class PrismaDeliveryRepository implements DeliveryRepository {
       if (!room) return err({ code: 'NOT_FOUND', message: `Room ${payload.roomNumber} not found.` });
       await prisma.deliveryTask.create({
         data: {
-          roomId: room.id, tenantName: room.tenant?.user.fullName ?? 'Unknown',
-          trackingNumber: payload.trackingNumber, phone: payload.phone ?? room.tenant?.user.phone ?? '',
+          roomId: room.id, tenantName: room.tenant?.user?.fullName ?? 'Unknown',
+          trackingNumber: payload.trackingNumber, phone: payload.phone ?? room.tenant?.user?.phone ?? '',
           courierName: null, status: 'pending', requestedAt: new Date(),
           deliveryNote: payload.notes ?? null,
         },

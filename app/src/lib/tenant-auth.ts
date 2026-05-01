@@ -26,6 +26,17 @@ export interface AuthenticatedTenant {
 }
 
 /**
+ * Authenticate an unlinked tenant (registered but not yet linked to a room).
+ * Returns user info without tenantId/roomNumber for use in the /link endpoint.
+ */
+export interface AuthenticatedUser {
+  userId: string;
+  fullName: string;
+  email: string;
+  linked: false;
+}
+
+/**
  * Authenticate a tenant from the Authorization header.
  * Returns the tenant's profile or null if unauthorized.
  */
@@ -49,7 +60,10 @@ async function authenticateBasic(
 ): Promise<AuthenticatedTenant | null> {
   try {
     const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8');
-    const [email, password] = decoded.split(':');
+    const colonIdx = decoded.indexOf(':');
+    if (colonIdx === -1) return null;
+    const email = decoded.slice(0, colonIdx);
+    const password = decoded.slice(colonIdx + 1);
     if (!email || !password) return null;
 
     const user = await prisma.user.findUnique({
@@ -57,13 +71,14 @@ async function authenticateBasic(
       include: {
         tenant: {
           include: {
-            room: { select: { number: true } },
+            room: { select: { id: true, number: true } },
           },
         },
       },
     });
 
     if (!user || user.role !== 'TENANT') return null;
+    // Unlinked users cannot access protected tenant endpoints
     if (!user.tenant) return null;
 
     const isValid = await bcrypt.compare(password, user.passwordHash);

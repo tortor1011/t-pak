@@ -2155,17 +2155,17 @@ export namespace Prisma {
 
   export type RoomCountOutputType = {
     bills: number
-    meterReadings: number
     complaints: number
     deliveryTasks: number
+    meterReadings: number
     vehicles: number
   }
 
   export type RoomCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     bills?: boolean | RoomCountOutputTypeCountBillsArgs
-    meterReadings?: boolean | RoomCountOutputTypeCountMeterReadingsArgs
     complaints?: boolean | RoomCountOutputTypeCountComplaintsArgs
     deliveryTasks?: boolean | RoomCountOutputTypeCountDeliveryTasksArgs
+    meterReadings?: boolean | RoomCountOutputTypeCountMeterReadingsArgs
     vehicles?: boolean | RoomCountOutputTypeCountVehiclesArgs
   }
 
@@ -2190,13 +2190,6 @@ export namespace Prisma {
   /**
    * RoomCountOutputType without action
    */
-  export type RoomCountOutputTypeCountMeterReadingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: MeterReadingWhereInput
-  }
-
-  /**
-   * RoomCountOutputType without action
-   */
   export type RoomCountOutputTypeCountComplaintsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ComplaintWhereInput
   }
@@ -2206,6 +2199,13 @@ export namespace Prisma {
    */
   export type RoomCountOutputTypeCountDeliveryTasksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DeliveryTaskWhereInput
+  }
+
+  /**
+   * RoomCountOutputType without action
+   */
+  export type RoomCountOutputTypeCountMeterReadingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MeterReadingWhereInput
   }
 
   /**
@@ -2424,9 +2424,9 @@ export namespace Prisma {
     avatar?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    tenant?: boolean | User$tenantArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
+    tenant?: boolean | User$tenantArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2471,9 +2471,9 @@ export namespace Prisma {
 
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "passwordHash" | "role" | "fullName" | "phone" | "lineId" | "avatar" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    tenant?: boolean | User$tenantArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     sessions?: boolean | User$sessionsArgs<ExtArgs>
+    tenant?: boolean | User$tenantArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2482,9 +2482,9 @@ export namespace Prisma {
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
     objects: {
-      tenant: Prisma.$TenantPayload<ExtArgs> | null
       accounts: Prisma.$AccountPayload<ExtArgs>[]
       sessions: Prisma.$SessionPayload<ExtArgs>[]
+      tenant: Prisma.$TenantPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2891,9 +2891,9 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    tenant<T extends User$tenantArgs<ExtArgs> = {}>(args?: Subset<T, User$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     accounts<T extends User$accountsArgs<ExtArgs> = {}>(args?: Subset<T, User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     sessions<T extends User$sessionsArgs<ExtArgs> = {}>(args?: Subset<T, User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tenant<T extends User$tenantArgs<ExtArgs> = {}>(args?: Subset<T, User$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3326,25 +3326,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.tenant
-   */
-  export type User$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Tenant
-     */
-    select?: TenantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Tenant
-     */
-    omit?: TenantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantInclude<ExtArgs> | null
-    where?: TenantWhereInput
-  }
-
-  /**
    * User.accounts
    */
   export type User$accountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3390,6 +3371,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SessionScalarFieldEnum | SessionScalarFieldEnum[]
+  }
+
+  /**
+   * User.tenant
+   */
+  export type User$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    where?: TenantWhereInput
   }
 
   /**
@@ -3661,11 +3661,11 @@ export namespace Prisma {
     amenities?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    tenant?: boolean | Room$tenantArgs<ExtArgs>
     bills?: boolean | Room$billsArgs<ExtArgs>
-    meterReadings?: boolean | Room$meterReadingsArgs<ExtArgs>
     complaints?: boolean | Room$complaintsArgs<ExtArgs>
     deliveryTasks?: boolean | Room$deliveryTasksArgs<ExtArgs>
+    meterReadings?: boolean | Room$meterReadingsArgs<ExtArgs>
+    tenant?: boolean | Room$tenantArgs<ExtArgs>
     vehicles?: boolean | Room$vehiclesArgs<ExtArgs>
     _count?: boolean | RoomCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["room"]>
@@ -3714,11 +3714,11 @@ export namespace Prisma {
 
   export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "number" | "floor" | "building" | "occupancy" | "billingStatus" | "baseRent" | "currentBill" | "amenities" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
   export type RoomInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    tenant?: boolean | Room$tenantArgs<ExtArgs>
     bills?: boolean | Room$billsArgs<ExtArgs>
-    meterReadings?: boolean | Room$meterReadingsArgs<ExtArgs>
     complaints?: boolean | Room$complaintsArgs<ExtArgs>
     deliveryTasks?: boolean | Room$deliveryTasksArgs<ExtArgs>
+    meterReadings?: boolean | Room$meterReadingsArgs<ExtArgs>
+    tenant?: boolean | Room$tenantArgs<ExtArgs>
     vehicles?: boolean | Room$vehiclesArgs<ExtArgs>
     _count?: boolean | RoomCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -3728,11 +3728,11 @@ export namespace Prisma {
   export type $RoomPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Room"
     objects: {
-      tenant: Prisma.$TenantPayload<ExtArgs> | null
       bills: Prisma.$BillPayload<ExtArgs>[]
-      meterReadings: Prisma.$MeterReadingPayload<ExtArgs>[]
       complaints: Prisma.$ComplaintPayload<ExtArgs>[]
       deliveryTasks: Prisma.$DeliveryTaskPayload<ExtArgs>[]
+      meterReadings: Prisma.$MeterReadingPayload<ExtArgs>[]
+      tenant: Prisma.$TenantPayload<ExtArgs> | null
       vehicles: Prisma.$VehiclePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -4141,11 +4141,11 @@ export namespace Prisma {
    */
   export interface Prisma__RoomClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    tenant<T extends Room$tenantArgs<ExtArgs> = {}>(args?: Subset<T, Room$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     bills<T extends Room$billsArgs<ExtArgs> = {}>(args?: Subset<T, Room$billsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    meterReadings<T extends Room$meterReadingsArgs<ExtArgs> = {}>(args?: Subset<T, Room$meterReadingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MeterReadingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     complaints<T extends Room$complaintsArgs<ExtArgs> = {}>(args?: Subset<T, Room$complaintsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ComplaintPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     deliveryTasks<T extends Room$deliveryTasksArgs<ExtArgs> = {}>(args?: Subset<T, Room$deliveryTasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DeliveryTaskPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    meterReadings<T extends Room$meterReadingsArgs<ExtArgs> = {}>(args?: Subset<T, Room$meterReadingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MeterReadingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    tenant<T extends Room$tenantArgs<ExtArgs> = {}>(args?: Subset<T, Room$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     vehicles<T extends Room$vehiclesArgs<ExtArgs> = {}>(args?: Subset<T, Room$vehiclesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VehiclePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4580,25 +4580,6 @@ export namespace Prisma {
   }
 
   /**
-   * Room.tenant
-   */
-  export type Room$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Tenant
-     */
-    select?: TenantSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Tenant
-     */
-    omit?: TenantOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: TenantInclude<ExtArgs> | null
-    where?: TenantWhereInput
-  }
-
-  /**
    * Room.bills
    */
   export type Room$billsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4620,30 +4601,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BillScalarFieldEnum | BillScalarFieldEnum[]
-  }
-
-  /**
-   * Room.meterReadings
-   */
-  export type Room$meterReadingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the MeterReading
-     */
-    select?: MeterReadingSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the MeterReading
-     */
-    omit?: MeterReadingOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: MeterReadingInclude<ExtArgs> | null
-    where?: MeterReadingWhereInput
-    orderBy?: MeterReadingOrderByWithRelationInput | MeterReadingOrderByWithRelationInput[]
-    cursor?: MeterReadingWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: MeterReadingScalarFieldEnum | MeterReadingScalarFieldEnum[]
   }
 
   /**
@@ -4692,6 +4649,49 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DeliveryTaskScalarFieldEnum | DeliveryTaskScalarFieldEnum[]
+  }
+
+  /**
+   * Room.meterReadings
+   */
+  export type Room$meterReadingsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MeterReading
+     */
+    select?: MeterReadingSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MeterReading
+     */
+    omit?: MeterReadingOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MeterReadingInclude<ExtArgs> | null
+    where?: MeterReadingWhereInput
+    orderBy?: MeterReadingOrderByWithRelationInput | MeterReadingOrderByWithRelationInput[]
+    cursor?: MeterReadingWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MeterReadingScalarFieldEnum | MeterReadingScalarFieldEnum[]
+  }
+
+  /**
+   * Room.tenant
+   */
+  export type Room$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    where?: TenantWhereInput
   }
 
   /**
@@ -4779,6 +4779,7 @@ export namespace Prisma {
     vehiclePlate: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    inviteCode: string | null
   }
 
   export type TenantMaxAggregateOutputType = {
@@ -4797,6 +4798,7 @@ export namespace Prisma {
     vehiclePlate: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    inviteCode: string | null
   }
 
   export type TenantCountAggregateOutputType = {
@@ -4815,6 +4817,7 @@ export namespace Prisma {
     vehiclePlate: number
     createdAt: number
     updatedAt: number
+    inviteCode: number
     _all: number
   }
 
@@ -4849,6 +4852,7 @@ export namespace Prisma {
     vehiclePlate?: true
     createdAt?: true
     updatedAt?: true
+    inviteCode?: true
   }
 
   export type TenantMaxAggregateInputType = {
@@ -4867,6 +4871,7 @@ export namespace Prisma {
     vehiclePlate?: true
     createdAt?: true
     updatedAt?: true
+    inviteCode?: true
   }
 
   export type TenantCountAggregateInputType = {
@@ -4885,6 +4890,7 @@ export namespace Prisma {
     vehiclePlate?: true
     createdAt?: true
     updatedAt?: true
+    inviteCode?: true
     _all?: true
   }
 
@@ -4976,7 +4982,7 @@ export namespace Prisma {
 
   export type TenantGroupByOutputType = {
     id: string
-    userId: string
+    userId: string | null
     roomId: string
     idCardUrl: string | null
     contractDuration: string
@@ -4990,6 +4996,7 @@ export namespace Prisma {
     vehiclePlate: string | null
     createdAt: Date
     updatedAt: Date
+    inviteCode: string | null
     _count: TenantCountAggregateOutputType | null
     _avg: TenantAvgAggregateOutputType | null
     _sum: TenantSumAggregateOutputType | null
@@ -5027,8 +5034,9 @@ export namespace Prisma {
     vehiclePlate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    inviteCode?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    user?: boolean | Tenant$userArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5047,8 +5055,9 @@ export namespace Prisma {
     vehiclePlate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    inviteCode?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    user?: boolean | Tenant$userArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5067,8 +5076,9 @@ export namespace Prisma {
     vehiclePlate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    inviteCode?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    user?: boolean | Tenant$userArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectScalar = {
@@ -5087,31 +5097,32 @@ export namespace Prisma {
     vehiclePlate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    inviteCode?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "roomId" | "idCardUrl" | "contractDuration" | "moveInDate" | "moveOutDate" | "contractEnd" | "baseRent" | "securityDeposit" | "initialMeterElectricity" | "initialMeterWater" | "vehiclePlate" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "roomId" | "idCardUrl" | "contractDuration" | "moveInDate" | "moveOutDate" | "contractEnd" | "baseRent" | "securityDeposit" | "initialMeterElectricity" | "initialMeterWater" | "vehiclePlate" | "createdAt" | "updatedAt" | "inviteCode", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    user?: boolean | Tenant$userArgs<ExtArgs>
   }
   export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    user?: boolean | Tenant$userArgs<ExtArgs>
   }
   export type TenantIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    user?: boolean | UserDefaultArgs<ExtArgs>
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    user?: boolean | Tenant$userArgs<ExtArgs>
   }
 
   export type $TenantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Tenant"
     objects: {
-      user: Prisma.$UserPayload<ExtArgs>
       room: Prisma.$RoomPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      userId: string
+      userId: string | null
       roomId: string
       idCardUrl: string | null
       contractDuration: string
@@ -5125,6 +5136,7 @@ export namespace Prisma {
       vehiclePlate: string | null
       createdAt: Date
       updatedAt: Date
+      inviteCode: string | null
     }, ExtArgs["result"]["tenant"]>
     composites: {}
   }
@@ -5519,8 +5531,8 @@ export namespace Prisma {
    */
   export interface Prisma__TenantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     room<T extends RoomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoomDefaultArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends Tenant$userArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5565,6 +5577,7 @@ export namespace Prisma {
     readonly vehiclePlate: FieldRef<"Tenant", 'String'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
+    readonly inviteCode: FieldRef<"Tenant", 'String'>
   }
     
 
@@ -5963,6 +5976,25 @@ export namespace Prisma {
      * Limit how many Tenants to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Tenant.user
+   */
+  export type Tenant$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
   }
 
   /**
@@ -17449,7 +17481,8 @@ export namespace Prisma {
     initialMeterWater: 'initialMeterWater',
     vehiclePlate: 'vehiclePlate',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    inviteCode: 'inviteCode'
   };
 
   export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
@@ -17880,9 +17913,9 @@ export namespace Prisma {
     avatar?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
+    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -17896,9 +17929,9 @@ export namespace Prisma {
     avatar?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    tenant?: TenantOrderByWithRelationInput
     accounts?: AccountOrderByRelationAggregateInput
     sessions?: SessionOrderByRelationAggregateInput
+    tenant?: TenantOrderByWithRelationInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -17915,9 +17948,9 @@ export namespace Prisma {
     avatar?: StringNullableFilter<"User"> | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
-    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
     accounts?: AccountListRelationFilter
     sessions?: SessionListRelationFilter
+    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -17967,11 +18000,11 @@ export namespace Prisma {
     amenities?: StringNullableListFilter<"Room">
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
-    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
     bills?: BillListRelationFilter
-    meterReadings?: MeterReadingListRelationFilter
     complaints?: ComplaintListRelationFilter
     deliveryTasks?: DeliveryTaskListRelationFilter
+    meterReadings?: MeterReadingListRelationFilter
+    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
     vehicles?: VehicleListRelationFilter
   }
 
@@ -17987,11 +18020,11 @@ export namespace Prisma {
     amenities?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    tenant?: TenantOrderByWithRelationInput
     bills?: BillOrderByRelationAggregateInput
-    meterReadings?: MeterReadingOrderByRelationAggregateInput
     complaints?: ComplaintOrderByRelationAggregateInput
     deliveryTasks?: DeliveryTaskOrderByRelationAggregateInput
+    meterReadings?: MeterReadingOrderByRelationAggregateInput
+    tenant?: TenantOrderByWithRelationInput
     vehicles?: VehicleOrderByRelationAggregateInput
   }
 
@@ -18010,11 +18043,11 @@ export namespace Prisma {
     amenities?: StringNullableListFilter<"Room">
     createdAt?: DateTimeFilter<"Room"> | Date | string
     updatedAt?: DateTimeFilter<"Room"> | Date | string
-    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
     bills?: BillListRelationFilter
-    meterReadings?: MeterReadingListRelationFilter
     complaints?: ComplaintListRelationFilter
     deliveryTasks?: DeliveryTaskListRelationFilter
+    meterReadings?: MeterReadingListRelationFilter
+    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
     vehicles?: VehicleListRelationFilter
   }, "id" | "number">
 
@@ -18059,7 +18092,7 @@ export namespace Prisma {
     OR?: TenantWhereInput[]
     NOT?: TenantWhereInput | TenantWhereInput[]
     id?: StringFilter<"Tenant"> | string
-    userId?: StringFilter<"Tenant"> | string
+    userId?: StringNullableFilter<"Tenant"> | string | null
     roomId?: StringFilter<"Tenant"> | string
     idCardUrl?: StringNullableFilter<"Tenant"> | string | null
     contractDuration?: StringFilter<"Tenant"> | string
@@ -18073,13 +18106,14 @@ export namespace Prisma {
     vehiclePlate?: StringNullableFilter<"Tenant"> | string | null
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    inviteCode?: StringNullableFilter<"Tenant"> | string | null
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type TenantOrderByWithRelationInput = {
     id?: SortOrder
-    userId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     roomId?: SortOrder
     idCardUrl?: SortOrderInput | SortOrder
     contractDuration?: SortOrder
@@ -18093,14 +18127,16 @@ export namespace Prisma {
     vehiclePlate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    user?: UserOrderByWithRelationInput
+    inviteCode?: SortOrderInput | SortOrder
     room?: RoomOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
   }
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     userId?: string
     roomId?: string
+    inviteCode?: string
     AND?: TenantWhereInput | TenantWhereInput[]
     OR?: TenantWhereInput[]
     NOT?: TenantWhereInput | TenantWhereInput[]
@@ -18116,13 +18152,13 @@ export namespace Prisma {
     vehiclePlate?: StringNullableFilter<"Tenant"> | string | null
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
-  }, "id" | "userId" | "roomId">
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "userId" | "roomId" | "inviteCode">
 
   export type TenantOrderByWithAggregationInput = {
     id?: SortOrder
-    userId?: SortOrder
+    userId?: SortOrderInput | SortOrder
     roomId?: SortOrder
     idCardUrl?: SortOrderInput | SortOrder
     contractDuration?: SortOrder
@@ -18136,6 +18172,7 @@ export namespace Prisma {
     vehiclePlate?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    inviteCode?: SortOrderInput | SortOrder
     _count?: TenantCountOrderByAggregateInput
     _avg?: TenantAvgOrderByAggregateInput
     _max?: TenantMaxOrderByAggregateInput
@@ -18148,7 +18185,7 @@ export namespace Prisma {
     OR?: TenantScalarWhereWithAggregatesInput[]
     NOT?: TenantScalarWhereWithAggregatesInput | TenantScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Tenant"> | string
-    userId?: StringWithAggregatesFilter<"Tenant"> | string
+    userId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     roomId?: StringWithAggregatesFilter<"Tenant"> | string
     idCardUrl?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     contractDuration?: StringWithAggregatesFilter<"Tenant"> | string
@@ -18162,6 +18199,7 @@ export namespace Prisma {
     vehiclePlate?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
+    inviteCode?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
   }
 
   export type BillWhereInput = {
@@ -18984,9 +19022,9 @@ export namespace Prisma {
     avatar?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    tenant?: TenantCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -19000,9 +19038,9 @@ export namespace Prisma {
     avatar?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -19016,9 +19054,9 @@ export namespace Prisma {
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    tenant?: TenantUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -19032,9 +19070,9 @@ export namespace Prisma {
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -19088,11 +19126,11 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutRoomInput
     bills?: BillCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
     complaints?: ComplaintCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
+    tenant?: TenantCreateNestedOneWithoutRoomInput
     vehicles?: VehicleCreateNestedManyWithoutRoomInput
   }
 
@@ -19108,11 +19146,11 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     bills?: BillUncheckedCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
     complaints?: ComplaintUncheckedCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskUncheckedCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     vehicles?: VehicleUncheckedCreateNestedManyWithoutRoomInput
   }
 
@@ -19128,11 +19166,11 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutRoomNestedInput
     bills?: BillUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUpdateManyWithoutRoomNestedInput
   }
 
@@ -19148,11 +19186,11 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     bills?: BillUncheckedUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUncheckedUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUncheckedUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUncheckedUpdateManyWithoutRoomNestedInput
   }
 
@@ -19212,13 +19250,14 @@ export namespace Prisma {
     vehiclePlate?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutTenantInput
+    inviteCode?: string | null
     room: RoomCreateNestedOneWithoutTenantInput
+    user?: UserCreateNestedOneWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
     id?: string
-    userId: string
+    userId?: string | null
     roomId: string
     idCardUrl?: string | null
     contractDuration?: string
@@ -19232,6 +19271,7 @@ export namespace Prisma {
     vehiclePlate?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    inviteCode?: string | null
   }
 
   export type TenantUpdateInput = {
@@ -19248,13 +19288,14 @@ export namespace Prisma {
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutTenantNestedInput
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
     room?: RoomUpdateOneRequiredWithoutTenantNestedInput
+    user?: UserUpdateOneWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     roomId?: StringFieldUpdateOperationsInput | string
     idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     contractDuration?: StringFieldUpdateOperationsInput | string
@@ -19268,11 +19309,12 @@ export namespace Prisma {
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenantCreateManyInput = {
     id?: string
-    userId: string
+    userId?: string | null
     roomId: string
     idCardUrl?: string | null
     contractDuration?: string
@@ -19286,6 +19328,7 @@ export namespace Prisma {
     vehiclePlate?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    inviteCode?: string | null
   }
 
   export type TenantUpdateManyMutationInput = {
@@ -19302,11 +19345,12 @@ export namespace Prisma {
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TenantUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     roomId?: StringFieldUpdateOperationsInput | string
     idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     contractDuration?: StringFieldUpdateOperationsInput | string
@@ -19320,6 +19364,7 @@ export namespace Prisma {
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BillCreateInput = {
@@ -20276,11 +20321,6 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
-  export type TenantNullableScalarRelationFilter = {
-    is?: TenantWhereInput | null
-    isNot?: TenantWhereInput | null
-  }
-
   export type AccountListRelationFilter = {
     every?: AccountWhereInput
     some?: AccountWhereInput
@@ -20291,6 +20331,11 @@ export namespace Prisma {
     every?: SessionWhereInput
     some?: SessionWhereInput
     none?: SessionWhereInput
+  }
+
+  export type TenantNullableScalarRelationFilter = {
+    is?: TenantWhereInput | null
+    isNot?: TenantWhereInput | null
   }
 
   export type SortOrderInput = {
@@ -20455,12 +20500,6 @@ export namespace Prisma {
     none?: BillWhereInput
   }
 
-  export type MeterReadingListRelationFilter = {
-    every?: MeterReadingWhereInput
-    some?: MeterReadingWhereInput
-    none?: MeterReadingWhereInput
-  }
-
   export type ComplaintListRelationFilter = {
     every?: ComplaintWhereInput
     some?: ComplaintWhereInput
@@ -20473,6 +20512,12 @@ export namespace Prisma {
     none?: DeliveryTaskWhereInput
   }
 
+  export type MeterReadingListRelationFilter = {
+    every?: MeterReadingWhereInput
+    some?: MeterReadingWhereInput
+    none?: MeterReadingWhereInput
+  }
+
   export type VehicleListRelationFilter = {
     every?: VehicleWhereInput
     some?: VehicleWhereInput
@@ -20483,15 +20528,15 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type MeterReadingOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type ComplaintOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type DeliveryTaskOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MeterReadingOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -20614,14 +20659,14 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type UserScalarRelationFilter = {
-    is?: UserWhereInput
-    isNot?: UserWhereInput
-  }
-
   export type RoomScalarRelationFilter = {
     is?: RoomWhereInput
     isNot?: RoomWhereInput
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
   }
 
   export type TenantCountOrderByAggregateInput = {
@@ -20640,6 +20685,7 @@ export namespace Prisma {
     vehiclePlate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    inviteCode?: SortOrder
   }
 
   export type TenantAvgOrderByAggregateInput = {
@@ -20665,6 +20711,7 @@ export namespace Prisma {
     vehiclePlate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    inviteCode?: SortOrder
   }
 
   export type TenantMinOrderByAggregateInput = {
@@ -20683,6 +20730,7 @@ export namespace Prisma {
     vehiclePlate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    inviteCode?: SortOrder
   }
 
   export type TenantSumOrderByAggregateInput = {
@@ -21284,6 +21332,11 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
   export type AccountProviderProviderAccountIdCompoundUniqueInput = {
     provider: string
     providerAccountId: string
@@ -21402,12 +21455,6 @@ export namespace Prisma {
     expires?: SortOrder
   }
 
-  export type TenantCreateNestedOneWithoutUserInput = {
-    create?: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutUserInput
-    connect?: TenantWhereUniqueInput
-  }
-
   export type AccountCreateNestedManyWithoutUserInput = {
     create?: XOR<AccountCreateWithoutUserInput, AccountUncheckedCreateWithoutUserInput> | AccountCreateWithoutUserInput[] | AccountUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AccountCreateOrConnectWithoutUserInput | AccountCreateOrConnectWithoutUserInput[]
@@ -21422,7 +21469,7 @@ export namespace Prisma {
     connect?: SessionWhereUniqueInput | SessionWhereUniqueInput[]
   }
 
-  export type TenantUncheckedCreateNestedOneWithoutUserInput = {
+  export type TenantCreateNestedOneWithoutUserInput = {
     create?: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
     connectOrCreate?: TenantCreateOrConnectWithoutUserInput
     connect?: TenantWhereUniqueInput
@@ -21442,6 +21489,12 @@ export namespace Prisma {
     connect?: SessionWhereUniqueInput | SessionWhereUniqueInput[]
   }
 
+  export type TenantUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutUserInput
+    connect?: TenantWhereUniqueInput
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -21456,16 +21509,6 @@ export namespace Prisma {
 
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
-  }
-
-  export type TenantUpdateOneWithoutUserNestedInput = {
-    create?: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutUserInput
-    upsert?: TenantUpsertWithoutUserInput
-    disconnect?: TenantWhereInput | boolean
-    delete?: TenantWhereInput | boolean
-    connect?: TenantWhereUniqueInput
-    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutUserInput, TenantUpdateWithoutUserInput>, TenantUncheckedUpdateWithoutUserInput>
   }
 
   export type AccountUpdateManyWithoutUserNestedInput = {
@@ -21496,7 +21539,7 @@ export namespace Prisma {
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
   }
 
-  export type TenantUncheckedUpdateOneWithoutUserNestedInput = {
+  export type TenantUpdateOneWithoutUserNestedInput = {
     create?: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
     connectOrCreate?: TenantCreateOrConnectWithoutUserInput
     upsert?: TenantUpsertWithoutUserInput
@@ -21534,14 +21577,18 @@ export namespace Prisma {
     deleteMany?: SessionScalarWhereInput | SessionScalarWhereInput[]
   }
 
-  export type RoomCreateamenitiesInput = {
-    set: string[]
+  export type TenantUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutUserInput
+    upsert?: TenantUpsertWithoutUserInput
+    disconnect?: TenantWhereInput | boolean
+    delete?: TenantWhereInput | boolean
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutUserInput, TenantUpdateWithoutUserInput>, TenantUncheckedUpdateWithoutUserInput>
   }
 
-  export type TenantCreateNestedOneWithoutRoomInput = {
-    create?: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutRoomInput
-    connect?: TenantWhereUniqueInput
+  export type RoomCreateamenitiesInput = {
+    set: string[]
   }
 
   export type BillCreateNestedManyWithoutRoomInput = {
@@ -21549,13 +21596,6 @@ export namespace Prisma {
     connectOrCreate?: BillCreateOrConnectWithoutRoomInput | BillCreateOrConnectWithoutRoomInput[]
     createMany?: BillCreateManyRoomInputEnvelope
     connect?: BillWhereUniqueInput | BillWhereUniqueInput[]
-  }
-
-  export type MeterReadingCreateNestedManyWithoutRoomInput = {
-    create?: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput> | MeterReadingCreateWithoutRoomInput[] | MeterReadingUncheckedCreateWithoutRoomInput[]
-    connectOrCreate?: MeterReadingCreateOrConnectWithoutRoomInput | MeterReadingCreateOrConnectWithoutRoomInput[]
-    createMany?: MeterReadingCreateManyRoomInputEnvelope
-    connect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
   }
 
   export type ComplaintCreateNestedManyWithoutRoomInput = {
@@ -21572,6 +21612,19 @@ export namespace Prisma {
     connect?: DeliveryTaskWhereUniqueInput | DeliveryTaskWhereUniqueInput[]
   }
 
+  export type MeterReadingCreateNestedManyWithoutRoomInput = {
+    create?: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput> | MeterReadingCreateWithoutRoomInput[] | MeterReadingUncheckedCreateWithoutRoomInput[]
+    connectOrCreate?: MeterReadingCreateOrConnectWithoutRoomInput | MeterReadingCreateOrConnectWithoutRoomInput[]
+    createMany?: MeterReadingCreateManyRoomInputEnvelope
+    connect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+  }
+
+  export type TenantCreateNestedOneWithoutRoomInput = {
+    create?: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutRoomInput
+    connect?: TenantWhereUniqueInput
+  }
+
   export type VehicleCreateNestedManyWithoutRoomInput = {
     create?: XOR<VehicleCreateWithoutRoomInput, VehicleUncheckedCreateWithoutRoomInput> | VehicleCreateWithoutRoomInput[] | VehicleUncheckedCreateWithoutRoomInput[]
     connectOrCreate?: VehicleCreateOrConnectWithoutRoomInput | VehicleCreateOrConnectWithoutRoomInput[]
@@ -21579,24 +21632,11 @@ export namespace Prisma {
     connect?: VehicleWhereUniqueInput | VehicleWhereUniqueInput[]
   }
 
-  export type TenantUncheckedCreateNestedOneWithoutRoomInput = {
-    create?: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutRoomInput
-    connect?: TenantWhereUniqueInput
-  }
-
   export type BillUncheckedCreateNestedManyWithoutRoomInput = {
     create?: XOR<BillCreateWithoutRoomInput, BillUncheckedCreateWithoutRoomInput> | BillCreateWithoutRoomInput[] | BillUncheckedCreateWithoutRoomInput[]
     connectOrCreate?: BillCreateOrConnectWithoutRoomInput | BillCreateOrConnectWithoutRoomInput[]
     createMany?: BillCreateManyRoomInputEnvelope
     connect?: BillWhereUniqueInput | BillWhereUniqueInput[]
-  }
-
-  export type MeterReadingUncheckedCreateNestedManyWithoutRoomInput = {
-    create?: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput> | MeterReadingCreateWithoutRoomInput[] | MeterReadingUncheckedCreateWithoutRoomInput[]
-    connectOrCreate?: MeterReadingCreateOrConnectWithoutRoomInput | MeterReadingCreateOrConnectWithoutRoomInput[]
-    createMany?: MeterReadingCreateManyRoomInputEnvelope
-    connect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
   }
 
   export type ComplaintUncheckedCreateNestedManyWithoutRoomInput = {
@@ -21611,6 +21651,19 @@ export namespace Prisma {
     connectOrCreate?: DeliveryTaskCreateOrConnectWithoutRoomInput | DeliveryTaskCreateOrConnectWithoutRoomInput[]
     createMany?: DeliveryTaskCreateManyRoomInputEnvelope
     connect?: DeliveryTaskWhereUniqueInput | DeliveryTaskWhereUniqueInput[]
+  }
+
+  export type MeterReadingUncheckedCreateNestedManyWithoutRoomInput = {
+    create?: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput> | MeterReadingCreateWithoutRoomInput[] | MeterReadingUncheckedCreateWithoutRoomInput[]
+    connectOrCreate?: MeterReadingCreateOrConnectWithoutRoomInput | MeterReadingCreateOrConnectWithoutRoomInput[]
+    createMany?: MeterReadingCreateManyRoomInputEnvelope
+    connect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+  }
+
+  export type TenantUncheckedCreateNestedOneWithoutRoomInput = {
+    create?: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutRoomInput
+    connect?: TenantWhereUniqueInput
   }
 
   export type VehicleUncheckedCreateNestedManyWithoutRoomInput = {
@@ -21649,16 +21702,6 @@ export namespace Prisma {
     push?: string | string[]
   }
 
-  export type TenantUpdateOneWithoutRoomNestedInput = {
-    create?: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutRoomInput
-    upsert?: TenantUpsertWithoutRoomInput
-    disconnect?: TenantWhereInput | boolean
-    delete?: TenantWhereInput | boolean
-    connect?: TenantWhereUniqueInput
-    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutRoomInput, TenantUpdateWithoutRoomInput>, TenantUncheckedUpdateWithoutRoomInput>
-  }
-
   export type BillUpdateManyWithoutRoomNestedInput = {
     create?: XOR<BillCreateWithoutRoomInput, BillUncheckedCreateWithoutRoomInput> | BillCreateWithoutRoomInput[] | BillUncheckedCreateWithoutRoomInput[]
     connectOrCreate?: BillCreateOrConnectWithoutRoomInput | BillCreateOrConnectWithoutRoomInput[]
@@ -21671,20 +21714,6 @@ export namespace Prisma {
     update?: BillUpdateWithWhereUniqueWithoutRoomInput | BillUpdateWithWhereUniqueWithoutRoomInput[]
     updateMany?: BillUpdateManyWithWhereWithoutRoomInput | BillUpdateManyWithWhereWithoutRoomInput[]
     deleteMany?: BillScalarWhereInput | BillScalarWhereInput[]
-  }
-
-  export type MeterReadingUpdateManyWithoutRoomNestedInput = {
-    create?: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput> | MeterReadingCreateWithoutRoomInput[] | MeterReadingUncheckedCreateWithoutRoomInput[]
-    connectOrCreate?: MeterReadingCreateOrConnectWithoutRoomInput | MeterReadingCreateOrConnectWithoutRoomInput[]
-    upsert?: MeterReadingUpsertWithWhereUniqueWithoutRoomInput | MeterReadingUpsertWithWhereUniqueWithoutRoomInput[]
-    createMany?: MeterReadingCreateManyRoomInputEnvelope
-    set?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
-    disconnect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
-    delete?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
-    connect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
-    update?: MeterReadingUpdateWithWhereUniqueWithoutRoomInput | MeterReadingUpdateWithWhereUniqueWithoutRoomInput[]
-    updateMany?: MeterReadingUpdateManyWithWhereWithoutRoomInput | MeterReadingUpdateManyWithWhereWithoutRoomInput[]
-    deleteMany?: MeterReadingScalarWhereInput | MeterReadingScalarWhereInput[]
   }
 
   export type ComplaintUpdateManyWithoutRoomNestedInput = {
@@ -21715,6 +21744,30 @@ export namespace Prisma {
     deleteMany?: DeliveryTaskScalarWhereInput | DeliveryTaskScalarWhereInput[]
   }
 
+  export type MeterReadingUpdateManyWithoutRoomNestedInput = {
+    create?: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput> | MeterReadingCreateWithoutRoomInput[] | MeterReadingUncheckedCreateWithoutRoomInput[]
+    connectOrCreate?: MeterReadingCreateOrConnectWithoutRoomInput | MeterReadingCreateOrConnectWithoutRoomInput[]
+    upsert?: MeterReadingUpsertWithWhereUniqueWithoutRoomInput | MeterReadingUpsertWithWhereUniqueWithoutRoomInput[]
+    createMany?: MeterReadingCreateManyRoomInputEnvelope
+    set?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+    disconnect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+    delete?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+    connect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+    update?: MeterReadingUpdateWithWhereUniqueWithoutRoomInput | MeterReadingUpdateWithWhereUniqueWithoutRoomInput[]
+    updateMany?: MeterReadingUpdateManyWithWhereWithoutRoomInput | MeterReadingUpdateManyWithWhereWithoutRoomInput[]
+    deleteMany?: MeterReadingScalarWhereInput | MeterReadingScalarWhereInput[]
+  }
+
+  export type TenantUpdateOneWithoutRoomNestedInput = {
+    create?: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutRoomInput
+    upsert?: TenantUpsertWithoutRoomInput
+    disconnect?: TenantWhereInput | boolean
+    delete?: TenantWhereInput | boolean
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutRoomInput, TenantUpdateWithoutRoomInput>, TenantUncheckedUpdateWithoutRoomInput>
+  }
+
   export type VehicleUpdateManyWithoutRoomNestedInput = {
     create?: XOR<VehicleCreateWithoutRoomInput, VehicleUncheckedCreateWithoutRoomInput> | VehicleCreateWithoutRoomInput[] | VehicleUncheckedCreateWithoutRoomInput[]
     connectOrCreate?: VehicleCreateOrConnectWithoutRoomInput | VehicleCreateOrConnectWithoutRoomInput[]
@@ -21729,16 +21782,6 @@ export namespace Prisma {
     deleteMany?: VehicleScalarWhereInput | VehicleScalarWhereInput[]
   }
 
-  export type TenantUncheckedUpdateOneWithoutRoomNestedInput = {
-    create?: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
-    connectOrCreate?: TenantCreateOrConnectWithoutRoomInput
-    upsert?: TenantUpsertWithoutRoomInput
-    disconnect?: TenantWhereInput | boolean
-    delete?: TenantWhereInput | boolean
-    connect?: TenantWhereUniqueInput
-    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutRoomInput, TenantUpdateWithoutRoomInput>, TenantUncheckedUpdateWithoutRoomInput>
-  }
-
   export type BillUncheckedUpdateManyWithoutRoomNestedInput = {
     create?: XOR<BillCreateWithoutRoomInput, BillUncheckedCreateWithoutRoomInput> | BillCreateWithoutRoomInput[] | BillUncheckedCreateWithoutRoomInput[]
     connectOrCreate?: BillCreateOrConnectWithoutRoomInput | BillCreateOrConnectWithoutRoomInput[]
@@ -21751,20 +21794,6 @@ export namespace Prisma {
     update?: BillUpdateWithWhereUniqueWithoutRoomInput | BillUpdateWithWhereUniqueWithoutRoomInput[]
     updateMany?: BillUpdateManyWithWhereWithoutRoomInput | BillUpdateManyWithWhereWithoutRoomInput[]
     deleteMany?: BillScalarWhereInput | BillScalarWhereInput[]
-  }
-
-  export type MeterReadingUncheckedUpdateManyWithoutRoomNestedInput = {
-    create?: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput> | MeterReadingCreateWithoutRoomInput[] | MeterReadingUncheckedCreateWithoutRoomInput[]
-    connectOrCreate?: MeterReadingCreateOrConnectWithoutRoomInput | MeterReadingCreateOrConnectWithoutRoomInput[]
-    upsert?: MeterReadingUpsertWithWhereUniqueWithoutRoomInput | MeterReadingUpsertWithWhereUniqueWithoutRoomInput[]
-    createMany?: MeterReadingCreateManyRoomInputEnvelope
-    set?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
-    disconnect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
-    delete?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
-    connect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
-    update?: MeterReadingUpdateWithWhereUniqueWithoutRoomInput | MeterReadingUpdateWithWhereUniqueWithoutRoomInput[]
-    updateMany?: MeterReadingUpdateManyWithWhereWithoutRoomInput | MeterReadingUpdateManyWithWhereWithoutRoomInput[]
-    deleteMany?: MeterReadingScalarWhereInput | MeterReadingScalarWhereInput[]
   }
 
   export type ComplaintUncheckedUpdateManyWithoutRoomNestedInput = {
@@ -21795,6 +21824,30 @@ export namespace Prisma {
     deleteMany?: DeliveryTaskScalarWhereInput | DeliveryTaskScalarWhereInput[]
   }
 
+  export type MeterReadingUncheckedUpdateManyWithoutRoomNestedInput = {
+    create?: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput> | MeterReadingCreateWithoutRoomInput[] | MeterReadingUncheckedCreateWithoutRoomInput[]
+    connectOrCreate?: MeterReadingCreateOrConnectWithoutRoomInput | MeterReadingCreateOrConnectWithoutRoomInput[]
+    upsert?: MeterReadingUpsertWithWhereUniqueWithoutRoomInput | MeterReadingUpsertWithWhereUniqueWithoutRoomInput[]
+    createMany?: MeterReadingCreateManyRoomInputEnvelope
+    set?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+    disconnect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+    delete?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+    connect?: MeterReadingWhereUniqueInput | MeterReadingWhereUniqueInput[]
+    update?: MeterReadingUpdateWithWhereUniqueWithoutRoomInput | MeterReadingUpdateWithWhereUniqueWithoutRoomInput[]
+    updateMany?: MeterReadingUpdateManyWithWhereWithoutRoomInput | MeterReadingUpdateManyWithWhereWithoutRoomInput[]
+    deleteMany?: MeterReadingScalarWhereInput | MeterReadingScalarWhereInput[]
+  }
+
+  export type TenantUncheckedUpdateOneWithoutRoomNestedInput = {
+    create?: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutRoomInput
+    upsert?: TenantUpsertWithoutRoomInput
+    disconnect?: TenantWhereInput | boolean
+    delete?: TenantWhereInput | boolean
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutRoomInput, TenantUpdateWithoutRoomInput>, TenantUncheckedUpdateWithoutRoomInput>
+  }
+
   export type VehicleUncheckedUpdateManyWithoutRoomNestedInput = {
     create?: XOR<VehicleCreateWithoutRoomInput, VehicleUncheckedCreateWithoutRoomInput> | VehicleCreateWithoutRoomInput[] | VehicleUncheckedCreateWithoutRoomInput[]
     connectOrCreate?: VehicleCreateOrConnectWithoutRoomInput | VehicleCreateOrConnectWithoutRoomInput[]
@@ -21809,28 +21862,20 @@ export namespace Prisma {
     deleteMany?: VehicleScalarWhereInput | VehicleScalarWhereInput[]
   }
 
-  export type UserCreateNestedOneWithoutTenantInput = {
-    create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput>
-    connectOrCreate?: UserCreateOrConnectWithoutTenantInput
-    connect?: UserWhereUniqueInput
-  }
-
   export type RoomCreateNestedOneWithoutTenantInput = {
     create?: XOR<RoomCreateWithoutTenantInput, RoomUncheckedCreateWithoutTenantInput>
     connectOrCreate?: RoomCreateOrConnectWithoutTenantInput
     connect?: RoomWhereUniqueInput
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
-  export type UserUpdateOneRequiredWithoutTenantNestedInput = {
+  export type UserCreateNestedOneWithoutTenantInput = {
     create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput>
     connectOrCreate?: UserCreateOrConnectWithoutTenantInput
-    upsert?: UserUpsertWithoutTenantInput
     connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTenantInput, UserUpdateWithoutTenantInput>, UserUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type RoomUpdateOneRequiredWithoutTenantNestedInput = {
@@ -21839,6 +21884,16 @@ export namespace Prisma {
     upsert?: RoomUpsertWithoutTenantInput
     connect?: RoomWhereUniqueInput
     update?: XOR<XOR<RoomUpdateToOneWithWhereWithoutTenantInput, RoomUpdateWithoutTenantInput>, RoomUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type UserUpdateOneWithoutTenantNestedInput = {
+    create?: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput>
+    connectOrCreate?: UserCreateOrConnectWithoutTenantInput
+    upsert?: UserUpsertWithoutTenantInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTenantInput, UserUpdateWithoutTenantInput>, UserUncheckedUpdateWithoutTenantInput>
   }
 
   export type RoomCreateNestedOneWithoutBillsInput = {
@@ -22438,45 +22493,6 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
-  export type TenantCreateWithoutUserInput = {
-    id?: string
-    idCardUrl?: string | null
-    contractDuration?: string
-    moveInDate: Date | string
-    moveOutDate?: Date | string | null
-    contractEnd: Date | string
-    baseRent: number
-    securityDeposit: number
-    initialMeterElectricity: number
-    initialMeterWater: number
-    vehiclePlate?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    room: RoomCreateNestedOneWithoutTenantInput
-  }
-
-  export type TenantUncheckedCreateWithoutUserInput = {
-    id?: string
-    roomId: string
-    idCardUrl?: string | null
-    contractDuration?: string
-    moveInDate: Date | string
-    moveOutDate?: Date | string | null
-    contractEnd: Date | string
-    baseRent: number
-    securityDeposit: number
-    initialMeterElectricity: number
-    initialMeterWater: number
-    vehiclePlate?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type TenantCreateOrConnectWithoutUserInput = {
-    where: TenantWhereUniqueInput
-    create: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
-  }
-
   export type AccountCreateWithoutUserInput = {
     id?: string
     type: string
@@ -22537,49 +22553,45 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type TenantUpsertWithoutUserInput = {
-    update: XOR<TenantUpdateWithoutUserInput, TenantUncheckedUpdateWithoutUserInput>
+  export type TenantCreateWithoutUserInput = {
+    id?: string
+    idCardUrl?: string | null
+    contractDuration?: string
+    moveInDate: Date | string
+    moveOutDate?: Date | string | null
+    contractEnd: Date | string
+    baseRent: number
+    securityDeposit: number
+    initialMeterElectricity: number
+    initialMeterWater: number
+    vehiclePlate?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inviteCode?: string | null
+    room: RoomCreateNestedOneWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutUserInput = {
+    id?: string
+    roomId: string
+    idCardUrl?: string | null
+    contractDuration?: string
+    moveInDate: Date | string
+    moveOutDate?: Date | string | null
+    contractEnd: Date | string
+    baseRent: number
+    securityDeposit: number
+    initialMeterElectricity: number
+    initialMeterWater: number
+    vehiclePlate?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inviteCode?: string | null
+  }
+
+  export type TenantCreateOrConnectWithoutUserInput = {
+    where: TenantWhereUniqueInput
     create: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
-    where?: TenantWhereInput
-  }
-
-  export type TenantUpdateToOneWithWhereWithoutUserInput = {
-    where?: TenantWhereInput
-    data: XOR<TenantUpdateWithoutUserInput, TenantUncheckedUpdateWithoutUserInput>
-  }
-
-  export type TenantUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    contractDuration?: StringFieldUpdateOperationsInput | string
-    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
-    baseRent?: FloatFieldUpdateOperationsInput | number
-    securityDeposit?: FloatFieldUpdateOperationsInput | number
-    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
-    initialMeterWater?: FloatFieldUpdateOperationsInput | number
-    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    room?: RoomUpdateOneRequiredWithoutTenantNestedInput
-  }
-
-  export type TenantUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    roomId?: StringFieldUpdateOperationsInput | string
-    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    contractDuration?: StringFieldUpdateOperationsInput | string
-    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
-    baseRent?: FloatFieldUpdateOperationsInput | number
-    securityDeposit?: FloatFieldUpdateOperationsInput | number
-    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
-    initialMeterWater?: FloatFieldUpdateOperationsInput | number
-    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
@@ -22642,43 +22654,51 @@ export namespace Prisma {
     expires?: DateTimeFilter<"Session"> | Date | string
   }
 
-  export type TenantCreateWithoutRoomInput = {
-    id?: string
-    idCardUrl?: string | null
-    contractDuration?: string
-    moveInDate: Date | string
-    moveOutDate?: Date | string | null
-    contractEnd: Date | string
-    baseRent: number
-    securityDeposit: number
-    initialMeterElectricity: number
-    initialMeterWater: number
-    vehiclePlate?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutTenantInput
+  export type TenantUpsertWithoutUserInput = {
+    update: XOR<TenantUpdateWithoutUserInput, TenantUncheckedUpdateWithoutUserInput>
+    create: XOR<TenantCreateWithoutUserInput, TenantUncheckedCreateWithoutUserInput>
+    where?: TenantWhereInput
   }
 
-  export type TenantUncheckedCreateWithoutRoomInput = {
-    id?: string
-    userId: string
-    idCardUrl?: string | null
-    contractDuration?: string
-    moveInDate: Date | string
-    moveOutDate?: Date | string | null
-    contractEnd: Date | string
-    baseRent: number
-    securityDeposit: number
-    initialMeterElectricity: number
-    initialMeterWater: number
-    vehiclePlate?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
+  export type TenantUpdateToOneWithWhereWithoutUserInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutUserInput, TenantUncheckedUpdateWithoutUserInput>
   }
 
-  export type TenantCreateOrConnectWithoutRoomInput = {
-    where: TenantWhereUniqueInput
-    create: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
+  export type TenantUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    contractDuration?: StringFieldUpdateOperationsInput | string
+    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    securityDeposit?: FloatFieldUpdateOperationsInput | number
+    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
+    initialMeterWater?: FloatFieldUpdateOperationsInput | number
+    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
+    room?: RoomUpdateOneRequiredWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    contractDuration?: StringFieldUpdateOperationsInput | string
+    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    securityDeposit?: FloatFieldUpdateOperationsInput | number
+    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
+    initialMeterWater?: FloatFieldUpdateOperationsInput | number
+    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BillCreateWithoutRoomInput = {
@@ -22734,36 +22754,6 @@ export namespace Prisma {
 
   export type BillCreateManyRoomInputEnvelope = {
     data: BillCreateManyRoomInput | BillCreateManyRoomInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type MeterReadingCreateWithoutRoomInput = {
-    id?: string
-    electricityPrevious: number
-    electricityCurrent?: number | null
-    waterPrevious: number
-    waterCurrent?: number | null
-    readingDate?: Date | string
-    createdAt?: Date | string
-  }
-
-  export type MeterReadingUncheckedCreateWithoutRoomInput = {
-    id?: string
-    electricityPrevious: number
-    electricityCurrent?: number | null
-    waterPrevious: number
-    waterCurrent?: number | null
-    readingDate?: Date | string
-    createdAt?: Date | string
-  }
-
-  export type MeterReadingCreateOrConnectWithoutRoomInput = {
-    where: MeterReadingWhereUniqueInput
-    create: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput>
-  }
-
-  export type MeterReadingCreateManyRoomInputEnvelope = {
-    data: MeterReadingCreateManyRoomInput | MeterReadingCreateManyRoomInput[]
     skipDuplicates?: boolean
   }
 
@@ -22847,6 +22837,77 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type MeterReadingCreateWithoutRoomInput = {
+    id?: string
+    electricityPrevious: number
+    electricityCurrent?: number | null
+    waterPrevious: number
+    waterCurrent?: number | null
+    readingDate?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type MeterReadingUncheckedCreateWithoutRoomInput = {
+    id?: string
+    electricityPrevious: number
+    electricityCurrent?: number | null
+    waterPrevious: number
+    waterCurrent?: number | null
+    readingDate?: Date | string
+    createdAt?: Date | string
+  }
+
+  export type MeterReadingCreateOrConnectWithoutRoomInput = {
+    where: MeterReadingWhereUniqueInput
+    create: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput>
+  }
+
+  export type MeterReadingCreateManyRoomInputEnvelope = {
+    data: MeterReadingCreateManyRoomInput | MeterReadingCreateManyRoomInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TenantCreateWithoutRoomInput = {
+    id?: string
+    idCardUrl?: string | null
+    contractDuration?: string
+    moveInDate: Date | string
+    moveOutDate?: Date | string | null
+    contractEnd: Date | string
+    baseRent: number
+    securityDeposit: number
+    initialMeterElectricity: number
+    initialMeterWater: number
+    vehiclePlate?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inviteCode?: string | null
+    user?: UserCreateNestedOneWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutRoomInput = {
+    id?: string
+    userId?: string | null
+    idCardUrl?: string | null
+    contractDuration?: string
+    moveInDate: Date | string
+    moveOutDate?: Date | string | null
+    contractEnd: Date | string
+    baseRent: number
+    securityDeposit: number
+    initialMeterElectricity: number
+    initialMeterWater: number
+    vehiclePlate?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inviteCode?: string | null
+  }
+
+  export type TenantCreateOrConnectWithoutRoomInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
+  }
+
   export type VehicleCreateWithoutRoomInput = {
     id?: string
     tenantId: string
@@ -22877,51 +22938,6 @@ export namespace Prisma {
   export type VehicleCreateManyRoomInputEnvelope = {
     data: VehicleCreateManyRoomInput | VehicleCreateManyRoomInput[]
     skipDuplicates?: boolean
-  }
-
-  export type TenantUpsertWithoutRoomInput = {
-    update: XOR<TenantUpdateWithoutRoomInput, TenantUncheckedUpdateWithoutRoomInput>
-    create: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
-    where?: TenantWhereInput
-  }
-
-  export type TenantUpdateToOneWithWhereWithoutRoomInput = {
-    where?: TenantWhereInput
-    data: XOR<TenantUpdateWithoutRoomInput, TenantUncheckedUpdateWithoutRoomInput>
-  }
-
-  export type TenantUpdateWithoutRoomInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    contractDuration?: StringFieldUpdateOperationsInput | string
-    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
-    baseRent?: FloatFieldUpdateOperationsInput | number
-    securityDeposit?: FloatFieldUpdateOperationsInput | number
-    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
-    initialMeterWater?: FloatFieldUpdateOperationsInput | number
-    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutTenantNestedInput
-  }
-
-  export type TenantUncheckedUpdateWithoutRoomInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    userId?: StringFieldUpdateOperationsInput | string
-    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
-    contractDuration?: StringFieldUpdateOperationsInput | string
-    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
-    baseRent?: FloatFieldUpdateOperationsInput | number
-    securityDeposit?: FloatFieldUpdateOperationsInput | number
-    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
-    initialMeterWater?: FloatFieldUpdateOperationsInput | number
-    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BillUpsertWithWhereUniqueWithoutRoomInput = {
@@ -22964,36 +22980,6 @@ export namespace Prisma {
     meterReadDate?: DateTimeFilter<"Bill"> | Date | string
     createdAt?: DateTimeFilter<"Bill"> | Date | string
     updatedAt?: DateTimeFilter<"Bill"> | Date | string
-  }
-
-  export type MeterReadingUpsertWithWhereUniqueWithoutRoomInput = {
-    where: MeterReadingWhereUniqueInput
-    update: XOR<MeterReadingUpdateWithoutRoomInput, MeterReadingUncheckedUpdateWithoutRoomInput>
-    create: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput>
-  }
-
-  export type MeterReadingUpdateWithWhereUniqueWithoutRoomInput = {
-    where: MeterReadingWhereUniqueInput
-    data: XOR<MeterReadingUpdateWithoutRoomInput, MeterReadingUncheckedUpdateWithoutRoomInput>
-  }
-
-  export type MeterReadingUpdateManyWithWhereWithoutRoomInput = {
-    where: MeterReadingScalarWhereInput
-    data: XOR<MeterReadingUpdateManyMutationInput, MeterReadingUncheckedUpdateManyWithoutRoomInput>
-  }
-
-  export type MeterReadingScalarWhereInput = {
-    AND?: MeterReadingScalarWhereInput | MeterReadingScalarWhereInput[]
-    OR?: MeterReadingScalarWhereInput[]
-    NOT?: MeterReadingScalarWhereInput | MeterReadingScalarWhereInput[]
-    id?: StringFilter<"MeterReading"> | string
-    roomId?: StringFilter<"MeterReading"> | string
-    electricityPrevious?: FloatFilter<"MeterReading"> | number
-    electricityCurrent?: FloatNullableFilter<"MeterReading"> | number | null
-    waterPrevious?: FloatFilter<"MeterReading"> | number
-    waterCurrent?: FloatNullableFilter<"MeterReading"> | number | null
-    readingDate?: DateTimeFilter<"MeterReading"> | Date | string
-    createdAt?: DateTimeFilter<"MeterReading"> | Date | string
   }
 
   export type ComplaintUpsertWithWhereUniqueWithoutRoomInput = {
@@ -23066,6 +23052,83 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"DeliveryTask"> | Date | string
   }
 
+  export type MeterReadingUpsertWithWhereUniqueWithoutRoomInput = {
+    where: MeterReadingWhereUniqueInput
+    update: XOR<MeterReadingUpdateWithoutRoomInput, MeterReadingUncheckedUpdateWithoutRoomInput>
+    create: XOR<MeterReadingCreateWithoutRoomInput, MeterReadingUncheckedCreateWithoutRoomInput>
+  }
+
+  export type MeterReadingUpdateWithWhereUniqueWithoutRoomInput = {
+    where: MeterReadingWhereUniqueInput
+    data: XOR<MeterReadingUpdateWithoutRoomInput, MeterReadingUncheckedUpdateWithoutRoomInput>
+  }
+
+  export type MeterReadingUpdateManyWithWhereWithoutRoomInput = {
+    where: MeterReadingScalarWhereInput
+    data: XOR<MeterReadingUpdateManyMutationInput, MeterReadingUncheckedUpdateManyWithoutRoomInput>
+  }
+
+  export type MeterReadingScalarWhereInput = {
+    AND?: MeterReadingScalarWhereInput | MeterReadingScalarWhereInput[]
+    OR?: MeterReadingScalarWhereInput[]
+    NOT?: MeterReadingScalarWhereInput | MeterReadingScalarWhereInput[]
+    id?: StringFilter<"MeterReading"> | string
+    roomId?: StringFilter<"MeterReading"> | string
+    electricityPrevious?: FloatFilter<"MeterReading"> | number
+    electricityCurrent?: FloatNullableFilter<"MeterReading"> | number | null
+    waterPrevious?: FloatFilter<"MeterReading"> | number
+    waterCurrent?: FloatNullableFilter<"MeterReading"> | number | null
+    readingDate?: DateTimeFilter<"MeterReading"> | Date | string
+    createdAt?: DateTimeFilter<"MeterReading"> | Date | string
+  }
+
+  export type TenantUpsertWithoutRoomInput = {
+    update: XOR<TenantUpdateWithoutRoomInput, TenantUncheckedUpdateWithoutRoomInput>
+    create: XOR<TenantCreateWithoutRoomInput, TenantUncheckedCreateWithoutRoomInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutRoomInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutRoomInput, TenantUncheckedUpdateWithoutRoomInput>
+  }
+
+  export type TenantUpdateWithoutRoomInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    contractDuration?: StringFieldUpdateOperationsInput | string
+    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    securityDeposit?: FloatFieldUpdateOperationsInput | number
+    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
+    initialMeterWater?: FloatFieldUpdateOperationsInput | number
+    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
+    user?: UserUpdateOneWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutRoomInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    contractDuration?: StringFieldUpdateOperationsInput | string
+    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    securityDeposit?: FloatFieldUpdateOperationsInput | number
+    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
+    initialMeterWater?: FloatFieldUpdateOperationsInput | number
+    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type VehicleUpsertWithWhereUniqueWithoutRoomInput = {
     where: VehicleWhereUniqueInput
     update: XOR<VehicleUpdateWithoutRoomInput, VehicleUncheckedUpdateWithoutRoomInput>
@@ -23095,6 +23158,49 @@ export namespace Prisma {
     registeredAt?: DateTimeFilter<"Vehicle"> | Date | string
     updatedAt?: DateTimeFilter<"Vehicle"> | Date | string
     deactivatedAt?: DateTimeNullableFilter<"Vehicle"> | Date | string | null
+  }
+
+  export type RoomCreateWithoutTenantInput = {
+    id?: string
+    number: string
+    floor: number
+    building?: string
+    occupancy?: $Enums.RoomOccupancy
+    billingStatus?: $Enums.BillingStatus
+    baseRent: number
+    currentBill?: number
+    amenities?: RoomCreateamenitiesInput | string[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bills?: BillCreateNestedManyWithoutRoomInput
+    complaints?: ComplaintCreateNestedManyWithoutRoomInput
+    deliveryTasks?: DeliveryTaskCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
+    vehicles?: VehicleCreateNestedManyWithoutRoomInput
+  }
+
+  export type RoomUncheckedCreateWithoutTenantInput = {
+    id?: string
+    number: string
+    floor: number
+    building?: string
+    occupancy?: $Enums.RoomOccupancy
+    billingStatus?: $Enums.BillingStatus
+    baseRent: number
+    currentBill?: number
+    amenities?: RoomCreateamenitiesInput | string[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bills?: BillUncheckedCreateNestedManyWithoutRoomInput
+    complaints?: ComplaintUncheckedCreateNestedManyWithoutRoomInput
+    deliveryTasks?: DeliveryTaskUncheckedCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
+    vehicles?: VehicleUncheckedCreateNestedManyWithoutRoomInput
+  }
+
+  export type RoomCreateOrConnectWithoutTenantInput = {
+    where: RoomWhereUniqueInput
+    create: XOR<RoomCreateWithoutTenantInput, RoomUncheckedCreateWithoutTenantInput>
   }
 
   export type UserCreateWithoutTenantInput = {
@@ -23132,47 +23238,53 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput>
   }
 
-  export type RoomCreateWithoutTenantInput = {
-    id?: string
-    number: string
-    floor: number
-    building?: string
-    occupancy?: $Enums.RoomOccupancy
-    billingStatus?: $Enums.BillingStatus
-    baseRent: number
-    currentBill?: number
-    amenities?: RoomCreateamenitiesInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bills?: BillCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
-    complaints?: ComplaintCreateNestedManyWithoutRoomInput
-    deliveryTasks?: DeliveryTaskCreateNestedManyWithoutRoomInput
-    vehicles?: VehicleCreateNestedManyWithoutRoomInput
-  }
-
-  export type RoomUncheckedCreateWithoutTenantInput = {
-    id?: string
-    number: string
-    floor: number
-    building?: string
-    occupancy?: $Enums.RoomOccupancy
-    billingStatus?: $Enums.BillingStatus
-    baseRent: number
-    currentBill?: number
-    amenities?: RoomCreateamenitiesInput | string[]
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    bills?: BillUncheckedCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
-    complaints?: ComplaintUncheckedCreateNestedManyWithoutRoomInput
-    deliveryTasks?: DeliveryTaskUncheckedCreateNestedManyWithoutRoomInput
-    vehicles?: VehicleUncheckedCreateNestedManyWithoutRoomInput
-  }
-
-  export type RoomCreateOrConnectWithoutTenantInput = {
-    where: RoomWhereUniqueInput
+  export type RoomUpsertWithoutTenantInput = {
+    update: XOR<RoomUpdateWithoutTenantInput, RoomUncheckedUpdateWithoutTenantInput>
     create: XOR<RoomCreateWithoutTenantInput, RoomUncheckedCreateWithoutTenantInput>
+    where?: RoomWhereInput
+  }
+
+  export type RoomUpdateToOneWithWhereWithoutTenantInput = {
+    where?: RoomWhereInput
+    data: XOR<RoomUpdateWithoutTenantInput, RoomUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type RoomUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    floor?: IntFieldUpdateOperationsInput | number
+    building?: StringFieldUpdateOperationsInput | string
+    occupancy?: EnumRoomOccupancyFieldUpdateOperationsInput | $Enums.RoomOccupancy
+    billingStatus?: EnumBillingStatusFieldUpdateOperationsInput | $Enums.BillingStatus
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    currentBill?: FloatFieldUpdateOperationsInput | number
+    amenities?: RoomUpdateamenitiesInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bills?: BillUpdateManyWithoutRoomNestedInput
+    complaints?: ComplaintUpdateManyWithoutRoomNestedInput
+    deliveryTasks?: DeliveryTaskUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
+    vehicles?: VehicleUpdateManyWithoutRoomNestedInput
+  }
+
+  export type RoomUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    number?: StringFieldUpdateOperationsInput | string
+    floor?: IntFieldUpdateOperationsInput | number
+    building?: StringFieldUpdateOperationsInput | string
+    occupancy?: EnumRoomOccupancyFieldUpdateOperationsInput | $Enums.RoomOccupancy
+    billingStatus?: EnumBillingStatusFieldUpdateOperationsInput | $Enums.BillingStatus
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    currentBill?: FloatFieldUpdateOperationsInput | number
+    amenities?: RoomUpdateamenitiesInput | string[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bills?: BillUncheckedUpdateManyWithoutRoomNestedInput
+    complaints?: ComplaintUncheckedUpdateManyWithoutRoomNestedInput
+    deliveryTasks?: DeliveryTaskUncheckedUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
+    vehicles?: VehicleUncheckedUpdateManyWithoutRoomNestedInput
   }
 
   export type UserUpsertWithoutTenantInput = {
@@ -23216,55 +23328,6 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type RoomUpsertWithoutTenantInput = {
-    update: XOR<RoomUpdateWithoutTenantInput, RoomUncheckedUpdateWithoutTenantInput>
-    create: XOR<RoomCreateWithoutTenantInput, RoomUncheckedCreateWithoutTenantInput>
-    where?: RoomWhereInput
-  }
-
-  export type RoomUpdateToOneWithWhereWithoutTenantInput = {
-    where?: RoomWhereInput
-    data: XOR<RoomUpdateWithoutTenantInput, RoomUncheckedUpdateWithoutTenantInput>
-  }
-
-  export type RoomUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    floor?: IntFieldUpdateOperationsInput | number
-    building?: StringFieldUpdateOperationsInput | string
-    occupancy?: EnumRoomOccupancyFieldUpdateOperationsInput | $Enums.RoomOccupancy
-    billingStatus?: EnumBillingStatusFieldUpdateOperationsInput | $Enums.BillingStatus
-    baseRent?: FloatFieldUpdateOperationsInput | number
-    currentBill?: FloatFieldUpdateOperationsInput | number
-    amenities?: RoomUpdateamenitiesInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bills?: BillUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
-    complaints?: ComplaintUpdateManyWithoutRoomNestedInput
-    deliveryTasks?: DeliveryTaskUpdateManyWithoutRoomNestedInput
-    vehicles?: VehicleUpdateManyWithoutRoomNestedInput
-  }
-
-  export type RoomUncheckedUpdateWithoutTenantInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    number?: StringFieldUpdateOperationsInput | string
-    floor?: IntFieldUpdateOperationsInput | number
-    building?: StringFieldUpdateOperationsInput | string
-    occupancy?: EnumRoomOccupancyFieldUpdateOperationsInput | $Enums.RoomOccupancy
-    billingStatus?: EnumBillingStatusFieldUpdateOperationsInput | $Enums.BillingStatus
-    baseRent?: FloatFieldUpdateOperationsInput | number
-    currentBill?: FloatFieldUpdateOperationsInput | number
-    amenities?: RoomUpdateamenitiesInput | string[]
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    bills?: BillUncheckedUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
-    complaints?: ComplaintUncheckedUpdateManyWithoutRoomNestedInput
-    deliveryTasks?: DeliveryTaskUncheckedUpdateManyWithoutRoomNestedInput
-    vehicles?: VehicleUncheckedUpdateManyWithoutRoomNestedInput
-  }
-
   export type RoomCreateWithoutBillsInput = {
     id?: string
     number: string
@@ -23277,10 +23340,10 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutRoomInput
-    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
     complaints?: ComplaintCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
+    tenant?: TenantCreateNestedOneWithoutRoomInput
     vehicles?: VehicleCreateNestedManyWithoutRoomInput
   }
 
@@ -23296,10 +23359,10 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
-    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
     complaints?: ComplaintUncheckedCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskUncheckedCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     vehicles?: VehicleUncheckedCreateNestedManyWithoutRoomInput
   }
 
@@ -23360,10 +23423,10 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutRoomNestedInput
-    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUpdateManyWithoutRoomNestedInput
   }
 
@@ -23379,10 +23442,10 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
-    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUncheckedUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUncheckedUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUncheckedUpdateManyWithoutRoomNestedInput
   }
 
@@ -23433,10 +23496,10 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutRoomInput
     bills?: BillCreateNestedManyWithoutRoomInput
     complaints?: ComplaintCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskCreateNestedManyWithoutRoomInput
+    tenant?: TenantCreateNestedOneWithoutRoomInput
     vehicles?: VehicleCreateNestedManyWithoutRoomInput
   }
 
@@ -23452,10 +23515,10 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     bills?: BillUncheckedCreateNestedManyWithoutRoomInput
     complaints?: ComplaintUncheckedCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskUncheckedCreateNestedManyWithoutRoomInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     vehicles?: VehicleUncheckedCreateNestedManyWithoutRoomInput
   }
 
@@ -23487,10 +23550,10 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutRoomNestedInput
     bills?: BillUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUpdateManyWithoutRoomNestedInput
   }
 
@@ -23506,10 +23569,10 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     bills?: BillUncheckedUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUncheckedUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUncheckedUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUncheckedUpdateManyWithoutRoomNestedInput
   }
 
@@ -23633,10 +23696,10 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutRoomInput
     bills?: BillCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
+    tenant?: TenantCreateNestedOneWithoutRoomInput
     vehicles?: VehicleCreateNestedManyWithoutRoomInput
   }
 
@@ -23652,10 +23715,10 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     bills?: BillUncheckedCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskUncheckedCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     vehicles?: VehicleUncheckedCreateNestedManyWithoutRoomInput
   }
 
@@ -23687,10 +23750,10 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutRoomNestedInput
     bills?: BillUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUpdateManyWithoutRoomNestedInput
   }
 
@@ -23706,10 +23769,10 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     bills?: BillUncheckedUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUncheckedUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUncheckedUpdateManyWithoutRoomNestedInput
   }
 
@@ -23725,10 +23788,10 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutRoomInput
     bills?: BillCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
     complaints?: ComplaintCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
+    tenant?: TenantCreateNestedOneWithoutRoomInput
     vehicles?: VehicleCreateNestedManyWithoutRoomInput
   }
 
@@ -23744,10 +23807,10 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     bills?: BillUncheckedCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
     complaints?: ComplaintUncheckedCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     vehicles?: VehicleUncheckedCreateNestedManyWithoutRoomInput
   }
 
@@ -23779,10 +23842,10 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutRoomNestedInput
     bills?: BillUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUpdateManyWithoutRoomNestedInput
   }
 
@@ -23798,10 +23861,10 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     bills?: BillUncheckedUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUncheckedUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUncheckedUpdateManyWithoutRoomNestedInput
   }
 
@@ -23817,11 +23880,11 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutRoomInput
     bills?: BillCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
     complaints?: ComplaintCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingCreateNestedManyWithoutRoomInput
+    tenant?: TenantCreateNestedOneWithoutRoomInput
   }
 
   export type RoomUncheckedCreateWithoutVehiclesInput = {
@@ -23836,11 +23899,11 @@ export namespace Prisma {
     amenities?: RoomCreateamenitiesInput | string[]
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
     bills?: BillUncheckedCreateNestedManyWithoutRoomInput
-    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
     complaints?: ComplaintUncheckedCreateNestedManyWithoutRoomInput
     deliveryTasks?: DeliveryTaskUncheckedCreateNestedManyWithoutRoomInput
+    meterReadings?: MeterReadingUncheckedCreateNestedManyWithoutRoomInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutRoomInput
   }
 
   export type RoomCreateOrConnectWithoutVehiclesInput = {
@@ -23871,11 +23934,11 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutRoomNestedInput
     bills?: BillUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUpdateOneWithoutRoomNestedInput
   }
 
   export type RoomUncheckedUpdateWithoutVehiclesInput = {
@@ -23890,11 +23953,11 @@ export namespace Prisma {
     amenities?: RoomUpdateamenitiesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     bills?: BillUncheckedUpdateManyWithoutRoomNestedInput
-    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
     complaints?: ComplaintUncheckedUpdateManyWithoutRoomNestedInput
     deliveryTasks?: DeliveryTaskUncheckedUpdateManyWithoutRoomNestedInput
+    meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -23908,8 +23971,8 @@ export namespace Prisma {
     avatar?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutUserInput
     sessions?: SessionCreateNestedManyWithoutUserInput
+    tenant?: TenantCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -23923,8 +23986,8 @@ export namespace Prisma {
     avatar?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutUserInput
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -23954,8 +24017,8 @@ export namespace Prisma {
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutUserNestedInput
     sessions?: SessionUpdateManyWithoutUserNestedInput
+    tenant?: TenantUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -23969,8 +24032,8 @@ export namespace Prisma {
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutUserNestedInput
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -23984,8 +24047,8 @@ export namespace Prisma {
     avatar?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantCreateNestedOneWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
+    tenant?: TenantCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -23999,8 +24062,8 @@ export namespace Prisma {
     avatar?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    tenant?: TenantUncheckedCreateNestedOneWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    tenant?: TenantUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -24030,8 +24093,8 @@ export namespace Prisma {
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUpdateOneWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
+    tenant?: TenantUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -24045,8 +24108,8 @@ export namespace Prisma {
     avatar?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    tenant?: TenantUncheckedUpdateOneWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    tenant?: TenantUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -24151,16 +24214,6 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type MeterReadingCreateManyRoomInput = {
-    id?: string
-    electricityPrevious: number
-    electricityCurrent?: number | null
-    waterPrevious: number
-    waterCurrent?: number | null
-    readingDate?: Date | string
-    createdAt?: Date | string
-  }
-
   export type ComplaintCreateManyRoomInput = {
     id?: string
     category: $Enums.ComplaintCategory
@@ -24189,6 +24242,16 @@ export namespace Prisma {
     confirmationChecked?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type MeterReadingCreateManyRoomInput = {
+    id?: string
+    electricityPrevious: number
+    electricityCurrent?: number | null
+    waterPrevious: number
+    waterCurrent?: number | null
+    readingDate?: Date | string
+    createdAt?: Date | string
   }
 
   export type VehicleCreateManyRoomInput = {
@@ -24268,36 +24331,6 @@ export namespace Prisma {
     meterReadDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type MeterReadingUpdateWithoutRoomInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    electricityPrevious?: FloatFieldUpdateOperationsInput | number
-    electricityCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
-    waterPrevious?: FloatFieldUpdateOperationsInput | number
-    waterCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
-    readingDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type MeterReadingUncheckedUpdateWithoutRoomInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    electricityPrevious?: FloatFieldUpdateOperationsInput | number
-    electricityCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
-    waterPrevious?: FloatFieldUpdateOperationsInput | number
-    waterCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
-    readingDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type MeterReadingUncheckedUpdateManyWithoutRoomInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    electricityPrevious?: FloatFieldUpdateOperationsInput | number
-    electricityCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
-    waterPrevious?: FloatFieldUpdateOperationsInput | number
-    waterCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
-    readingDate?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ComplaintUpdateWithoutRoomInput = {
@@ -24388,6 +24421,36 @@ export namespace Prisma {
     confirmationChecked?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MeterReadingUpdateWithoutRoomInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    electricityPrevious?: FloatFieldUpdateOperationsInput | number
+    electricityCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
+    waterPrevious?: FloatFieldUpdateOperationsInput | number
+    waterCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
+    readingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MeterReadingUncheckedUpdateWithoutRoomInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    electricityPrevious?: FloatFieldUpdateOperationsInput | number
+    electricityCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
+    waterPrevious?: FloatFieldUpdateOperationsInput | number
+    waterCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
+    readingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MeterReadingUncheckedUpdateManyWithoutRoomInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    electricityPrevious?: FloatFieldUpdateOperationsInput | number
+    electricityCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
+    waterPrevious?: FloatFieldUpdateOperationsInput | number
+    waterCurrent?: NullableFloatFieldUpdateOperationsInput | number | null
+    readingDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type VehicleUpdateWithoutRoomInput = {

@@ -33,7 +33,7 @@ export class PrismaBillingRepository implements BillingRepository {
         id: b.id,
         roomId: b.roomId,
         roomNumber: b.room.number,
-        tenantName: b.room.tenant?.user.fullName ?? 'Unknown',
+        tenantName: b.room.tenant?.user?.fullName ?? 'Unknown',
         month: b.month,
         year: b.year,
         baseRent: b.baseRent,
@@ -181,11 +181,11 @@ export class PrismaBillingRepository implements BillingRepository {
         ([roomNumber, data]) => ({
           id: `debt-${roomNumber}`,
           roomNumber,
-          tenantName: data.bill.room.tenant?.user.fullName ?? 'Unknown',
+          tenantName: data.bill.room.tenant?.user?.fullName ?? 'Unknown',
           totalOutstanding: data.total,
           monthsOverdue: data.months,
           lastReminder: null,
-          phone: data.bill.room.tenant?.user.phone ?? '',
+          phone: data.bill.room.tenant?.user?.phone ?? '',
           reminderCount: 0,
         })
       );
@@ -211,7 +211,7 @@ export class PrismaBillingRepository implements BillingRepository {
       const items: SlipVerificationQueueItem[] = slips.map((s) => ({
         id: s.id,
         roomNumber: s.bill.room.number,
-        tenantName: s.bill.room.tenant?.user.fullName ?? 'Unknown',
+        tenantName: s.bill.room.tenant?.user?.fullName ?? 'Unknown',
         amount: s.bill.totalAmount,
         slipUrl: s.slipUrl,
         uploadedAt: s.uploadedAt.toISOString(),
@@ -291,11 +291,11 @@ export class PrismaBillingRepository implements BillingRepository {
         ([roomNumber, data]) => ({
           id: `debt-${roomNumber}`,
           roomNumber,
-          tenantName: data.bill.room.tenant?.user.fullName ?? 'Unknown',
+          tenantName: data.bill.room.tenant?.user?.fullName ?? 'Unknown',
           totalOutstanding: data.total,
           monthsOverdue: data.months,
           lastReminder: null,
-          phone: data.bill.room.tenant?.user.phone ?? '',
+          phone: data.bill.room.tenant?.user?.phone ?? '',
           reminderCount: 0,
         })
       );

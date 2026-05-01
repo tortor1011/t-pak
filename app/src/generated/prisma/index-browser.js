@@ -162,7 +162,8 @@ exports.Prisma.TenantScalarFieldEnum = {
   initialMeterWater: 'initialMeterWater',
   vehiclePlate: 'vehiclePlate',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  inviteCode: 'inviteCode'
 };
 
 exports.Prisma.BillScalarFieldEnum = {
