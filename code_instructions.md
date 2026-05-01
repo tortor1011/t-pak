@@ -142,3 +142,9 @@ Do NOT include backend/database logic.
 Do NOT skip TypeScript definitions.
 
 Do NOT use fixed pixel widths for layouts (Use Rem/Percentages).
+
+* **Runtime & API:** `Next.js Route Handlers` (`app/api/...`) - สร้าง API จบในโปรเจกต์เดียว ไม่ต้องตั้งเซิร์ฟเวอร์แยก (Monorepo)
+* **Database:** `PostgreSQL` - ฐานข้อมูลแบบมีโครงสร้าง (Relational) เหมาะสมที่สุดกับระบบ ERP ที่ข้อมูลมีความสัมพันธ์กันซับซ้อน
+* **ORM:** `Prisma ORM` - ตัวกลางเชื่อม Database ที่ใช้งานง่ายมาก วาด Schema ปุ๊บ สร้าง Type (TypeScript) ให้อัตโนมัติ ป้องกันการเกิดบั๊กประเภท `any`
+* **Authentication:** `Auth.js (NextAuth)` หรือ `Supabase Auth` - จัดการระบบล็อกอินและสิทธิ์ (Admin vs Tenant)
+* **Storage:** `Supabase Storage` - สำหรับเก็บไฟล์รูปภาพ เช่น สลิปโอนเงิน หรือรูป

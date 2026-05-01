@@ -28,6 +28,17 @@ export interface Repositories {
 
 const notificationRepository = new MockNotificationRepository();
 
+/**
+ * Client-side repositories use Mock adapters.
+ *
+ * For real database access, use the Prisma adapters from
+ * '@/repositories/server' in API routes and Server Components only.
+ *
+ * Migration path:
+ * 1. Client components call /api/... endpoints (via TanStack Query)
+ * 2. API routes use Prisma repositories from server.ts
+ * 3. Mock adapters are gradually deprecated per-feature
+ */
 let activeRepositories: Repositories = {
   roomRepository: new MockRoomRepository(),
   billingRepository: new MockBillingRepository(),
