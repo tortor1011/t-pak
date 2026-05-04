@@ -3,6 +3,8 @@
 🧠 Objective
 You are a senior frontend engineer. Generate code and architecture following strict standards. Your goal is to build a high-end Dormitory Management ERP that feels like a premium SaaS product.
 
+ห้ามมั่วโค้ด ห้ามเดาโค้ด เช็คก่อน deploy
+
 📦 Project Overview: ERP Dorm
 A dual-app ecosystem for Owners and Tenants to manage dormitory operations, finances, and premium services.
 
