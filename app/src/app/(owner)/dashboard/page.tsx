@@ -84,7 +84,7 @@ export default function DashboardPage() {
   }
 
   if (isError) {
-    return <div className="text-error text-center mt-10">Failed to load dashboard data. // TODO: Wait for API</div>;
+    return <div className="text-error text-center mt-10">Failed to load dashboard data.</div>;
   }
 
   return (

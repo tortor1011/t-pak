@@ -7,11 +7,32 @@ import { NextRequest, NextResponse } from 'next/server';
  * to access /api/tenant/* endpoints.
  */
 
-const ALLOWED_ORIGINS = [
-  'http://localhost:3001',
-  'http://127.0.0.1:3001',
-  // TODO: Add production Tenant domain here when deploying
-];
+/**
+ * Build the list of allowed CORS origins from the environment.
+ * Called once at module load time — environment variables must be set
+ * before the application starts (standard Next.js requirement).
+ */
+function resolveAllowedOrigins(): string[] {
+  const origins = ['http://localhost:3001', 'http://127.0.0.1:3001'];
+  const tenantAppUrl = process.env.TENANT_APP_URL;
+  if (tenantAppUrl) {
+    try {
+      const url = new URL(tenantAppUrl);
+      if (url.protocol === 'https:' || url.protocol === 'http:') {
+        // Use the normalised origin (scheme + host + port) to avoid trailing slashes
+        origins.push(url.origin);
+      }
+    } catch {
+      console.warn(
+        '[middleware] TENANT_APP_URL is malformed and will be ignored for CORS. ' +
+          `Value: "${tenantAppUrl}"`
+      );
+    }
+  }
+  return origins;
+}
+
+const ALLOWED_ORIGINS = resolveAllowedOrigins();
 
 function getCorsHeaders(origin: string | null): HeadersInit {
   const isAllowed = origin && ALLOWED_ORIGINS.includes(origin);
