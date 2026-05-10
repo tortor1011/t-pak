@@ -268,6 +268,16 @@ exports.Prisma.PropertySettingsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.AnnouncementScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  message: 'message',
+  imageUrl: 'imageUrl',
+  targetAudience: 'targetAudience',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.AccountScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -393,6 +403,7 @@ exports.Prisma.ModelName = {
   DeliveryTask: 'DeliveryTask',
   Vehicle: 'Vehicle',
   PropertySettings: 'PropertySettings',
+  Announcement: 'Announcement',
   Account: 'Account',
   Session: 'Session',
   VerificationToken: 'VerificationToken'

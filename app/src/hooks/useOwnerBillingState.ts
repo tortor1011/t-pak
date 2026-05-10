@@ -2,8 +2,6 @@
 
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useRepositories } from '@/hooks/useRepositories';
-import { calculateBillingSummary } from '@/services/billingSummary';
 import { OwnerBillingState, EMPTY_OWNER_BILLING_STATE } from '@/services/ownerBillingState';
 
 export function useOwnerBillingState(): {
@@ -12,42 +10,20 @@ export function useOwnerBillingState(): {
   isLoading: boolean;
   isError: boolean;
 } {
-  const { roomRepository, billingRepository } = useRepositories();
-
   const { data: billingState, refetch, isLoading, isError } = useQuery({
     queryKey: ['ownerBillingState'],
     queryFn: async (): Promise<OwnerBillingState> => {
-      const roomsResult = await roomRepository.listRooms();
-      if (!roomsResult.ok) {
-        return EMPTY_OWNER_BILLING_STATE;
+      const response = await fetch('/api/owner/billing-state');
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error('API Error:', response.status, errText);
+        throw new Error('Failed to fetch billing state');
       }
-
-      const rooms = roomsResult.value;
-      const ownerBillingAggregationResult = await billingRepository.loadOwnerBillingAggregation(rooms);
-
-      if (!ownerBillingAggregationResult.ok) {
-        return EMPTY_OWNER_BILLING_STATE;
-      }
-
-      const {
-        pendingSlipCount,
-        debtQueue,
-        activeDebtQueue,
-        totalOutstanding,
-      } = ownerBillingAggregationResult.value;
-      const summary = calculateBillingSummary(rooms);
-
-      return {
-        rooms,
-        summary,
-        pendingSlipCount,
-        debtQueue,
-        activeDebtQueue,
-        totalOutstanding,
-      };
+      return response.json();
     },
-    initialData: EMPTY_OWNER_BILLING_STATE,
   });
+
+  const state = billingState ?? EMPTY_OWNER_BILLING_STATE;
 
   useEffect(() => {
     const handleRefresh = () => refetch();
@@ -61,7 +37,7 @@ export function useOwnerBillingState(): {
   }, [refetch]);
 
   return {
-    billingState,
+    billingState: state,
     refreshBillingState: () => { refetch(); },
     isLoading,
     isError,

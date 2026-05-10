@@ -58,8 +58,9 @@ function getCorsHeaders(origin: string | null): HeadersInit {
 
 export function middleware(request: NextRequest) {
   const origin = request.headers.get('origin');
+  const ownerOrigin = request.nextUrl.origin;
 
-  if (origin && !ALLOWED_ORIGINS.includes(origin)) {
+  if (origin && origin !== ownerOrigin && !ALLOWED_ORIGINS.includes(origin)) {
     return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
   }
 

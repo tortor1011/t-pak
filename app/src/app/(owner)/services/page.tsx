@@ -61,6 +61,13 @@ const SERVICE_ITEMS = {
       href: '/services/bulk-room-setup',
       iconColor: 'text-secondary',
     },
+    {
+      title: 'ประกาศแจ้งทั่วไป',
+      description: 'ส่งแจ้งข่าวสารและประกาศไปยังผู้เช่า',
+      icon: 'campaign',
+      href: '/services/broadcast-alerts',
+      iconColor: 'text-primary',
+    },
   ],
   en: [
     {
@@ -118,6 +125,13 @@ const SERVICE_ITEMS = {
       icon: 'view_module',
       href: '/services/bulk-room-setup',
       iconColor: 'text-secondary',
+    },
+    {
+      title: 'Broadcast Alerts',
+      description: 'Send announcements and news to all tenants',
+      icon: 'campaign',
+      href: '/services/broadcast-alerts',
+      iconColor: 'text-primary',
     },
   ],
 } as const;

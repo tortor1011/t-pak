@@ -1,50 +1,63 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getRelativeTime } from '@/utils/date';
 import { Complaint, ComplaintStatus } from '@/types/complaint';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useRepositories } from '@/hooks/useRepositories';
-import {
-  COMPLAINT_STATE_UPDATED_EVENT,
-  getNextComplaintStatus,
-} from '@/services/complaintQueue';
+import { getNextComplaintStatus } from '@/services/complaintQueue';
 import PageHeader from '@/components/layout/PageHeader';
 
 export default function ComplaintsPage() {
   const router = useRouter();
   const { language } = useLanguage();
-  const { complaintsRepository } = useRepositories();
-  const [activeTab, setActiveTab] = useState<'open' | 'resolved'>('open');
-  const [updatingComplaintId, setUpdatingComplaintId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  
+  const [activeTab, setActiveTab] = useState<'new' | 'in-progress' | 'resolved'>('new');
+  const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [complaints, setComplaints] = useState<Complaint[]>([]);
 
-  useEffect(() => {
-    complaintsRepository.listComplaints().then((complaintsResult) => {
-      if (complaintsResult.ok) {
-        setComplaints(complaintsResult.value);
-      }
-    });
+  const { data: complaints = [], isLoading } = useQuery<Complaint[]>({
+    queryKey: ['owner', 'complaints'],
+    queryFn: async () => {
+      const res = await fetch('/api/complaints');
+      if (!res.ok) throw new Error('Failed to fetch complaints');
+      return res.json();
+    },
+    refetchInterval: 5000, // optionally auto-refresh every 5s to keep it real-time like
+  });
 
-    const refreshComplaints = async () => {
-      const complaintsResult = await complaintsRepository.listComplaints();
-      if (complaintsResult.ok) {
-        setComplaints(complaintsResult.value);
-      }
-    };
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: ComplaintStatus }) => {
+      const res = await fetch(`/api/complaints/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      return res.json() as Promise<Complaint[]>;
+    },
+    onSuccess: (updatedComplaints, variables) => {
+      queryClient.setQueryData(['owner', 'complaints'], updatedComplaints);
+      setFeedbackMessage(
+        variables.status === 'in-progress'
+          ? text.updatedToInProgress
+          : text.updatedToResolved
+      );
+    },
+    onError: (error) => {
+      setErrorMessage(error.message);
+    },
+  });
 
-    window.addEventListener('storage', refreshComplaints);
-    window.addEventListener(COMPLAINT_STATE_UPDATED_EVENT, refreshComplaints);
-
-    return () => {
-      window.removeEventListener('storage', refreshComplaints);
-      window.removeEventListener(COMPLAINT_STATE_UPDATED_EVENT, refreshComplaints);
-    };
-  }, [complaintsRepository]);
+  const filterEmptyStateIcons = {
+    'new': 'sentiment_satisfied',
+    'in-progress': 'engineering',
+    'resolved': 'history'
+  } as const;
 
   const text =
     language === 'th'
@@ -54,7 +67,8 @@ export default function ComplaintsPage() {
           statusInProgress: 'กำลังดำเนินการ',
           statusResolved: 'เสร็จสิ้น',
           categoryAll: 'หมวดหมู่: ทั้งหมด',
-          tabOpen: 'เรื่องที่เปิดอยู่',
+          tabNew: 'รอรับงาน',
+          tabInProgress: 'กำลังดำเนินการ',
           tabResolved: 'แก้ไขแล้ว',
           room: 'ห้อง',
           reported: 'แจ้งเมื่อ',
@@ -63,10 +77,15 @@ export default function ComplaintsPage() {
           updating: 'กำลังอัปเดต...',
           updatedToInProgress: 'อัปเดตคำร้องเป็นกำลังดำเนินการแล้ว',
           updatedToResolved: 'อัปเดตคำร้องเป็นเสร็จสิ้นแล้ว',
-          noOpenIssues: 'ไม่มีปัญหาที่เปิดอยู่',
+          noOpenIssues: 'ไม่มีปัญหาที่เปิดอยู่ (รอรับงาน)',
+          noInProgressIssues: 'ไม่มีรายการที่กำลังดำเนินการ',
           noResolvedIssues: 'ยังไม่มีรายการที่ปิดงาน',
           openDescription: 'ภาพรวมอาคารปกติดี ไม่มีคำร้องใหม่ในตอนนี้',
+          inProgressDescription: 'รายการที่รับงานแล้วจะมาอยู่ที่นี่',
           resolvedDescription: 'รายการที่แก้ไขเสร็จแล้วจะแสดงในส่วนนี้',
+          closeModal: 'ปิดหน้าต่าง',
+          btnConfirm: 'ยืนยันการรับงาน',
+          btnResolve: 'ยืนยันเสร็จสิ้น',
         }
       : {
           title: 'Complaint Management',
@@ -74,7 +93,8 @@ export default function ComplaintsPage() {
           statusInProgress: 'IN PROGRESS',
           statusResolved: 'RESOLVED',
           categoryAll: 'Category: All',
-          tabOpen: 'Open Issues',
+          tabNew: 'New',
+          tabInProgress: 'In-Progress',
           tabResolved: 'Resolved',
           room: 'Room',
           reported: 'Reported',
@@ -83,40 +103,53 @@ export default function ComplaintsPage() {
           updating: 'Updating...',
           updatedToInProgress: 'Complaint moved to in-progress.',
           updatedToResolved: 'Complaint marked as resolved.',
-          noOpenIssues: 'No Open Issues!',
+          noOpenIssues: 'No New Issues!',
+          noInProgressIssues: 'No Issues In-Progress',
           noResolvedIssues: 'No Resolved Issues',
           openDescription: 'Everything is running smoothly',
+          inProgressDescription: 'Issues you are working on will appear here',
           resolvedDescription: 'Resolved issues will appear here',
+          closeModal: 'Close',
+          btnConfirm: 'Confirm start',
+          btnResolve: 'Confirm resolved',
         };
+
+  const translateTitle = (dbTitle: string) => {
+    const dbTitleLower = dbTitle.toLowerCase();
+    if (language === 'th') {
+      if (dbTitleLower.includes('ac') || dbTitleLower.includes('air')) return 'เครื่องปรับอากาศ (แอร์)';
+      if (dbTitleLower.includes('plumbing')) return 'ระบบประปา';
+      if (dbTitleLower.includes('electrical')) return 'ระบบไฟฟ้า';
+      if (dbTitleLower.includes('appliance')) return 'เครื่องใช้ไฟฟ้า';
+      if (dbTitleLower.includes('furniture')) return 'เฟอร์นิเจอร์';
+      if (dbTitleLower.includes('internet')) return 'อินเทอร์เน็ต';
+      if (dbTitleLower.includes('other')) return 'อื่นๆ';
+    } else {
+      if (dbTitleLower.includes('ac') || dbTitleLower.includes('air')) return 'Air Conditioner (AC)';
+      if (dbTitleLower.includes('plumbing')) return 'Plumbing';
+      if (dbTitleLower.includes('electrical')) return 'Electrical';
+      if (dbTitleLower.includes('appliance')) return 'Appliance';
+      if (dbTitleLower.includes('furniture')) return 'Furniture';
+      if (dbTitleLower.includes('internet')) return 'Internet';
+      if (dbTitleLower.includes('other')) return 'Other';
+    }
+    return dbTitle;
+  };
 
   const handleUpdateComplaintStatus = async (complaint: Complaint) => {
     const nextStatus = getNextComplaintStatus(complaint.status);
-    if (!nextStatus || updatingComplaintId) {
+    if (!nextStatus || updateStatusMutation.isPending) {
       return;
     }
 
-    setUpdatingComplaintId(complaint.id);
     setFeedbackMessage(null);
     setErrorMessage(null);
 
-    const updatedComplaintsResult = await complaintsRepository.updateComplaintStatus(
-      complaint.id,
-      nextStatus
-    );
-
-    if (!updatedComplaintsResult.ok) {
-      setErrorMessage(updatedComplaintsResult.error.message);
-      setUpdatingComplaintId(null);
-      return;
-    }
-
-    setComplaints(updatedComplaintsResult.value);
-    setFeedbackMessage(
-      nextStatus === 'in-progress'
-        ? text.updatedToInProgress
-        : text.updatedToResolved
-    );
-    setUpdatingComplaintId(null);
+    updateStatusMutation.mutate({ id: complaint.id, status: nextStatus }, {
+      onSuccess: () => {
+        setSelectedComplaint(null); // Close modal on success
+      }
+    });
   };
 
   const getUpdateButtonLabel = (status: ComplaintStatus): string => {
@@ -127,10 +160,7 @@ export default function ComplaintsPage() {
     return text.updateToResolved;
   };
   const filteredComplaints = useMemo(() => {
-    if (activeTab === 'open') {
-      return complaints.filter((c) => c.status !== 'resolved');
-    }
-    return complaints.filter((c) => c.status === 'resolved');
+    return complaints.filter((c) => c.status === activeTab);
   }, [activeTab, complaints]);
 
   const statusBadge = (status: ComplaintStatus) => {
@@ -170,20 +200,30 @@ export default function ComplaintsPage() {
         {/* Tabs */}
         <div className="flex gap-4 mb-8">
           <button
-            onClick={() => setActiveTab('open')}
-            className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all text-center ${
-              activeTab === 'open'
+            onClick={() => setActiveTab('new')}
+            className={`flex-1 py-3 px-2 sm:px-4 rounded-xl font-bold transition-all text-center text-sm sm:text-base ${
+              activeTab === 'new'
                 ? 'bg-primary text-on-primary'
                 : 'bg-surface-container-high text-on-surface-variant font-medium'
             }`}
           >
-            {text.tabOpen}
+            {text.tabNew}
+          </button>
+          <button
+            onClick={() => setActiveTab('in-progress')}
+            className={`flex-1 py-3 px-2 sm:px-4 rounded-xl font-bold transition-all text-center text-sm sm:text-base ${
+              activeTab === 'in-progress'
+                ? 'bg-amber-500 text-white'
+                : 'bg-surface-container-high text-on-surface-variant font-medium'
+            }`}
+          >
+            {text.tabInProgress}
           </button>
           <button
             onClick={() => setActiveTab('resolved')}
-            className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all text-center ${
+            className={`flex-1 py-3 px-2 sm:px-4 rounded-xl font-bold transition-all text-center text-sm sm:text-base ${
               activeTab === 'resolved'
-                ? 'bg-primary text-on-primary'
+                ? 'bg-secondary text-on-secondary'
                 : 'bg-surface-container-high text-on-surface-variant font-medium'
             }`}
           >
@@ -208,13 +248,14 @@ export default function ComplaintsPage() {
           {filteredComplaints.map((complaint) => (
             <div
               key={complaint.id}
-              className="bg-surface-container-lowest rounded-xl p-5 shadow-[0_20px_50px_rgba(18,28,40,0.05)]"
+              onClick={() => setSelectedComplaint(complaint)}
+              className="bg-surface-container-lowest rounded-xl p-5 shadow-[0_20px_50px_rgba(18,28,40,0.05)] cursor-pointer hover:shadow-lg transition-shadow active:scale-[0.99]"
             >
               <div className="flex justify-between items-start mb-4">
                 <div className="space-y-1 flex-1">
                   {statusBadge(complaint.status)}
                   <h3 className="text-lg font-extrabold text-on-surface pt-1 leading-tight">
-                    {text.room} {complaint.roomNumber}: {complaint.title}
+                    {text.room} {complaint.roomNumber}: {translateTitle(complaint.title)}
                   </h3>
                   <p className="text-sm text-on-surface-variant font-medium">
                     {text.reported} {getRelativeTime(complaint.createdAt, language)}
@@ -231,7 +272,7 @@ export default function ComplaintsPage() {
                 ) : (
                   <div className="w-20 h-20 bg-surface-container flex items-center justify-center rounded-xl ml-4">
                     <span className="material-symbols-outlined text-outline text-3xl">
-                      {complaint.category === 'electrical' ? 'light_off' : 'build'}
+                      {complaint.category === 'electrical' ? 'light_off' : complaint.category === 'plumbing' ? 'plumbing' : 'build'}
                     </span>
                   </div>
                 )}
@@ -239,15 +280,20 @@ export default function ComplaintsPage() {
               {complaint.status !== 'resolved' && (
                 <button
                   type="button"
-                  onClick={() => handleUpdateComplaintStatus(complaint)}
-                  disabled={updatingComplaintId !== null}
-                  className={`w-full h-14 btn-primary-gradient text-on-primary font-bold rounded-xl transition-transform ${
-                    updatingComplaintId !== null
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUpdateComplaintStatus(complaint);
+                  }}
+                  disabled={updateStatusMutation.isPending && updateStatusMutation.variables?.id === complaint.id}
+                  className={`w-full h-14 font-bold rounded-xl transition-transform ${
+                    complaint.status === 'new' ? 'btn-primary-gradient text-on-primary' : 'bg-primary text-on-primary'
+                  } ${
+                    updateStatusMutation.isPending && updateStatusMutation.variables?.id === complaint.id
                       ? 'opacity-60 cursor-not-allowed'
                       : 'active:scale-95'
                   }`}
                 >
-                  {updatingComplaintId === complaint.id
+                  {updateStatusMutation.isPending && updateStatusMutation.variables?.id === complaint.id
                     ? text.updating
                     : getUpdateButtonLabel(complaint.status)}
                 </button>
@@ -258,20 +304,116 @@ export default function ComplaintsPage() {
           {filteredComplaints.length === 0 && (
             <div className="col-span-full text-center py-16 text-on-surface-variant">
               <span className="material-symbols-outlined text-5xl mb-4 block">
-                {activeTab === 'open' ? 'sentiment_satisfied' : 'history'}
+                {filterEmptyStateIcons[activeTab]}
               </span>
               <h3 className="text-xl font-bold mb-2">
-                {activeTab === 'open' ? text.noOpenIssues : text.noResolvedIssues}
+                {activeTab === 'new' ? text.noOpenIssues : activeTab === 'in-progress' ? text.noInProgressIssues : text.noResolvedIssues}
               </h3>
               <p className="font-medium">
-                {activeTab === 'open'
-                  ? text.openDescription
-                  : text.resolvedDescription}
+                {activeTab === 'new' ? text.openDescription : activeTab === 'in-progress' ? text.inProgressDescription : text.resolvedDescription}
               </p>
             </div>
           )}
         </div>
       </div>
+
+      {/* Modal for Details */}
+      {selectedComplaint && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 p-4 sm:p-0"
+          onClick={() => setSelectedComplaint(null)}
+        >
+          <div 
+            className="bg-surface rounded-2xl w-full max-w-md p-6 shadow-xl relative animate-in fade-in zoom-in duration-200 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                {statusBadge(selectedComplaint.status)}
+                <h2 className="text-xl font-bold text-on-surface mt-2">
+                  {text.room} {selectedComplaint.roomNumber}: {translateTitle(selectedComplaint.title)}
+                </h2>
+              </div>
+              <button 
+                onClick={() => setSelectedComplaint(null)}
+                className="text-on-surface-variant hover:bg-surface-container p-2 rounded-full transition-colors material-symbols-outlined"
+              >
+                close
+              </button>
+            </div>
+
+            {selectedComplaint.photoUrl && (
+              <div className="mb-6 relative w-full h-48 bg-surface-container rounded-xl overflow-hidden">
+                <Image
+                  src={selectedComplaint.photoUrl}
+                  alt={selectedComplaint.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+
+            <div className="space-y-4 mb-8">
+              <div>
+                <span className="text-sm font-bold text-on-surface-variant uppercase tracking-wider block mb-1">
+                  รายละเอียด / Description
+                </span>
+                <p className="text-on-surface bg-surface-container-low p-3 rounded-xl border border-outline-variant/30 min-h-[4rem]">
+                  {selectedComplaint.description || '-'}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-surface-container-low p-3 rounded-xl border border-outline-variant/30">
+                  <span className="text-xs font-bold text-on-surface-variant uppercase block mb-1">
+                    ผู้แจ้ง / Tenant
+                  </span>
+                  <span className="text-sm font-bold text-on-surface">{selectedComplaint.tenantName}</span>
+                </div>
+                <div className="bg-surface-container-low p-3 rounded-xl border border-outline-variant/30">
+                  <span className="text-xs font-bold text-on-surface-variant uppercase block mb-1">
+                    หมวดหมู่ / Category
+                  </span>
+                  <span className="text-sm font-bold text-on-surface capitalize">{selectedComplaint.category}</span>
+                </div>
+              </div>
+
+              <div className="bg-surface-container-low p-3 rounded-xl border border-outline-variant/30">
+                  <span className="text-xs font-bold text-on-surface-variant uppercase block mb-1">
+                    อนุญาตให้เข้าห้อง / Permission to enter
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`material-symbols-outlined text-sm ${selectedComplaint.permissionToEnter ? 'text-primary' : 'text-error'}`}>
+                      {selectedComplaint.permissionToEnter ? 'check_circle' : 'cancel'}
+                    </span>
+                    <span className="text-sm font-bold text-on-surface">
+                      {selectedComplaint.permissionToEnter 
+                        ? (language === 'th' ? 'อนุญาตเข้าห้องได้แม้ไม่อยู่' : 'Allowed') 
+                        : (language === 'th' ? 'ไม่อนุญาต ต้องโทรนัด' : 'Not allowed')}
+                    </span>
+                  </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-4 justify-end mt-6">
+              {selectedComplaint.status !== 'resolved' && (
+                <button 
+                  onClick={() => handleUpdateComplaintStatus(selectedComplaint)}
+                  disabled={updateStatusMutation.isPending}
+                  className={`flex-1 flex justify-center items-center py-3 bg-primary text-on-primary font-bold rounded-xl transition-all ${
+                    updateStatusMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'
+                  }`}
+                >
+                  {updateStatusMutation.isPending ? (
+                    <span className="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+                  ) : null}
+                  {selectedComplaint.status === 'new' ? text.btnConfirm : text.btnResolve}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

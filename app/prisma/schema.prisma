@@ -193,6 +193,18 @@ model PropertySettings {
   @@map("property_settings")
 }
 
+model Announcement {
+  id             String   @id @default(cuid())
+  title          String
+  message        String
+  imageUrl       String?
+  targetAudience String   @default("all")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("announcements")
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
