@@ -17,8 +17,7 @@ export const TRANSLATIONS_TH = {
   'common.room': 'ห้อง',
   'common.vacant': 'ห้องว่าง',
   'common.occupied': 'มีผู้พักอาศัย',
-  'common.noneFound': 'ไม่พบข้อมูล',
-  'common.april2026': 'เมษายน 2026',
+  'common.noneFound': 'ไม่พบข้อมูล',  'common.none': 'ไม่มี',  'common.april2026': 'เมษายน 2026',
 
   'nav.home': 'หน้าแรก',
   'nav.billing': 'บิล',
@@ -37,6 +36,9 @@ export const TRANSLATIONS_TH = {
   'status.paid': 'ชำระแล้ว',
   'status.pending': 'รอตรวจสอบ',
   'status.unpaid': 'ค้างชำระ',
+  'status.overdue': 'เกินกำหนด',
+  'status.draft': 'ร่างแบบ',
+  'status.pendingPayment': 'รอชำระเงิน',
 
   'search.roomPlaceholder': 'ค้นหาห้อง...',
   'roomCard.vacant': 'ห้องว่าง',
@@ -216,6 +218,7 @@ export const TRANSLATIONS_EN: TranslationDictionary = {
   'common.vacant': 'Vacant',
   'common.occupied': 'Occupied',
   'common.noneFound': 'No data found',
+  'common.none': 'None',
   'common.april2026': 'April 2026',
 
   'nav.home': 'Home',
@@ -235,6 +238,9 @@ export const TRANSLATIONS_EN: TranslationDictionary = {
   'status.paid': 'PAID',
   'status.pending': 'PENDING',
   'status.unpaid': 'UNPAID',
+  'status.overdue': 'OVERDUE',
+  'status.draft': 'DRAFT',
+  'status.pendingPayment': 'PENDING PAY',
 
   'search.roomPlaceholder': 'Search room...',
   'roomCard.vacant': 'Vacant',
