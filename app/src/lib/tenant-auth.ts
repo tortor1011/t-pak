@@ -1,20 +1,22 @@
 /**
  * Tenant authentication utilities for cross-origin API access.
  *
- * The Tenant app (running on :3001) authenticates via Basic Auth header
+ * The Tenant app (running on :3001) authenticates via JWT Bearer token
  * against the Owner's /api/tenant/* endpoints.
  *
  * Flow:
- * 1. Tenant app sends `Authorization: Basic base64(email:password)` header
- * 2. Owner validates credentials against the `users` table (role = TENANT)
- * 3. Returns tenant-scoped data (room, bills, etc.)
+ * 1. Tenant app's proxy calls Owner with `Authorization: Bearer <jwt>`
+ * 2. Owner verifies the JWT using the shared SESSION_SECRET
+ * 3. Owner looks up the tenant record from the userId in the JWT payload
+ * 4. Returns tenant-scoped data (room, bills, etc.)
  *
- * TODO: Migrate to LINE Login for Thai dormitory standard auth flow.
- * TODO: Consider JWT tokens for production to avoid sending credentials on every request.
+ * The JWT is issued by the Tenant app's own /api/auth/login route handler
+ * and stored as an HttpOnly cookie — credentials never leave the server.
  */
 
+import 'server-only';
+import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
 
 export interface AuthenticatedTenant {
   userId: string;
@@ -25,20 +27,43 @@ export interface AuthenticatedTenant {
   email: string;
 }
 
-/**
- * Authenticate an unlinked tenant (registered but not yet linked to a room).
- * Returns user info without tenantId/roomNumber for use in the /link endpoint.
- */
-export interface AuthenticatedUser {
-  userId: string;
-  fullName: string;
+/** Shape of the JWT payload issued by the Tenant app session layer. */
+interface TenantJwtPayload {
+  sub: string;       // userId
   email: string;
-  linked: false;
+  fullName: string;
+  linked: boolean;
+  tenantId?: string;
+  roomId?: string;
+  roomNumber?: string;
+}
+
+/**
+ * Returns the JWT signing secret as a Uint8Array for use with jose.
+ * Throws at runtime if SESSION_SECRET is not configured — fail fast.
+ */
+function getSessionSecret(): Uint8Array {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error(
+      '[tenant-auth] SESSION_SECRET env var must be set and at least 32 characters long.'
+    );
+  }
+  return new TextEncoder().encode(secret);
 }
 
 /**
  * Authenticate a tenant from the Authorization header.
- * Returns the tenant's profile or null if unauthorized.
+ *
+ * Accepts: `Authorization: Bearer <signed-jwt>`
+ *
+ * The JWT is verified against SESSION_SECRET (shared with the Tenant app).
+ * After verification, the tenant record is fetched from the DB using the
+ * userId in the JWT `sub` claim to ensure the tenant still exists and is
+ * linked to a room (prevents stale sessions from accessing data after
+ * a tenant record is removed).
+ *
+ * Returns null (not a throw) so callers can return a clean 401.
  */
 export async function authenticateTenant(
   request: Request
@@ -46,53 +71,57 @@ export async function authenticateTenant(
   const authHeader = request.headers.get('Authorization');
   if (!authHeader) return null;
 
-  // Support both "Basic base64" and "Bearer token" (future-proof)
-  if (authHeader.startsWith('Basic ')) {
-    return authenticateBasic(authHeader.slice(6));
+  if (authHeader.startsWith('Bearer ')) {
+    return authenticateBearer(authHeader.slice(7).trim());
   }
 
-  // TODO: Add Bearer token support for JWT-based auth
+  // Basic Auth is no longer accepted. Return null so the caller returns 401.
+  // Kept as a named branch (not a wildcard) for clarity during migration.
   return null;
 }
 
-async function authenticateBasic(
-  base64Credentials: string
+async function authenticateBearer(
+  token: string
 ): Promise<AuthenticatedTenant | null> {
-  try {
-    const decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8');
-    const colonIdx = decoded.indexOf(':');
-    if (colonIdx === -1) return null;
-    const email = decoded.slice(0, colonIdx);
-    const password = decoded.slice(colonIdx + 1);
-    if (!email || !password) return null;
+  if (!token) return null;
 
-    const user = await prisma.user.findUnique({
-      where: { email },
+  try {
+    const secret = getSessionSecret();
+    const { payload } = await jwtVerify<TenantJwtPayload>(token, secret, {
+      algorithms: ['HS256'],
+    });
+
+    // JWT must represent a fully linked tenant
+    if (!payload.sub || !payload.linked || !payload.tenantId || !payload.roomId) {
+      return null;
+    }
+
+    // Re-validate against DB: ensures the tenant record still exists and
+    // the room association hasn't changed since the token was issued.
+    // This is the authoritative ownership check — the JWT alone is not enough.
+    const tenant = await prisma.tenant.findFirst({
+      where: {
+        id: payload.tenantId,
+        userId: payload.sub,      // must match — prevents tenantId substitution
+        roomId: payload.roomId,   // must match — prevents roomId substitution
+      },
       include: {
-        tenant: {
-          include: {
-            room: { select: { id: true, number: true } },
-          },
-        },
+        room: { select: { id: true, number: true } },
       },
     });
 
-    if (!user || user.role !== 'TENANT') return null;
-    // Unlinked users cannot access protected tenant endpoints
-    if (!user.tenant) return null;
-
-    const isValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isValid) return null;
+    if (!tenant) return null;
 
     return {
-      userId: user.id,
-      tenantId: user.tenant.id,
-      roomId: user.tenant.roomId,
-      roomNumber: user.tenant.room.number,
-      fullName: user.fullName,
-      email: user.email,
+      userId: payload.sub,
+      tenantId: tenant.id,
+      roomId: tenant.roomId,
+      roomNumber: tenant.room.number,
+      fullName: payload.fullName,
+      email: payload.email,
     };
   } catch {
+    // jwtVerify throws on expired, tampered, or invalid tokens — treat as unauth
     return null;
   }
 }

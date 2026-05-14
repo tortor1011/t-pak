@@ -27,6 +27,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user || !user.passwordHash) return null;
 
+        // Role isolation: tenants must use the Tenant app (port 3001), not this app.
+        if (user.role === 'TENANT') return null;
+
         const isPasswordValid = await bcrypt.compare(
           credentials.password as string,
           user.passwordHash,

@@ -45,7 +45,7 @@ function OwnerShell({
           showMenu={false}
           notificationUnreadCount={unreadCount}
           isNotificationPanelOpen={isNotificationPanelOpen}
-          onNotificationToggle={() =>
+          onNotificationToggle={() => 
             setIsNotificationPanelOpen((isOpen) => !isOpen)
           }
           onNotificationClose={() => setIsNotificationPanelOpen(false)}
