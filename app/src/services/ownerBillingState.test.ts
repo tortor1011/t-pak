@@ -19,14 +19,14 @@ import { MockVehicleRepository } from '@/repositories/adapters/mock/MockVehicleR
 import { buildOwnerBillingState } from '@/services/ownerBillingState';
 import type { BillItem, MeterReading } from '@/types/billing';
 
-function createErrorResult<T>(message: string): Result<T> {
-  return {
+function createErrorResult<T>(message: string): Promise<Result<T>> {
+  return Promise.resolve({
     ok: false,
     error: {
-      code: 'UNKNOWN_ERROR',
+      code: 'UNKNOWN_ERROR' as const,
       message,
     },
-  };
+  });
 }
 
 function createBaseBillingRepository(
@@ -108,10 +108,10 @@ describe('buildOwnerBillingState', () => {
     resetDefaultRepositories();
   });
 
-  it('returns empty safe state when owner billing aggregation fails', () => {
+  it('returns empty safe state when owner billing aggregation fails', async () => {
     setRepositoriesForTest(createBaseBillingRepository());
 
-    const state = buildOwnerBillingState();
+    const state = await buildOwnerBillingState();
 
     expect(state.rooms).toEqual([]);
     expect(state.pendingSlipCount).toBe(0);
@@ -121,7 +121,7 @@ describe('buildOwnerBillingState', () => {
     expect(state.summary.totalRooms).toBe(0);
   });
 
-  it('uses repository aggregation values when aggregation succeeds', () => {
+  it('uses repository aggregation values when aggregation succeeds', async () => {
     const queueItem: DebtCollectionQueueItem = {
       id: 'd-custom',
       roomNumber: '999',
@@ -142,14 +142,15 @@ describe('buildOwnerBillingState', () => {
 
     setRepositoriesForTest(
       createBaseBillingRepository({
-        loadOwnerBillingAggregation: () => ({
-          ok: true,
-          value: aggregation,
-        }),
+        loadOwnerBillingAggregation: (_rooms: BillingAggregationRoom[]) =>
+          Promise.resolve({
+            ok: true,
+            value: aggregation,
+          }),
       })
     );
 
-    const state = buildOwnerBillingState();
+    const state = await buildOwnerBillingState();
 
     expect(state.rooms.length).toBeGreaterThan(0);
     expect(state.pendingSlipCount).toBe(7);
@@ -159,15 +160,15 @@ describe('buildOwnerBillingState', () => {
     expect(state.summary.totalRooms).toBeGreaterThan(0);
   });
 
-  it('passes room billing view to repository aggregation', () => {
+  it('passes room billing view to repository aggregation', async () => {
     let capturedRooms: BillingAggregationRoom[] = [];
 
     setRepositoriesForTest(
       createBaseBillingRepository({
-        loadOwnerBillingAggregation: (rooms) => {
+        loadOwnerBillingAggregation: (rooms: BillingAggregationRoom[]) => {
           capturedRooms = rooms;
 
-          return {
+          return Promise.resolve({
             ok: true,
             value: {
               pendingSlipCount: 0,
@@ -175,12 +176,12 @@ describe('buildOwnerBillingState', () => {
               activeDebtQueue: [],
               totalOutstanding: 0,
             },
-          };
+          });
         },
       })
     );
 
-    buildOwnerBillingState();
+    await buildOwnerBillingState();
 
     expect(capturedRooms.length).toBeGreaterThan(0);
     expect(capturedRooms[0]).toHaveProperty('number');

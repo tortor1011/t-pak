@@ -63,10 +63,10 @@ describe('MockBillingRepository', () => {
     detachMockWindow();
   });
 
-  it('loads room bills via repository contract', () => {
+  it('loads room bills via repository contract', async () => {
     const repository = new MockBillingRepository();
 
-    const result = repository.loadRoomBills('r101');
+    const result = await repository.loadRoomBills('r101');
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -76,10 +76,10 @@ describe('MockBillingRepository', () => {
     }
   });
 
-  it('loads meter readings via repository contract', () => {
+  it('loads meter readings via repository contract', async () => {
     const repository = new MockBillingRepository();
 
-    const result = repository.loadMeterReadings();
+    const result = await repository.loadMeterReadings();
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -89,7 +89,7 @@ describe('MockBillingRepository', () => {
     }
   });
 
-  it('submits meter readings via repository contract and persists current values', () => {
+  it('submits meter readings via repository contract and persists current values', async () => {
     const repository = new MockBillingRepository();
     const submissions: MeterReadingSubmission[] = [
       {
@@ -104,7 +104,7 @@ describe('MockBillingRepository', () => {
       },
     ];
 
-    const submitResult = repository.submitMeterReadings(submissions);
+    const submitResult = await repository.submitMeterReadings(submissions);
 
     expect(submitResult.ok).toBe(true);
     if (submitResult.ok) {
@@ -117,7 +117,7 @@ describe('MockBillingRepository', () => {
       expect(room102?.water.current).toBe(600.25);
     }
 
-    const loadedResult = repository.loadMeterReadings();
+    const loadedResult = await repository.loadMeterReadings();
 
     expect(loadedResult.ok).toBe(true);
     if (loadedResult.ok) {
@@ -133,7 +133,7 @@ describe('MockBillingRepository', () => {
     expect(dispatchEvent).toHaveBeenCalledTimes(1);
   });
 
-  it('returns validation error when submitted reading is below previous value', () => {
+  it('returns validation error when submitted reading is below previous value', async () => {
     const repository = new MockBillingRepository();
     const invalidSubmission: MeterReadingSubmission[] = [
       {
@@ -143,7 +143,7 @@ describe('MockBillingRepository', () => {
       },
     ];
 
-    const result = repository.submitMeterReadings(invalidSubmission);
+    const result = await repository.submitMeterReadings(invalidSubmission);
 
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -152,7 +152,7 @@ describe('MockBillingRepository', () => {
     expect(dispatchEvent).not.toHaveBeenCalled();
   });
 
-  it('loads owner billing aggregation with paid-room debt filtering', () => {
+  it('loads owner billing aggregation with paid-room debt filtering', async () => {
     const repository = new MockBillingRepository();
     const rooms: BillingAggregationRoom[] = [
       { number: '103', billingStatus: 'unpaid' },
@@ -160,7 +160,7 @@ describe('MockBillingRepository', () => {
       { number: '205', billingStatus: 'paid' },
     ];
 
-    const result = repository.loadOwnerBillingAggregation(rooms);
+    const result = await repository.loadOwnerBillingAggregation(rooms);
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -180,7 +180,7 @@ describe('MockBillingRepository', () => {
     }
   });
 
-  it('returns zero active outstanding when all debt rooms are paid', () => {
+  it('returns zero active outstanding when all debt rooms are paid', async () => {
     const repository = new MockBillingRepository();
     const rooms: BillingAggregationRoom[] = [
       { number: '103', billingStatus: 'paid' },
@@ -188,7 +188,7 @@ describe('MockBillingRepository', () => {
       { number: '205', billingStatus: 'paid' },
     ];
 
-    const result = repository.loadOwnerBillingAggregation(rooms);
+    const result = await repository.loadOwnerBillingAggregation(rooms);
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -197,10 +197,10 @@ describe('MockBillingRepository', () => {
     }
   });
 
-  it('loads slip verification queue from repository contract', () => {
+  it('loads slip verification queue from repository contract', async () => {
     const repository = new MockBillingRepository();
 
-    const result = repository.loadSlipVerificationQueue();
+    const result = await repository.loadSlipVerificationQueue();
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -210,9 +210,9 @@ describe('MockBillingRepository', () => {
     }
   });
 
-  it('reviews slip verification via repository orchestration', () => {
+  it('reviews slip verification via repository orchestration', async () => {
     const repository = new MockBillingRepository();
-    const queueResult = repository.loadSlipVerificationQueue();
+    const queueResult = await repository.loadSlipVerificationQueue();
 
     expect(queueResult.ok).toBe(true);
     if (!queueResult.ok || queueResult.value.length === 0) {
@@ -220,7 +220,7 @@ describe('MockBillingRepository', () => {
     }
 
     const target = queueResult.value[0];
-    const reviewResult = repository.reviewSlipVerification(target.id, 'approved');
+    const reviewResult = await repository.reviewSlipVerification(target.id, 'approved');
 
     expect(reviewResult.ok).toBe(true);
     if (reviewResult.ok) {
@@ -229,10 +229,10 @@ describe('MockBillingRepository', () => {
     }
   });
 
-  it('settles debt and marks room status through a single method', () => {
+  it('settles debt and marks room status through a single method', async () => {
     const repository = new MockBillingRepository();
 
-    const result = repository.settleDebtAndMarkRoomPaid('205');
+    const result = await repository.settleDebtAndMarkRoomPaid('205');
 
     expect(result.ok).toBe(true);
   });

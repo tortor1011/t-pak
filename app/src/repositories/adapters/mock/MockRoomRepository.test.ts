@@ -78,10 +78,10 @@ describe('MockRoomRepository', () => {
     detachMockWindow();
   });
 
-  it('returns rooms list from repository contract', () => {
+  it('returns rooms list from repository contract', async () => {
     const repository = new MockRoomRepository();
 
-    const result = repository.listRooms();
+    const result = await repository.listRooms();
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -92,25 +92,25 @@ describe('MockRoomRepository', () => {
     }
   });
 
-  it('returns safe empty billing state when room repository fails', () => {
+  it('returns safe empty billing state when room repository fails', async () => {
     setRepositories({
       roomRepository: {
-        listRooms: () => ({
+        listRooms: () => Promise.resolve({
           ok: false as const,
           error: {
             code: 'UNKNOWN_ERROR' as const,
             message: 'Simulated failure',
           },
         }),
-        applyBulkBaseRentOverrides: () => ({
+        applyBulkBaseRentOverrides: () => Promise.resolve({
           ok: true as const,
           value: {},
         }),
-        applyBulkRoomAdditionalChargeRuleIds: () => ({
+        applyBulkRoomAdditionalChargeRuleIds: () => Promise.resolve({
           ok: true as const,
           value: {},
         }),
-        resetBulkRoomAdditionalChargeOverrides: () => ({
+        resetBulkRoomAdditionalChargeOverrides: () => Promise.resolve({
           ok: true as const,
           value: {},
         }),
@@ -124,18 +124,18 @@ describe('MockRoomRepository', () => {
       notificationRepository,
     });
 
-    const state = buildOwnerBillingState();
+    const state = await buildOwnerBillingState();
 
     expect(state.rooms).toEqual([]);
     expect(state.summary.totalRooms).toBe(0);
     expect(state.totalOutstanding).toBe(0);
   });
 
-  it('returns repository error result when buildOwnerRooms throws', () => {
+  it('returns repository error result when buildOwnerRooms throws', async () => {
     const repository = new MockRoomRepository();
     const spy = vi
       .spyOn(repository, 'listRooms')
-      .mockReturnValueOnce({
+      .mockResolvedValueOnce({
         ok: false,
         error: {
           code: 'UNKNOWN_ERROR',
@@ -143,15 +143,15 @@ describe('MockRoomRepository', () => {
         },
       });
 
-    const result = repository.listRooms();
+    const result = await repository.listRooms();
 
     expect(result.ok).toBe(false);
     spy.mockRestore();
   });
 
-  it('applies bulk base-rent overrides via repository contract', () => {
+  it('applies bulk base-rent overrides via repository contract', async () => {
     const repository = new MockRoomRepository();
-    const result = repository.applyBulkBaseRentOverrides([101, 102], 6200);
+    const result = await repository.applyBulkBaseRentOverrides([101, 102], 6200);
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -161,9 +161,9 @@ describe('MockRoomRepository', () => {
     expect(dispatchEvent).toHaveBeenCalledTimes(1);
   });
 
-  it('applies and resets bulk additional-charge overrides via repository contract', () => {
+  it('applies and resets bulk additional-charge overrides via repository contract', async () => {
     const repository = new MockRoomRepository();
-    const applyResult = repository.applyBulkRoomAdditionalChargeRuleIds(
+    const applyResult = await repository.applyBulkRoomAdditionalChargeRuleIds(
       [101, 102],
       ['charge-common', 'charge-water']
     );
@@ -174,7 +174,7 @@ describe('MockRoomRepository', () => {
       expect(applyResult.value['102']).toEqual(['charge-common', 'charge-water']);
     }
 
-    const resetResult = repository.resetBulkRoomAdditionalChargeOverrides([101]);
+    const resetResult = await repository.resetBulkRoomAdditionalChargeOverrides([101]);
 
     expect(resetResult.ok).toBe(true);
     if (resetResult.ok) {

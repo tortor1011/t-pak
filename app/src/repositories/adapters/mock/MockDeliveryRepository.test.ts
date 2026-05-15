@@ -57,11 +57,11 @@ describe('MockDeliveryRepository', () => {
     detachMockWindow();
   });
 
-  it('completes delivery and queues LINE + app notifications', () => {
+  it('completes delivery and queues LINE + app notifications', async () => {
     const notificationRepository = new MockNotificationRepository();
     const deliveryRepository = new MockDeliveryRepository(notificationRepository);
 
-    const createResult = deliveryRepository.createTaskFromTenantRequest({
+    const createResult = await deliveryRepository.createTaskFromTenantRequest({
       tenantName: 'Delivery Test',
       roomNumber: '601',
       trackingNumber: 'TRACK-601',
@@ -81,10 +81,10 @@ describe('MockDeliveryRepository', () => {
       throw new Error('Expected created task to exist.');
     }
 
-    const startResult = deliveryRepository.startDeliveryTask(createdTask.id);
+    const startResult = await deliveryRepository.startDeliveryTask(createdTask.id);
     expect(startResult.ok).toBe(true);
 
-    const completeResult = deliveryRepository.completeDeliveryTask(createdTask.id, {
+    const completeResult = await deliveryRepository.completeDeliveryTask(createdTask.id, {
       proofPhotoUrl: '/proof-601.jpg',
       confirmationChecked: true,
     });

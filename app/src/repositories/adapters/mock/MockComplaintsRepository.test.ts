@@ -56,10 +56,10 @@ describe('MockComplaintsRepository', () => {
     detachMockWindow();
   });
 
-  it('loads complaints from repository contract', () => {
+  it('loads complaints from repository contract', async () => {
     const repository = new MockComplaintsRepository();
 
-    const result = repository.listComplaints();
+    const result = await repository.listComplaints();
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -69,9 +69,9 @@ describe('MockComplaintsRepository', () => {
     }
   });
 
-  it('updates complaint status and persists the update in queue storage', () => {
+  it('updates complaint status and persists the update in queue storage', async () => {
     const repository = new MockComplaintsRepository();
-    const complaintsResult = repository.listComplaints();
+    const complaintsResult = await repository.listComplaints();
 
     expect(complaintsResult.ok).toBe(true);
     if (!complaintsResult.ok) {
@@ -86,7 +86,7 @@ describe('MockComplaintsRepository', () => {
       throw new Error('Expected a complaint with new status.');
     }
 
-    const updateToInProgressResult = repository.updateComplaintStatus(
+    const updateToInProgressResult = await repository.updateComplaintStatus(
       targetComplaint.id,
       'in-progress'
     );
@@ -101,7 +101,7 @@ describe('MockComplaintsRepository', () => {
     );
     expect(inProgressComplaint?.status).toBe('in-progress');
 
-    const updateToResolvedResult = repository.updateComplaintStatus(
+    const updateToResolvedResult = await repository.updateComplaintStatus(
       targetComplaint.id,
       'resolved'
     );
