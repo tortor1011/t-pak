@@ -3,6 +3,9 @@
 # AGENTS.md
 Guidance for AI coding agents working in this repository.
 
+## IMPORTANT: after implement /context/agent-memory.md
+# make sure to update it to record our project context and history.
+
 ## Project Overview
 T-PAK (Estate Clarity) is a Thai-language Dormitory Management ERP and SaaS platform built with Next.js App Router, React, Tailwind CSS, TanStack Query (React Query), Prisma ORM, PostgreSQL (Supabase), and Auth.js v5 (NextAuth).
 Treat this as a production ERP/SaaS app. Changes to billing lifecycles, meter readings, slip verification workflows, tenant lease management, database schema, and role-based routing (Owner vs Tenant) need extra care and focused tests.

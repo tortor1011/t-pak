@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
+import NextAuth from 'next-auth';
+import { authConfig } from '@/lib/auth.config';
+
+const { auth } = NextAuth(authConfig);
 
 const LOCAL_ALLOWED_ORIGINS = ['http://localhost:3001', 'http://127.0.0.1:3001'];
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-/**
- * CORS middleware for the Owner app.
- *
- * Allows cross-origin requests from the Tenant app
- * to access /api/tenant/* endpoints.
- */
+// ─── Public routes (no auth required) ─────────────────────────
+const PUBLIC_PATHS = ['/login', '/register', '/api/auth'];
+// Routes that belong to the tenant API (CORS-only, no owner auth check)
+const TENANT_API_PREFIX = '/api/tenant';
 
 /**
  * Build the list of allowed CORS origins from the environment.
- * Called once at module load time — environment variables must be set
- * before the application starts (standard Next.js requirement).
+ * Called once at module load time.
  */
 function resolveAllowedOrigins(): string[] {
   const tenantAppUrl = process.env.TENANT_APP_URL?.trim();
@@ -56,30 +57,62 @@ function getCorsHeaders(origin: string | null): HeadersInit {
   return headers;
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
   const origin = request.headers.get('origin');
   const ownerOrigin = request.nextUrl.origin;
 
-  if (origin && origin !== ownerOrigin && !ALLOWED_ORIGINS.includes(origin)) {
-    return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
+  // ── 1. Tenant API routes: CORS only, no Owner auth check ──────
+  if (pathname.startsWith(TENANT_API_PREFIX)) {
+    if (origin && origin !== ownerOrigin && !ALLOWED_ORIGINS.includes(origin)) {
+      return NextResponse.json({ error: 'Origin not allowed' }, { status: 403 });
+    }
+
+    if (request.method === 'OPTIONS') {
+      return new NextResponse(null, {
+        status: 204,
+        headers: getCorsHeaders(origin),
+      });
+    }
+
+    const response = NextResponse.next();
+    const corsHeaders = getCorsHeaders(origin);
+    for (const [key, value] of Object.entries(corsHeaders)) {
+      response.headers.set(key, value);
+    }
+    return response;
   }
 
-  if (request.method === 'OPTIONS') {
-    return new NextResponse(null, {
-      status: 204,
-      headers: getCorsHeaders(origin),
-    });
+  // ── 2. Public paths: allow through without auth ───────────────
+  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
+    return NextResponse.next();
   }
 
-  const response = NextResponse.next();
-  const corsHeaders = getCorsHeaders(origin);
-  for (const [key, value] of Object.entries(corsHeaders)) {
-    response.headers.set(key, value);
+  // ── 3. Static assets / Next.js internals: allow through ───────
+  if (
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/favicon') ||
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|webp|woff2?|ttf|css|js)$/)
+  ) {
+    return NextResponse.next();
   }
 
-  return response;
+  // ── 4. Auth.js session check for all other routes ─────────────
+  const session = await auth();
+
+  if (!session?.user) {
+    // Not logged in → redirect to /login
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Logged in → allow through
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: '/api/tenant/:path*',
+  // Run on all routes except Next.js internals and static files
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
+
