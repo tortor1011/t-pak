@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { serverRepositories } from '@/repositories/server';
 import { calculateBillingSummary } from '@/services/billingSummary';
 
@@ -29,6 +28,15 @@ export async function GET() {
       );
     }
 
+    const slipQueueResult = await serverRepositories.billingRepository.loadSlipVerificationQueue();
+
+    if (!slipQueueResult.ok) {
+      return NextResponse.json(
+        { error: 'Failed to load slip queue' },
+        { status: 500 }
+      );
+    }
+
     const {
       pendingSlipCount,
       debtQueue,
@@ -42,6 +50,7 @@ export async function GET() {
       rooms,
       summary,
       pendingSlipCount,
+      slipQueue: slipQueueResult.value,
       debtQueue,
       activeDebtQueue,
       totalOutstanding,

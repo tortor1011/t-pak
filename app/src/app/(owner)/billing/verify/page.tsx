@@ -1,75 +1,45 @@
-'use client';
+ 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useRepositories } from '@/hooks/useRepositories';
-import type {
-  SlipReviewDecision,
-  SlipVerificationQueueItem,
-} from '@/repositories/billing/types';
+import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
 import { formatCurrency } from '@/utils/currency';
 import { getRelativeTime } from '@/utils/date';
 import PageHeader from '@/components/layout/PageHeader';
 
 export default function VerifySlipsPage() {
   const router = useRouter();
-  const { billingRepository } = useRepositories();
   const { t } = useLanguage();
-  const [queue, setQueue] = useState<SlipVerificationQueueItem[]>([]);
-
-  useEffect(() => {
-    billingRepository.loadSlipVerificationQueue().then((queueResult) => {
-      if (queueResult.ok) {
-        setQueue(queueResult.value);
-      }
-    });
-  }, [billingRepository]);
-  const [activeAction, setActiveAction] = useState<{
-    slipId: string;
-    decision: 'approved' | 'rejected';
-  } | null>(null);
-  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  const { billingState, isLoading, isError } = useOwnerBillingState();
+  const slipQueue = useMemo(() => billingState.slipQueue ?? [], [billingState.slipQueue]);
 
   const pendingQueue = useMemo(
-    () => queue.filter((item) => item.decision === 'pending'),
-    [queue]
+    () => slipQueue.filter((item) => item.decision === 'pending'),
+    [slipQueue]
   );
 
-  const handleReview = async (
-    slip: SlipVerificationQueueItem,
-    decision: SlipReviewDecision
-  ) => {
-    if (activeAction) return;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-surface pb-32 lg:pb-8">
+        <PageHeader title={t('page.verifyPaymentsTitle')} onBack={() => router.back()} />
+        <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-5xl mx-auto">
+          <p className="text-on-surface-variant text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-    setActiveAction({ slipId: slip.id, decision });
-    setActionFeedback(null);
-
-    try {
-      await new Promise<void>((resolve) => {
-        window.setTimeout(() => resolve(), 450);
-      });
-
-      const nextQueueResult = await billingRepository.reviewSlipVerification(
-        slip.id,
-        decision
-      );
-      if (!nextQueueResult.ok) {
-        setActionFeedback(nextQueueResult.error.message);
-        return;
-      }
-
-      setQueue(nextQueueResult.value);
-
-      setActionFeedback(
-        decision === 'approved'
-          ? t('verify.approvedFeedback', { room: slip.roomNumber })
-          : t('verify.rejectedFeedback', { room: slip.roomNumber })
-      );
-    } finally {
-      setActiveAction(null);
-    }
-  };
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-surface pb-32 lg:pb-8">
+        <PageHeader title={t('page.verifyPaymentsTitle')} onBack={() => router.back()} />
+        <div className="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-5xl mx-auto">
+          <p className="text-error text-sm">Failed to load slip queue.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface pb-32 lg:pb-8">
@@ -92,21 +62,9 @@ export default function VerifySlipsPage() {
           </span>
         </div>
 
-        {actionFeedback && (
-          <p className="text-sm font-medium text-secondary bg-secondary-container/30 rounded-xl px-4 py-3">
-            {actionFeedback}
-          </p>
-        )}
-
         {/* Slip Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {pendingQueue.map((slip) => {
-            const isActioningThisSlip = activeAction?.slipId === slip.id;
-            const isApproving =
-              isActioningThisSlip && activeAction?.decision === 'approved';
-            const isRejecting =
-              isActioningThisSlip && activeAction?.decision === 'rejected';
-
             return (
               <div
                 key={slip.id}
@@ -152,33 +110,6 @@ export default function VerifySlipsPage() {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => handleReview(slip, 'approved')}
-                  disabled={Boolean(activeAction)}
-                  className={`h-14 btn-primary-gradient text-on-primary font-bold rounded-xl transition-transform flex items-center justify-center gap-2 ${
-                    activeAction
-                      ? 'opacity-60 cursor-not-allowed'
-                      : 'active:scale-95'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-xl">check_circle</span>
-                  {isApproving ? t('verify.approving') : t('verify.approve')}
-                </button>
-                <button
-                  onClick={() => handleReview(slip, 'rejected')}
-                  disabled={Boolean(activeAction)}
-                  className={`h-14 bg-error-container/20 text-error font-bold rounded-xl transition-transform flex items-center justify-center gap-2 ${
-                    activeAction
-                      ? 'opacity-60 cursor-not-allowed'
-                      : 'active:scale-95'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-xl">cancel</span>
-                  {isRejecting ? t('verify.rejecting') : t('verify.reject')}
-                </button>
-              </div>
             </div>
             );
           })}

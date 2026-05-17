@@ -1,13 +1,14 @@
 import { BillingSummary, calculateBillingSummary } from '@/services/billingSummary';
 import { getRepositories } from '@/repositories';
 import { err, type Result } from '@/repositories/common/Result';
-import type { DebtCollectionQueueItem } from '@/repositories/billing/types';
+import type { DebtCollectionQueueItem, SlipVerificationQueueItem } from '@/repositories/billing/types';
 import { Room } from '@/types/room';
 
 export interface OwnerBillingState {
   rooms: Room[];
   summary: BillingSummary;
   pendingSlipCount: number;
+  slipQueue: SlipVerificationQueueItem[];
   debtQueue: DebtCollectionQueueItem[];
   activeDebtQueue: DebtCollectionQueueItem[];
   totalOutstanding: number;
@@ -24,6 +25,7 @@ export const EMPTY_OWNER_BILLING_STATE: OwnerBillingState = {
     vacantRooms: 0,
   },
   pendingSlipCount: 0,
+  slipQueue: [],
   debtQueue: [],
   activeDebtQueue: [],
   totalOutstanding: 0,
@@ -50,12 +52,14 @@ export async function buildOwnerBillingState(): Promise<OwnerBillingState> {
     activeDebtQueue,
     totalOutstanding,
   } = ownerBillingAggregationResult.value;
+  const slipQueueResult = await billingRepository.loadSlipVerificationQueue();
   const summary = calculateBillingSummary(rooms);
 
   return {
     rooms,
     summary,
     pendingSlipCount,
+    slipQueue: slipQueueResult.ok ? slipQueueResult.value : [],
     debtQueue,
     activeDebtQueue,
     totalOutstanding,
