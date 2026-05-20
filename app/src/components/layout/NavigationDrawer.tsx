@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { DRAWER_NAV_ITEMS } from '@/types/navigation';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -68,7 +69,10 @@ export default function NavigationDrawer({ isOpen, onClose }: NavigationDrawerPr
 
         {/* Logout */}
         <div className="mt-auto pt-4">
-          <button className="flex items-center gap-4 px-4 py-4 text-error hover:bg-error-container/20 rounded-xl transition-transform active:scale-95 w-full">
+          <button 
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="flex items-center gap-4 px-4 py-4 text-error hover:bg-error-container/20 rounded-xl transition-transform active:scale-95 w-full"
+          >
             <span className="material-symbols-outlined">logout</span>
             <span className="font-bold">{t('common.logout')}</span>
           </button>

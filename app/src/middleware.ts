@@ -108,7 +108,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // Logged in → allow through
-  return NextResponse.next();
+  const response = NextResponse.next();
+  // Ensure protected pages are not cached maliciously so "Back" button requires re-validating the session
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
+  
+  return response;
 }
 
 export const config = {

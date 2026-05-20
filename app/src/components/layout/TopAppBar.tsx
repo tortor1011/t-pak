@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { signOut } from 'next-auth/react';
 
 export const TOP_APP_BAR_MOBILE_QUERY = '(max-width: 1023px)';
 
@@ -149,6 +150,16 @@ export default function TopAppBar({
                 </div>
               )}
             </div>
+          )}
+          {isMobileViewport && (
+            <button
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="p-2 rounded-full text-slate-600 hover:bg-slate-50 hover:text-error transition-colors duration-200 active:scale-95 flex items-center justify-center"
+              aria-label="Log out"
+              title="Log out"
+            >
+              <span className="material-symbols-outlined text-error">logout</span>
+            </button>
           )}
         </div>
       </div>

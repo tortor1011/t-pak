@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { DRAWER_NAV_ITEMS } from '@/types/navigation';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -71,7 +72,10 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="px-3 pb-6 pt-2 border-t border-outline-variant/20 mt-2">
-        <button className="flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container/10 rounded-xl transition-all w-full font-medium text-sm">
+        <button 
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container/10 rounded-xl transition-all w-full font-medium text-sm"
+        >
           <span className="material-symbols-outlined text-xl">logout</span>
           <span>{t('common.logout')}</span>
         </button>
