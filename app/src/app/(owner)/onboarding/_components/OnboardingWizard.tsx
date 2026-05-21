@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import StepIndicator from "./StepIndicator";
-import PropertyProfileStep from "./steps/PropertyProfileStep";
-import PhysicalLayoutStep from "./steps/PhysicalLayoutStep";
-import UtilitiesFinancialsStep from "./steps/UtilitiesFinancialsStep";
-import ReviewLaunchStep from "./steps/ReviewLaunchStep";
+import StepIndicator from "@/app/(owner)/onboarding/_components/StepIndicator";
+import PropertyProfileStep from "@/app/(owner)/onboarding/_components/steps/PropertyProfileStep";
+import PhysicalLayoutStep from "@/app/(owner)/onboarding/_components/steps/PhysicalLayoutStep";
+import UtilitiesFinancialsStep from "@/app/(owner)/onboarding/_components/steps/UtilitiesFinancialsStep";
+import ReviewLaunchStep from "@/app/(owner)/onboarding/_components/steps/ReviewLaunchStep";
 
 // Zod Schemas
 export const roomTypeSchema = z.object({
@@ -30,7 +30,7 @@ export const onboardingSchema = z.object({
   roomsPerFloor: z.number().min(1, "Must have at least 1 room per floor").max(100, "Max 100 rooms"),
   roomTypeAssignment: z.enum(["ALL_SAME", "PER_FLOOR"]),
   // Map of floor number to room type id
-  floorAssignments: z.record(z.string().nullable()).optional(),
+  floorAssignments: z.record(z.string(), z.string().nullable()).optional(),
 
   // Step 3
   electricityRate: z.number().min(0).optional(),
