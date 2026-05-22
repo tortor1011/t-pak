@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { Building2, DoorClosed, Layers, Plus, Trash2 } from 'lucide-react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import type { OnboardingFormData } from '@/app/(owner)/onboarding/_components/OnboardingWizard';
+import type { OnboardingFormData } from '@/lib/validation/ownerOnboarding';
 
 const createRoomTypeId = () => {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {

@@ -1,7 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import confetti from 'canvas-confetti';
+import { useMemo } from 'react';
 import {
   Building2,
   CheckCircle2,
@@ -10,13 +9,15 @@ import {
   Rocket,
   Sparkles,
   Zap,
-  Droplet,
   Wallet,
 } from 'lucide-react';
-import type { OnboardingFormData } from '@/app/(owner)/onboarding/_components/OnboardingWizard';
+import type { OnboardingFormData } from '@/lib/validation/ownerOnboarding';
 
 interface ReviewLaunchStepProps {
   formData: OnboardingFormData;
+  onLaunch: () => void;
+  isSubmitting: boolean;
+  launched: boolean;
 }
 
 const WATER_RATE_LABEL: Record<string, string> = {
@@ -30,8 +31,7 @@ const formatCurrency = (value?: number) => {
   return `THB ${value.toLocaleString('th-TH')}`;
 };
 
-export default function ReviewLaunchStep({ formData }: ReviewLaunchStepProps) {
-  const [launched, setLaunched] = useState(false);
+export default function ReviewLaunchStep({ formData, onLaunch, isSubmitting, launched }: ReviewLaunchStepProps) {
 
   const summary = useMemo(() => {
     const totalRooms = Math.max(0, formData.floors) * Math.max(0, formData.roomsPerFloor);
@@ -57,27 +57,7 @@ export default function ReviewLaunchStep({ formData }: ReviewLaunchStepProps) {
     };
   }, [formData]);
 
-  const handleLaunch = () => {
-    if (launched) return;
-
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.7 },
-      colors: ['#004ac6', '#2563eb', '#7cf994', '#dbe1ff'],
-    });
-
-    setTimeout(() => {
-      confetti({
-        particleCount: 60,
-        spread: 120,
-        origin: { y: 0.6 },
-        colors: ['#004ac6', '#2563eb', '#dbe1ff'],
-      });
-    }, 300);
-
-    setLaunched(true);
-  };
+  const launchLabel = isSubmitting ? 'Launching...' : launched ? 'Launched' : 'Launch T-PAK';
 
   return (
     <div className="space-y-8">
@@ -228,11 +208,13 @@ export default function ReviewLaunchStep({ formData }: ReviewLaunchStepProps) {
         </div>
         <button
           type="button"
-          onClick={handleLaunch}
-          className="min-h-[56px] px-6 rounded-2xl btn-primary-gradient text-on-primary font-semibold inline-flex items-center gap-2 shadow-sm shadow-slate-200/50"
+          onClick={onLaunch}
+          disabled={isSubmitting || launched}
+          aria-busy={isSubmitting}
+          className="min-h-[56px] px-6 rounded-2xl btn-primary-gradient text-on-primary font-semibold inline-flex items-center gap-2 shadow-sm shadow-slate-200/50 disabled:opacity-70"
         >
           <Rocket className="h-5 w-5" />
-          Launch T-PAK
+          {launchLabel}
         </button>
       </section>
     </div>

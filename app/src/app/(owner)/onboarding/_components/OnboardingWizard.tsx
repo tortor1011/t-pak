@@ -1,87 +1,140 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import StepIndicator from "@/app/(owner)/onboarding/_components/StepIndicator";
-import PropertyProfileStep from "@/app/(owner)/onboarding/_components/steps/PropertyProfileStep";
-import PhysicalLayoutStep from "@/app/(owner)/onboarding/_components/steps/PhysicalLayoutStep";
-import UtilitiesFinancialsStep from "@/app/(owner)/onboarding/_components/steps/UtilitiesFinancialsStep";
-import ReviewLaunchStep from "@/app/(owner)/onboarding/_components/steps/ReviewLaunchStep";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import confetti from 'canvas-confetti';
+import { AlertTriangle } from 'lucide-react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { onboardingSchema, type OnboardingFormData } from '@/lib/validation/ownerOnboarding';
+import StepIndicator from '@/app/(owner)/onboarding/_components/StepIndicator';
+import PropertyProfileStep from '@/app/(owner)/onboarding/_components/steps/PropertyProfileStep';
+import PhysicalLayoutStep from '@/app/(owner)/onboarding/_components/steps/PhysicalLayoutStep';
+import UtilitiesFinancialsStep from '@/app/(owner)/onboarding/_components/steps/UtilitiesFinancialsStep';
+import ReviewLaunchStep from '@/app/(owner)/onboarding/_components/steps/ReviewLaunchStep';
 
-// Zod Schemas
-export const roomTypeSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1, "Room type name is required"),
-  baseRent: z.number().min(0, "Base rent must be positive"),
-  securityDeposit: z.number().min(0, "Security deposit must be positive"),
-});
-
-export const onboardingSchema = z.object({
-  // Step 1
-  propertyName: z.string().min(2, "Property Name is required"),
-  address: z.string().min(5, "Address is required"),
-  phone: z.string().min(9, "Valid phone number is required"),
-
-  // Step 2
-  roomTypes: z.array(roomTypeSchema).min(1, "At least one room type is required"),
-  floors: z.number().min(1, "Must have at least 1 floor").max(50, "Max 50 floors"),
-  roomsPerFloor: z.number().min(1, "Must have at least 1 room per floor").max(100, "Max 100 rooms"),
-  roomTypeAssignment: z.enum(["ALL_SAME", "PER_FLOOR"]),
-  // Map of floor number to room type id
-  floorAssignments: z.record(z.string(), z.string().nullable()).optional(),
-
-  // Step 3
-  electricityRate: z.number().min(0).optional(),
-  waterRate: z.number().min(0).optional(),
-  waterRateType: z.enum(["PER_UNIT", "PER_PERSON", "FIXED"]),
-  bankAccount: z.string().optional(),
-  promptPay: z.string().optional(),
-  bankName: z.string().optional(),
-});
-
-export type OnboardingFormData = z.infer<typeof onboardingSchema>;
-
-const STEPS = ["Property Profile", "Physical Layout", "Utilities", "Review & Launch"];
+const STEPS = ['Property Profile', 'Physical Layout', 'Utilities', 'Review & Launch'];
 
 export default function OnboardingWizard() {
   const [currentStep, setCurrentStep] = useState(0);
+  const router = useRouter();
+  const [toast, setToast] = useState<{ tone: 'error'; message: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [launchComplete, setLaunchComplete] = useState(false);
 
   const methods = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
-      propertyName: "",
-      address: "",
-      phone: "",
-      roomTypes: [{ id: "1", name: "Standard", baseRent: 3500, securityDeposit: 7000 }],
+      propertyName: '',
+      address: '',
+      phone: '',
+      roomTypes: [{ id: '1', name: 'Standard', baseRent: 3500, securityDeposit: 7000 }],
       floors: 1,
       roomsPerFloor: 10,
-      roomTypeAssignment: "ALL_SAME",
+      roomTypeAssignment: 'ALL_SAME',
       floorAssignments: {},
-      waterRateType: "PER_UNIT",
+      waterRateType: 'PER_UNIT',
     },
-    mode: "onTouched",
+    mode: 'onTouched',
   });
 
+  const formValues = methods.watch();
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
   const nextStep = async () => {
-    // Basic validation based on step
-    let fieldsToValidate: any[] = [];
-    if (currentStep === 0) fieldsToValidate = ["propertyName", "address", "phone"];
-    if (currentStep === 1) fieldsToValidate = ["roomTypes", "floors", "roomsPerFloor", "roomTypeAssignment", "floorAssignments"];
-    
+    const fieldsToValidate: any[] = [];
+    if (currentStep === 0) fieldsToValidate.push('propertyName', 'address', 'phone');
+    if (currentStep === 1) {
+      fieldsToValidate.push('roomTypes', 'floors', 'roomsPerFloor', 'roomTypeAssignment', 'floorAssignments');
+    }
+
     if (fieldsToValidate.length > 0) {
       const isStepValid = await methods.trigger(fieldsToValidate as any);
       if (!isStepValid) return;
     }
-    
+
     setCurrentStep((prev) => Math.min(prev + 1, STEPS.length - 1));
   };
 
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
+  const handleLaunch = methods.handleSubmit(async (data) => {
+    if (isSubmitting || launchComplete) return;
+
+    setIsSubmitting(true);
+    setToast(null);
+
+    try {
+      const response = await fetch('/api/owner/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        let message = 'Failed to launch onboarding.';
+        try {
+          const payload = await response.json();
+          message = payload?.error ?? payload?.message ?? message;
+        } catch {
+          message = 'Failed to launch onboarding.';
+        }
+
+        setToast({ tone: 'error', message });
+        setIsSubmitting(false);
+        return;
+      }
+
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.7 },
+        colors: ['#004ac6', '#2563eb', '#7cf994', '#dbe1ff'],
+      });
+
+      setTimeout(() => {
+        confetti({
+          particleCount: 60,
+          spread: 120,
+          origin: { y: 0.6 },
+          colors: ['#004ac6', '#2563eb', '#dbe1ff'],
+        });
+      }, 300);
+
+      setLaunchComplete(true);
+      setIsSubmitting(false);
+
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1200);
+    } catch (error) {
+      setToast({ tone: 'error', message: 'Failed to launch onboarding. Please try again.' });
+      setIsSubmitting(false);
+    }
+  });
+
   return (
     <FormProvider {...methods}>
+      {toast && (
+        <div className="fixed right-6 top-6 z-50 w-[320px] rounded-2xl bg-surface-container-lowest p-4 shadow-[0_20px_50px_rgba(18,28,40,0.08)]">
+          <div className="flex gap-3">
+            <div className="h-10 w-10 rounded-full bg-error-container flex items-center justify-center">
+              <AlertTriangle className="h-5 w-5 text-error" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-semibold text-on-surface">Launch failed</p>
+              <p className="text-sm text-on-surface-variant" role="status" aria-live="polite">
+                {toast.message}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col h-full">
         <div className="p-6 border-b border-gray-100 bg-white">
           <StepIndicator currentStep={currentStep} steps={STEPS} />
@@ -92,7 +145,14 @@ export default function OnboardingWizard() {
             {currentStep === 0 && <PropertyProfileStep />}
             {currentStep === 1 && <PhysicalLayoutStep />}
             {currentStep === 2 && <UtilitiesFinancialsStep />}
-            {currentStep === 3 && <ReviewLaunchStep formData={methods.getValues()} />}
+            {currentStep === 3 && (
+              <ReviewLaunchStep
+                formData={formValues}
+                onLaunch={handleLaunch}
+                isSubmitting={isSubmitting}
+                launched={launchComplete}
+              />
+            )}
           </form>
         </div>
 
@@ -105,7 +165,7 @@ export default function OnboardingWizard() {
           >
             Back
           </button>
-          
+
           {currentStep < STEPS.length - 1 ? (
             <button
               type="button"

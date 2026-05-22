@@ -2,7 +2,7 @@
 
 import { Building2, MapPin, Phone } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
-import type { OnboardingFormData } from '@/app/(owner)/onboarding/_components/OnboardingWizard';
+import type { OnboardingFormData } from '@/lib/validation/ownerOnboarding';
 
 export default function PropertyProfileStep() {
   const {

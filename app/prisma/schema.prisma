@@ -16,13 +16,45 @@ model User {
   phone        String?
   lineId       String?
   avatar       String?
+  isOnboarded  Boolean   @default(false)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   accounts     Account[]
   sessions     Session[]
+  properties   Property[]
   tenant       Tenant?
 
   @@map("users")
+}
+
+model Property {
+  id        String   @id @default(cuid())
+  ownerId   String
+  name      String
+  address   String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  owner     User     @relation(fields: [ownerId], references: [id])
+  settings  PropertySettings?
+  roomTypes RoomType[]
+  rooms     Room[]
+
+  @@map("properties")
+}
+
+model RoomType {
+  id              String   @id @default(cuid())
+  propertyId      String
+  name            String
+  baseRent        Float
+  securityDeposit Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  property        Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  rooms           Room[]
+
+  @@map("room_types")
 }
 
 model Room {
@@ -30,6 +62,8 @@ model Room {
   number        String         @unique
   floor         Int
   building      String         @default("A")
+  propertyId    String?
+  roomTypeId    String?
   occupancy     RoomOccupancy  @default(vacant)
   billingStatus BillingStatus  @default(none)
   baseRent      Float
@@ -41,6 +75,8 @@ model Room {
   complaints    Complaint[]
   deliveryTasks DeliveryTask[]
   meterReadings MeterReading[]
+  property      Property?      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  roomType      RoomType?      @relation(fields: [roomTypeId], references: [id])
   tenant        Tenant?
   vehicles      Vehicle[]
 
@@ -182,13 +218,19 @@ model Vehicle {
 
 model PropertySettings {
   id                    String   @id @default(cuid())
+  propertyId            String?  @unique
   electricityRate       Float    @default(8)
   waterRate             Float    @default(20)
+  waterRateType         WaterRateType @default(PER_UNIT)
   lateFee               Float    @default(200)
   lateFeeDay            Int      @default(5)
+  bankName              String?
+  bankAccount           String?
+  promptPay             String?
   additionalChargeRules Json     @default("[]")
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  property              Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@map("property_settings")
 }
@@ -305,6 +347,12 @@ enum VehicleStatus {
   verified
   unregistered
   inactive
+}
+
+enum WaterRateType {
+  PER_UNIT
+  PER_PERSON
+  FIXED
 }
 
 enum NotificationChannel {

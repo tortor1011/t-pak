@@ -129,6 +129,27 @@ exports.Prisma.UserScalarFieldEnum = {
   phone: 'phone',
   lineId: 'lineId',
   avatar: 'avatar',
+  isOnboarded: 'isOnboarded',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PropertyScalarFieldEnum = {
+  id: 'id',
+  ownerId: 'ownerId',
+  name: 'name',
+  address: 'address',
+  phone: 'phone',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RoomTypeScalarFieldEnum = {
+  id: 'id',
+  propertyId: 'propertyId',
+  name: 'name',
+  baseRent: 'baseRent',
+  securityDeposit: 'securityDeposit',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -138,6 +159,8 @@ exports.Prisma.RoomScalarFieldEnum = {
   number: 'number',
   floor: 'floor',
   building: 'building',
+  propertyId: 'propertyId',
+  roomTypeId: 'roomTypeId',
   occupancy: 'occupancy',
   billingStatus: 'billingStatus',
   baseRent: 'baseRent',
@@ -259,10 +282,15 @@ exports.Prisma.VehicleScalarFieldEnum = {
 
 exports.Prisma.PropertySettingsScalarFieldEnum = {
   id: 'id',
+  propertyId: 'propertyId',
   electricityRate: 'electricityRate',
   waterRate: 'waterRate',
+  waterRateType: 'waterRateType',
   lateFee: 'lateFee',
   lateFeeDay: 'lateFeeDay',
+  bankName: 'bankName',
+  bankAccount: 'bankAccount',
+  promptPay: 'promptPay',
   additionalChargeRules: 'additionalChargeRules',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -392,8 +420,16 @@ exports.VehicleStatus = exports.$Enums.VehicleStatus = {
   inactive: 'inactive'
 };
 
+exports.WaterRateType = exports.$Enums.WaterRateType = {
+  PER_UNIT: 'PER_UNIT',
+  PER_PERSON: 'PER_PERSON',
+  FIXED: 'FIXED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
+  Property: 'Property',
+  RoomType: 'RoomType',
   Room: 'Room',
   Tenant: 'Tenant',
   Bill: 'Bill',
