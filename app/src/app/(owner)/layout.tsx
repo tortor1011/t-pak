@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import ServiceNotificationPanel from '@/components/layout/ServiceNotificationPanel';
 import TopAppBar from '@/components/layout/TopAppBar';
@@ -71,14 +71,33 @@ function OwnerShell({
   );
 }
 
-export default function OwnerLayout({
+function OnboardingShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
+    <div className="min-h-screen bg-surface">
+      <main>{children}</main>
+    </div>
+  );
+}
+
+export default function OwnerLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const isOnboarding = pathname.startsWith('/onboarding');
+
+  return (
     <LanguageProvider>
-      <OwnerShell>{children}</OwnerShell>
+      {isOnboarding ? (
+        <OnboardingShell>{children}</OnboardingShell>
+      ) : (
+        <OwnerShell>{children}</OwnerShell>
+      )}
     </LanguageProvider>
   );
 }

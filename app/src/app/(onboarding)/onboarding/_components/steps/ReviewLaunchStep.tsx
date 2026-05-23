@@ -32,7 +32,6 @@ const formatCurrency = (value?: number) => {
 };
 
 export default function ReviewLaunchStep({ formData, onLaunch, isSubmitting, launched }: ReviewLaunchStepProps) {
-
   const summary = useMemo(() => {
     const totalRooms = Math.max(0, formData.floors) * Math.max(0, formData.roomsPerFloor);
 
