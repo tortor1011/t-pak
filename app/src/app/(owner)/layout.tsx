@@ -1,7 +1,7 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import ServiceNotificationPanel from '@/components/layout/ServiceNotificationPanel';
 import TopAppBar from '@/components/layout/TopAppBar';
 import BottomNavBar from '@/components/layout/BottomNavBar';
@@ -45,7 +45,7 @@ function OwnerShell({
           showMenu={false}
           notificationUnreadCount={unreadCount}
           isNotificationPanelOpen={isNotificationPanelOpen}
-          onNotificationToggle={() => 
+          onNotificationToggle={() =>
             setIsNotificationPanelOpen((isOpen) => !isOpen)
           }
           onNotificationClose={() => setIsNotificationPanelOpen(false)}
@@ -71,33 +71,14 @@ function OwnerShell({
   );
 }
 
-function OnboardingShell({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="min-h-screen bg-surface">
-      <main>{children}</main>
-    </div>
-  );
-}
-
 export default function OwnerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const isOnboarding = pathname.startsWith('/onboarding');
-
   return (
     <LanguageProvider>
-      {isOnboarding ? (
-        <OnboardingShell>{children}</OnboardingShell>
-      ) : (
-        <OwnerShell>{children}</OwnerShell>
-      )}
+      <OwnerShell>{children}</OwnerShell>
     </LanguageProvider>
   );
 }

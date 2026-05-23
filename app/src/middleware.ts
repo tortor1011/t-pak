@@ -107,6 +107,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // ── 5. Onboarding gate (OWNER/ADMIN only, JWT-only — no DB) ───
+  if (session.user.role === 'ADMIN') {
+    const isOnboarded = session.user.isOnboarded;
+
+    // Not yet onboarded → force to /onboarding (skip if already there)
+    if (!isOnboarded && pathname !== '/onboarding') {
+      return NextResponse.redirect(new URL('/onboarding', request.url));
+    }
+
+    // Already onboarded → prevent re-running the setup wizard
+    if (isOnboarded && pathname === '/onboarding') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+  }
+
   // Logged in → allow through
   const response = NextResponse.next();
   // Ensure protected pages are not cached maliciously so "Back" button requires re-validating the session

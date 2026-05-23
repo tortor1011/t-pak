@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import confetti from 'canvas-confetti';
 import { AlertTriangle } from 'lucide-react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -18,6 +19,7 @@ const STEPS = ['Property Profile', 'Physical Layout', 'Utilities', 'Review & Lau
 export default function OnboardingWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const router = useRouter();
+  const { update } = useSession();
   const [toast, setToast] = useState<{ tone: 'error'; message: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [launchComplete, setLaunchComplete] = useState(false);
@@ -109,8 +111,12 @@ export default function OnboardingWizard() {
       setLaunchComplete(true);
       setIsSubmitting(false);
 
-      setTimeout(() => {
+      // Rewrite the JWT cookie so middleware sees isOnboarded: true before navigation.
+      // Must await before pushing to avoid the onboarding gate redirect loop.
+      setTimeout(async () => {
+        await update({ isOnboarded: true });
         router.push('/dashboard');
+        router.refresh();
       }, 1200);
     } catch (error) {
       setToast({ tone: 'error', message: 'Failed to launch onboarding. Please try again.' });
