@@ -7,11 +7,11 @@ import { AlertTriangle } from 'lucide-react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { onboardingSchema, type OnboardingFormData } from '@/lib/validation/ownerOnboarding';
-import StepIndicator from '@/app/(owner)/onboarding/_components/StepIndicator';
-import PropertyProfileStep from '@/app/(owner)/onboarding/_components/steps/PropertyProfileStep';
-import PhysicalLayoutStep from '@/app/(owner)/onboarding/_components/steps/PhysicalLayoutStep';
-import UtilitiesFinancialsStep from '@/app/(owner)/onboarding/_components/steps/UtilitiesFinancialsStep';
-import ReviewLaunchStep from '@/app/(owner)/onboarding/_components/steps/ReviewLaunchStep';
+import StepIndicator from './StepIndicator';
+import PropertyProfileStep from './steps/PropertyProfileStep';
+import PhysicalLayoutStep from './steps/PhysicalLayoutStep';
+import UtilitiesFinancialsStep from './steps/UtilitiesFinancialsStep';
+import ReviewLaunchStep from './steps/ReviewLaunchStep';
 
 const STEPS = ['Property Profile', 'Physical Layout', 'Utilities', 'Review & Launch'];
 
