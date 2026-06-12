@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ADDITIONAL_CHARGE_NAME_MAX_LENGTH,
   ADDITIONAL_CHARGE_RULE_LIMIT,
@@ -10,7 +11,6 @@ import {
 } from '@/services/propertySettings';
 import { formatCurrency } from '@/utils/currency';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useRepositories } from '@/hooks/useRepositories';
 
 interface AdditionalChargeRuleFormItem {
   id: string;
@@ -110,7 +110,7 @@ function areAdditionalChargeRulesEqual(
 
 export default function SettingsPage() {
   const { language } = useLanguage();
-  const { settingsRepository } = useRepositories();
+  const queryClient = useQueryClient();
   const text = useMemo(
     () =>
       language === 'th'
@@ -214,15 +214,19 @@ export default function SettingsPage() {
     [language]
   );
 
-  const initialSettings = useMemo<PropertySettingsValues>(() => {
-    const result = settingsRepository.loadPropertySettings();
-    const loaded = result.ok
-      ? result.value
-      : {
-          ...DEFAULT_PROPERTY_SETTINGS,
-          updatedAt: new Date().toISOString(),
-        };
 
+  const { data: remoteSettings } = useQuery<PropertySettingsValues & { updatedAt: string }>(
+    {
+      queryKey: ['settings'],
+      queryFn: () => fetch('/api/settings').then((r) => r.json()),
+    }
+  );
+
+  const initialSettings = useMemo<PropertySettingsValues>(() => {
+    const loaded = remoteSettings ?? {
+      ...DEFAULT_PROPERTY_SETTINGS,
+      updatedAt: new Date().toISOString(),
+    };
     return {
       electricityRate: loaded.electricityRate,
       waterRate: loaded.waterRate,
@@ -230,13 +234,24 @@ export default function SettingsPage() {
       lateFeeDay: loaded.lateFeeDay,
       additionalChargeRules: loaded.additionalChargeRules,
     };
-  }, [settingsRepository]);
+  }, [remoteSettings]);
 
-  const [savedSettings, setSavedSettings] =
-    useState<PropertySettingsValues>(initialSettings);
+  const [savedSettings, setSavedSettings] = useState<PropertySettingsValues>({
+    ...DEFAULT_PROPERTY_SETTINGS,
+  });
   const [form, setForm] = useState<SettingsFormState>(() =>
-    toFormState(initialSettings)
+    toFormState({ ...DEFAULT_PROPERTY_SETTINGS })
   );
+
+  // Sync form when remote data loads for the first time
+  useEffect(() => {
+    if (remoteSettings) {
+      setSavedSettings(initialSettings);
+      setForm(toFormState(initialSettings));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remoteSettings]);
+
   const [isSaving, setIsSaving] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -499,18 +514,20 @@ export default function SettingsPage() {
     setSaveFeedback(null);
 
     try {
-      await new Promise<void>((resolve) => {
-        window.setTimeout(() => resolve(), 500);
+      const res = await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsedValues),
       });
 
-      const savedSnapshotResult = settingsRepository.savePropertySettings(parsedValues);
-      if (!savedSnapshotResult.ok) {
-        setSaveError(savedSnapshotResult.error.message);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setSaveError(err.error ?? 'Failed to save settings');
         return;
       }
 
-      const savedSnapshot = savedSnapshotResult.value;
-
+      const savedSnapshot = await res.json();
+      queryClient.setQueryData(['settings'], savedSnapshot);
       setSavedSettings(parsedValues);
       setForm(toFormState(parsedValues));
       setSaveFeedback(
@@ -519,6 +536,8 @@ export default function SettingsPage() {
           new Date(savedSnapshot.updatedAt).toLocaleTimeString()
         )
       );
+    } catch {
+      setSaveError('Network error. Please try again.');
     } finally {
       setIsSaving(false);
     }

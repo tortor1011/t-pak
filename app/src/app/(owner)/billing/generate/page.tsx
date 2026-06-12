@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import PageHeader from '@/components/layout/PageHeader';
 import FilterTabs from '@/components/ui/FilterTabs';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -230,17 +231,12 @@ function buildPrintableDocumentHtml(document: PrintableBillDocument): string {
 export default function GenerateBillsPage() {
   const router = useRouter();
   const { language, t } = useLanguage();
-  const { notificationRepository, roomRepository } = useRepositories();
+  const { notificationRepository } = useRepositories(); // notification stays mock (future feature)
 
-  const [rooms, setRooms] = useState<Room[]>([]);
-
-  useEffect(() => {
-    roomRepository.listRooms().then((roomsResult) => {
-      if (roomsResult.ok) {
-        setRooms(roomsResult.value);
-      }
-    });
-  }, [roomRepository]);
+  const { data: rooms = [] } = useQuery<Room[]>({
+    queryKey: ['rooms'],
+    queryFn: () => fetch('/api/rooms').then((r) => r.json()),
+  });
 
   const additionalChargeContext = useMemo(
     () => buildRoomAdditionalChargeContext(),

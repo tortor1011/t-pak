@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import StatusBadge from '@/components/ui/StatusBadge';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useRepositories } from '@/hooks/useRepositories';
 import type { Room } from '@/types/room';
 import { formatCurrency } from '@/utils/currency';
 
@@ -74,18 +74,15 @@ function sortRoomsByNumber(rooms: Room[]): Room[] {
 export default function TenantLifecycleRoomSelector({ mode }: TenantLifecycleRoomSelectorProps) {
   const router = useRouter();
   const { language } = useLanguage();
-  const { roomRepository } = useRepositories();
   const [selectedFloor, setSelectedFloor] = useState<FloorFilter>('all');
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
-  const [rooms, setRooms] = useState<Room[]>([]);
 
-  useEffect(() => {
-    roomRepository.listRooms().then((result) => {
-      if (result.ok) {
-        setRooms(sortRoomsByNumber(result.value));
-      }
-    });
-  }, [roomRepository]);
+  const { data: rawRooms = [], isLoading } = useQuery<Room[]>({
+    queryKey: ['rooms'],
+    queryFn: () => fetch('/api/rooms').then((r) => r.json()),
+  });
+
+  const rooms = useMemo(() => sortRoomsByNumber(rawRooms), [rawRooms]);
 
   const text =
     language === 'th'
@@ -123,23 +120,6 @@ export default function TenantLifecycleRoomSelector({ mode }: TenantLifecycleRoo
           continueAction: mode === 'move-in' ? 'Start Move-in' : 'Open Move-out Settlement',
           goToRoom: 'Go to Room',
         };
-
-  useEffect(() => {
-    const refreshRooms = async () => {
-      const result = await roomRepository.listRooms();
-      if (result.ok) {
-        setRooms(sortRoomsByNumber(result.value));
-      }
-    };
-
-    window.addEventListener('storage', refreshRooms);
-    window.addEventListener('estate_clarity.billing_state_updated', refreshRooms);
-
-    return () => {
-      window.removeEventListener('storage', refreshRooms);
-      window.removeEventListener('estate_clarity.billing_state_updated', refreshRooms);
-    };
-  }, [roomRepository]);
 
   const floorList = useMemo(() => {
     return [...new Set(rooms.map((room) => room.floor))].sort((a, b) => a - b);
@@ -212,7 +192,13 @@ export default function TenantLifecycleRoomSelector({ mode }: TenantLifecycleRoo
         </div>
       </section>
 
-      {visibleRooms.length === 0 ? (
+      {isLoading ? (
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-28 bg-surface-container-lowest rounded-2xl animate-pulse" />
+          ))}
+        </section>
+      ) : visibleRooms.length === 0 ? (
         <section className="bg-surface-container-low rounded-2xl p-6 text-center">
           <p className="text-on-surface font-bold">{text.noRoomsFound}</p>
           <p className="text-sm text-on-surface-variant mt-1">{text.noRoomsDescription}</p>

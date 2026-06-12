@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import {
   buildRoomAdditionalChargeContext,
   calculateAdditionalChargeForRoomNumber,
@@ -13,54 +14,49 @@ import { formatCurrency } from '@/utils/currency';
 import StatusBadge from '@/components/ui/StatusBadge';
 import PageHeader from '@/components/layout/PageHeader';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useRepositories } from '@/hooks/useRepositories';
+
+interface RoomDetail {
+  id: string;
+  number: string;
+  floor: number;
+  building: string;
+  occupancy: string;
+  billingStatus: string;
+  baseRent: number;
+  currentBill: number;
+  amenities: string[];
+  tenantId: string | null;
+  tenantName: string | null;
+  tenantAvatar: string | null;
+  tenantPhone: string | null;
+  tenantLineId: string | null;
+  moveInDate: string | null;
+  contractEnd: string | null;
+  latestMeterReading: {
+    electricityPrevious: number;
+    electricityCurrent: number | null;
+    waterPrevious: number;
+    waterCurrent: number | null;
+    readingDate: string;
+  } | null;
+  bills: BillItem[];
+}
 
 export default function RoomDetailPage() {
   const router = useRouter();
   const { language, t } = useLanguage();
-  const { roomRepository, billingRepository } = useRepositories();
   const params = useParams();
   const roomId = typeof params.id === 'string' ? params.id : '';
-  const [rooms, setRooms] = useState<any[]>([]);
-  const [roomBills, setRoomBills] = useState<BillItem[]>([]);
 
-  useEffect(() => {
-    const refreshRoomsState = async () => {
-      const roomsResult = await roomRepository.listRooms();
-      if (roomsResult.ok) {
-        setRooms(roomsResult.value);
-      }
-    };
+  const { data: room, isLoading } = useQuery<RoomDetail>({
+    queryKey: ['room', roomId],
+    queryFn: () => fetch(`/api/rooms/${roomId}`).then((r) => r.json()),
+    enabled: !!roomId,
+  });
 
-    const refreshRoomBills = async () => {
-      if (!roomId) {
-        setRoomBills([]);
-        return;
-      }
-
-      const billsResult = await billingRepository.loadRoomBills(roomId);
-      if (billsResult.ok) {
-        setRoomBills(billsResult.value);
-      }
-    };
-
-    refreshRoomsState();
-    refreshRoomBills();
-
-    window.addEventListener('storage', refreshRoomsState);
-    window.addEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
-    window.addEventListener('storage', refreshRoomBills);
-    window.addEventListener('estate_clarity.billing_state_updated', refreshRoomBills);
-
-    return () => {
-      window.removeEventListener('storage', refreshRoomsState);
-      window.removeEventListener('estate_clarity.billing_state_updated', refreshRoomsState);
-      window.removeEventListener('storage', refreshRoomBills);
-      window.removeEventListener('estate_clarity.billing_state_updated', refreshRoomBills);
-    };
-  }, [billingRepository, roomId, roomRepository]);
-  const room = rooms.find((r) => r.id === roomId);
+  const roomBills = room?.bills ?? [];
   const [showModal, setShowModal] = useState(false);
+
   const lifecycleText =
     language === 'th'
       ? {
@@ -117,6 +113,14 @@ export default function RoomDetailPage() {
     return calculateAdditionalChargeForRoomNumber(room.number, additionalChargeContext);
   }, [additionalChargeContext, room]);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <span className="material-symbols-outlined animate-spin text-primary text-4xl">progress_activity</span>
+      </div>
+    );
+  }
+
   if (!room) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
@@ -153,8 +157,8 @@ export default function RoomDetailPage() {
               <h2 className="text-2xl font-extrabold tracking-tight text-on-surface">
                 {room.tenantName ?? t('roomDetail.vacantRoom')}
               </h2>
-              {room.tenantName && (
-                <p className="text-on-surface-variant font-medium">+66 81 234 5678</p>
+              {room.tenantPhone && (
+                <p className="text-on-surface-variant font-medium">{room.tenantPhone}</p>
               )}
             </div>
           </div>
@@ -177,11 +181,15 @@ export default function RoomDetailPage() {
           <div className="space-y-4 pt-4 border-t border-surface-container">
             <div className="flex justify-between items-center">
               <span className="text-on-surface-variant font-medium">{t('roomDetail.moveInDate')}</span>
-              <span className="text-on-surface font-semibold">{t('roomDetail.moveInDateValue')}</span>
+              <span className="text-on-surface font-semibold">
+                {room.moveInDate ?? '—'}
+              </span>
             </div>
             <div className="flex justify-between items-center bg-error-container/20 p-3 rounded-xl">
               <span className="text-on-tertiary-fixed-variant font-bold">{t('roomDetail.contractExpires')}</span>
-              <span className="text-error font-extrabold">{t('roomDetail.contractExpiresValue')}</span>
+              <span className="text-error font-extrabold">
+                {room.contractEnd ?? '—'}
+              </span>
             </div>
           </div>
         </section>
@@ -198,7 +206,8 @@ export default function RoomDetailPage() {
                 <span className="text-xs font-bold uppercase opacity-70">{t('roomDetail.electricity')}</span>
               </div>
               <p className="text-xl font-bold">
-                120 <span className="text-sm font-medium opacity-80">kWh</span>
+                {room.latestMeterReading?.electricityCurrent ?? room.latestMeterReading?.electricityPrevious ?? '—'}{' '}
+                <span className="text-sm font-medium opacity-80">kWh</span>
               </p>
             </div>
             <div className="bg-white/10 rounded-2xl p-4 backdrop-blur-sm">
@@ -207,7 +216,8 @@ export default function RoomDetailPage() {
                 <span className="text-xs font-bold uppercase opacity-70">{t('roomDetail.water')}</span>
               </div>
               <p className="text-xl font-bold">
-                8 <span className="text-sm font-medium opacity-80">m³</span>
+                {room.latestMeterReading?.waterCurrent ?? room.latestMeterReading?.waterPrevious ?? '—'}{' '}
+                <span className="text-sm font-medium opacity-80">m³</span>
               </p>
             </div>
           </div>
