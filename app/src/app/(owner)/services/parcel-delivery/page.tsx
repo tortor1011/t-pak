@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PageHeader from '@/components/layout/PageHeader';
 import SearchInput from '@/components/ui/SearchInput';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRepositories } from '@/hooks/useRepositories';
-import { DELIVERY_STATE_UPDATED_EVENT } from '@/services/deliveryTaskQueue';
 import { NOTIFICATION_UPDATED_EVENT } from '@/services/notificationGateway';
 import type { DeliveryTask, DeliveryTaskStatus } from '@/types/delivery';
 import { getRelativeTime } from '@/utils/date';
@@ -43,27 +43,23 @@ function getStatusClass(status: DeliveryTaskStatus): string {
 export default function ParcelDeliveryPage() {
   const router = useRouter();
   const { language } = useLanguage();
-  const { deliveryRepository, notificationRepository } = useRepositories();
+  const { notificationRepository } = useRepositories(); // notification stays mock (future)
+  const queryClient = useQueryClient();
 
   const [search, setSearch] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const [tasks, setTasks] = useState<DeliveryTask[]>([]);
-
   const [notificationOutboxCount, setNotificationOutboxCount] = useState<number>(0);
 
-  useEffect(() => {
-    deliveryRepository.listDeliveryTasks().then((result) => {
-      if (result.ok) {
-        setTasks(result.value);
-      }
-    });
+  const { data: tasks = [] } = useQuery<DeliveryTask[]>({
+    queryKey: ['delivery'],
+    queryFn: () => fetch('/api/delivery').then((r) => r.json()),
+  });
 
-    const resultOutbox = notificationRepository.listNotificationOutbox();
-    if (resultOutbox.ok) {
-      setNotificationOutboxCount(resultOutbox.value.length);
-    }
-  }, [deliveryRepository, notificationRepository]);
+  // Notification outbox is still localStorage-backed (future feature)
+  useState(() => {
+    const result = notificationRepository.listNotificationOutbox();
+    if (result.ok) setNotificationOutboxCount(result.value.length);
+  });
 
   const text =
     language === 'th'
@@ -114,34 +110,6 @@ export default function ParcelDeliveryPage() {
           },
         };
 
-  useEffect(() => {
-    const refreshTasks = async () => {
-      const result = await deliveryRepository.listDeliveryTasks();
-      if (result.ok) {
-        setTasks(result.value);
-      }
-    };
-
-    const refreshOutbox = () => {
-      const result = notificationRepository.listNotificationOutbox();
-      if (result.ok) {
-        setNotificationOutboxCount(result.value.length);
-      }
-    };
-
-    window.addEventListener('storage', refreshTasks);
-    window.addEventListener(DELIVERY_STATE_UPDATED_EVENT, refreshTasks);
-    window.addEventListener('storage', refreshOutbox);
-    window.addEventListener(NOTIFICATION_UPDATED_EVENT, refreshOutbox);
-
-    return () => {
-      window.removeEventListener('storage', refreshTasks);
-      window.removeEventListener(DELIVERY_STATE_UPDATED_EVENT, refreshTasks);
-      window.removeEventListener('storage', refreshOutbox);
-      window.removeEventListener(NOTIFICATION_UPDATED_EVENT, refreshOutbox);
-    };
-  }, [deliveryRepository, notificationRepository]);
-
   const visibleTasks = filterTasks(tasks, search);
   const pendingCount = visibleTasks.filter((task) => task.status === 'pending').length;
   const inProgressCount = visibleTasks.filter(
@@ -151,13 +119,20 @@ export default function ParcelDeliveryPage() {
 
   const handleOpenProofFlow = async (task: DeliveryTask) => {
     if (task.status === 'pending') {
-      const startResult = await deliveryRepository.startDeliveryTask(task.id);
-      if (!startResult.ok) {
-        setErrorMessage(startResult.error.message);
+      const res = await fetch(`/api/delivery/${task.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start' }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setErrorMessage(err.error ?? 'Failed to start delivery');
         return;
       }
-
-      setTasks(startResult.value);
+      // Optimistically update the task status in the cache
+      queryClient.setQueryData<DeliveryTask[]>(['delivery'], (old = []) =>
+        old.map((t) => (t.id === task.id ? { ...t, status: 'in-progress' as DeliveryTaskStatus } : t))
+      );
     }
 
     router.push(`/services/parcel-delivery/${task.id}`);

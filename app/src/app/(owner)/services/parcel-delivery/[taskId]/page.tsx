@@ -1,30 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import PageHeader from '@/components/layout/PageHeader';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useRepositories } from '@/hooks/useRepositories';
+import type { DeliveryTask } from '@/types/delivery';
 
 export default function ParcelDeliveryProofPage() {
   const router = useRouter();
   const params = useParams();
   const { language } = useLanguage();
-  const { deliveryRepository } = useRepositories();
+  const queryClient = useQueryClient();
 
   const taskId = typeof params.taskId === 'string' ? params.taskId : '';
 
-  const [task, setTask] = useState<any>(null);
-
-  useEffect(() => {
-    if (taskId) {
-      deliveryRepository.findDeliveryTaskById(taskId).then((taskResult) => {
-        if (taskResult.ok) {
-          setTask(taskResult.value);
-        }
-      });
-    }
-  }, [taskId, deliveryRepository]);
+  const { data: task, isLoading } = useQuery<DeliveryTask | null>({
+    queryKey: ['delivery', taskId],
+    queryFn: () => fetch(`/api/delivery/${taskId}`).then((r) => r.json()),
+    enabled: !!taskId,
+  });
 
   const [proofPhotoUrl, setProofPhotoUrl] = useState('');
   const [deliveryNote, setDeliveryNote] = useState('');
@@ -74,24 +69,26 @@ export default function ParcelDeliveryProofPage() {
         };
 
   const handleCompleteDelivery = async () => {
-    if (!taskId) {
-      return;
-    }
+    if (!taskId) return;
 
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    const result = await deliveryRepository.completeDeliveryTask(taskId, {
-      proofPhotoUrl,
-      deliveryNote,
-      confirmationChecked,
+    const res = await fetch(`/api/delivery/${taskId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'complete', proofPhotoUrl, deliveryNote, confirmationChecked }),
     });
 
-    if (!result.ok) {
+    if (!res.ok) {
       setIsSubmitting(false);
-      setErrorMessage(result.error.message);
+      const err = await res.json().catch(() => ({}));
+      setErrorMessage(err.error ?? 'Failed to complete delivery');
       return;
     }
+
+    // Invalidate delivery list so it refetches on next visit
+    queryClient.invalidateQueries({ queryKey: ['delivery'] });
     setIsSubmitting(false);
 
     setTimeout(() => {
@@ -99,14 +96,16 @@ export default function ParcelDeliveryProofPage() {
     }, 350);
   };
 
-  if (!task) {
+  if (isLoading || !task) {
     return (
       <div className="min-h-screen bg-surface pb-28">
         <PageHeader
           title={text.fallbackTitle}
           onBack={() => router.push('/services/parcel-delivery')}
         />
-        <div className="px-4 py-8 text-on-surface-variant font-medium">{text.notFound}</div>
+        <div className="px-4 py-8 text-on-surface-variant font-medium">
+          {isLoading ? '...' : text.notFound}
+        </div>
       </div>
     );
   }
