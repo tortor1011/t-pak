@@ -2,8 +2,8 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useRepositories } from '@/hooks/useRepositories';
 import type { MeterReadingSubmission } from '@/repositories/billing/types';
 import {
   loadMeterReadingDrafts,
@@ -98,18 +98,21 @@ function buildMeterReadingSubmissions(
 export default function MeterReadingPage() {
   const router = useRouter();
   const { t } = useLanguage();
-  const { billingRepository } = useRepositories();
-  const [meterReadings, setMeterReadings] = useState<MeterReading[]>([]);
+  const queryClient = useQueryClient();
   const [readings, setReadings] = useState<MeterReadingDraftMap>({});
 
+  const { data: meterReadings = [] } = useQuery<MeterReading[]>({
+    queryKey: ['meter-readings'],
+    queryFn: () => fetch('/api/meter-readings').then((r) => r.json()),
+  });
+
+  // Populate drafts from localStorage when data first loads
   useEffect(() => {
-    billingRepository.loadMeterReadings().then((meterReadingsResult) => {
-      if (meterReadingsResult.ok) {
-        setMeterReadings(meterReadingsResult.value);
-        setReadings(loadMeterReadingDrafts(meterReadingsResult.value));
-      }
-    });
-  }, [billingRepository]);
+    if (meterReadings.length > 0) {
+      setReadings(loadMeterReadingDrafts(meterReadings));
+    }
+  }, [meterReadings]);
+
   const [isSaving, setIsSaving] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -156,11 +159,7 @@ export default function MeterReadingPage() {
     setSaveFeedback(null);
 
     try {
-      await new Promise<void>((resolve) => {
-        window.setTimeout(() => resolve(), 500);
-      });
-
-      // Keep local drafts even when repository submission fails.
+      // Keep local drafts even when submission fails
       saveMeterReadingDrafts(readings);
 
       const submissions = buildMeterReadingSubmissions(readings, meterReadings);
@@ -169,12 +168,20 @@ export default function MeterReadingPage() {
         return;
       }
 
-      const submitResult = await billingRepository.submitMeterReadings(submissions);
-      if (!submitResult.ok) {
-        setSaveError(submitResult.error.message);
+      const res = await fetch('/api/meter-readings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ readings: submissions }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setSaveError(err.error ?? 'Failed to save meter readings');
         return;
       }
 
+      const updated: MeterReading[] = await res.json();
+      queryClient.setQueryData(['meter-readings'], updated);
       setSaveFeedback(t('meter.savedFeedback', { count: submissions.length }));
     } finally {
       setIsSaving(false);

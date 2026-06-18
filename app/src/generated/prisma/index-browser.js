@@ -184,6 +184,7 @@ exports.Prisma.TenantScalarFieldEnum = {
   initialMeterElectricity: 'initialMeterElectricity',
   initialMeterWater: 'initialMeterWater',
   vehiclePlate: 'vehiclePlate',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   inviteCode: 'inviteCode'
@@ -192,6 +193,7 @@ exports.Prisma.TenantScalarFieldEnum = {
 exports.Prisma.BillScalarFieldEnum = {
   id: 'id',
   roomId: 'roomId',
+  tenantId: 'tenantId',
   month: 'month',
   year: 'year',
   baseRent: 'baseRent',
@@ -377,6 +379,11 @@ exports.BillingStatus = exports.$Enums.BillingStatus = {
   paid: 'paid',
   overdue: 'overdue',
   none: 'none'
+};
+
+exports.TenantStatus = exports.$Enums.TenantStatus = {
+  active: 'active',
+  former: 'former'
 };
 
 exports.SlipDecision = exports.$Enums.SlipDecision = {

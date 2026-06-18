@@ -84,11 +84,11 @@ model Room {
 }
 
 model Tenant {
-  id                      String    @id @default(cuid())
-  userId                  String?   @unique
-  roomId                  String    @unique
+  id                      String       @id @default(cuid())
+  userId                  String?      @unique
+  roomId                  String?      @unique
   idCardUrl               String?
-  contractDuration        String    @default("1-year")
+  contractDuration        String       @default("1-year")
   moveInDate              DateTime
   moveOutDate             DateTime?
   contractEnd             DateTime
@@ -97,11 +97,13 @@ model Tenant {
   initialMeterElectricity Float
   initialMeterWater       Float
   vehiclePlate            String?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  inviteCode              String?   @unique
-  room                    Room      @relation(fields: [roomId], references: [id])
-  user                    User?     @relation(fields: [userId], references: [id])
+  status                  TenantStatus @default(active)
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+  inviteCode              String?      @unique
+  room                    Room?        @relation(fields: [roomId], references: [id])
+  user                    User?        @relation(fields: [userId], references: [id])
+  bills                   Bill[]
 
   @@map("tenants")
 }
@@ -109,6 +111,7 @@ model Tenant {
 model Bill {
   id                String            @id @default(cuid())
   roomId            String
+  tenantId          String?
   month             String
   year              Int
   baseRent          Float
@@ -128,6 +131,7 @@ model Bill {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   room              Room              @relation(fields: [roomId], references: [id])
+  tenant            Tenant?           @relation(fields: [tenantId], references: [id])
   slipVerification  SlipVerification?
 
   @@map("bills")
@@ -288,6 +292,11 @@ model VerificationToken {
 enum UserRole {
   ADMIN
   TENANT
+}
+
+enum TenantStatus {
+  active
+  former
 }
 
 enum RoomOccupancy {

@@ -106,6 +106,14 @@ export namespace $Enums {
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]
 
 
+export const TenantStatus: {
+  active: 'active',
+  former: 'former'
+};
+
+export type TenantStatus = (typeof TenantStatus)[keyof typeof TenantStatus]
+
+
 export const RoomOccupancy: {
   occupied: 'occupied',
   vacant: 'vacant',
@@ -218,6 +226,10 @@ export type SlipDecision = (typeof SlipDecision)[keyof typeof SlipDecision]
 export type UserRole = $Enums.UserRole
 
 export const UserRole: typeof $Enums.UserRole
+
+export type TenantStatus = $Enums.TenantStatus
+
+export const TenantStatus: typeof $Enums.TenantStatus
 
 export type RoomOccupancy = $Enums.RoomOccupancy
 
@@ -2579,6 +2591,37 @@ export namespace Prisma {
    */
   export type RoomCountOutputTypeCountVehiclesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: VehicleWhereInput
+  }
+
+
+  /**
+   * Count Type TenantCountOutputType
+   */
+
+  export type TenantCountOutputType = {
+    bills: number
+  }
+
+  export type TenantCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bills?: boolean | TenantCountOutputTypeCountBillsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TenantCountOutputType
+     */
+    select?: TenantCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TenantCountOutputType without action
+   */
+  export type TenantCountOutputTypeCountBillsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BillWhereInput
   }
 
 
@@ -7601,6 +7644,7 @@ export namespace Prisma {
     initialMeterElectricity: number | null
     initialMeterWater: number | null
     vehiclePlate: string | null
+    status: $Enums.TenantStatus | null
     createdAt: Date | null
     updatedAt: Date | null
     inviteCode: string | null
@@ -7620,6 +7664,7 @@ export namespace Prisma {
     initialMeterElectricity: number | null
     initialMeterWater: number | null
     vehiclePlate: string | null
+    status: $Enums.TenantStatus | null
     createdAt: Date | null
     updatedAt: Date | null
     inviteCode: string | null
@@ -7639,6 +7684,7 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate: number
+    status: number
     createdAt: number
     updatedAt: number
     inviteCode: number
@@ -7674,6 +7720,7 @@ export namespace Prisma {
     initialMeterElectricity?: true
     initialMeterWater?: true
     vehiclePlate?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
     inviteCode?: true
@@ -7693,6 +7740,7 @@ export namespace Prisma {
     initialMeterElectricity?: true
     initialMeterWater?: true
     vehiclePlate?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
     inviteCode?: true
@@ -7712,6 +7760,7 @@ export namespace Prisma {
     initialMeterElectricity?: true
     initialMeterWater?: true
     vehiclePlate?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
     inviteCode?: true
@@ -7807,7 +7856,7 @@ export namespace Prisma {
   export type TenantGroupByOutputType = {
     id: string
     userId: string | null
-    roomId: string
+    roomId: string | null
     idCardUrl: string | null
     contractDuration: string
     moveInDate: Date
@@ -7818,6 +7867,7 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate: string | null
+    status: $Enums.TenantStatus
     createdAt: Date
     updatedAt: Date
     inviteCode: string | null
@@ -7856,11 +7906,14 @@ export namespace Prisma {
     initialMeterElectricity?: boolean
     initialMeterWater?: boolean
     vehiclePlate?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inviteCode?: boolean
-    room?: boolean | RoomDefaultArgs<ExtArgs>
+    room?: boolean | Tenant$roomArgs<ExtArgs>
     user?: boolean | Tenant$userArgs<ExtArgs>
+    bills?: boolean | Tenant$billsArgs<ExtArgs>
+    _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
   export type TenantSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -7877,10 +7930,11 @@ export namespace Prisma {
     initialMeterElectricity?: boolean
     initialMeterWater?: boolean
     vehiclePlate?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inviteCode?: boolean
-    room?: boolean | RoomDefaultArgs<ExtArgs>
+    room?: boolean | Tenant$roomArgs<ExtArgs>
     user?: boolean | Tenant$userArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -7898,10 +7952,11 @@ export namespace Prisma {
     initialMeterElectricity?: boolean
     initialMeterWater?: boolean
     vehiclePlate?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inviteCode?: boolean
-    room?: boolean | RoomDefaultArgs<ExtArgs>
+    room?: boolean | Tenant$roomArgs<ExtArgs>
     user?: boolean | Tenant$userArgs<ExtArgs>
   }, ExtArgs["result"]["tenant"]>
 
@@ -7919,35 +7974,39 @@ export namespace Prisma {
     initialMeterElectricity?: boolean
     initialMeterWater?: boolean
     vehiclePlate?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     inviteCode?: boolean
   }
 
-  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "roomId" | "idCardUrl" | "contractDuration" | "moveInDate" | "moveOutDate" | "contractEnd" | "baseRent" | "securityDeposit" | "initialMeterElectricity" | "initialMeterWater" | "vehiclePlate" | "createdAt" | "updatedAt" | "inviteCode", ExtArgs["result"]["tenant"]>
+  export type TenantOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "roomId" | "idCardUrl" | "contractDuration" | "moveInDate" | "moveOutDate" | "contractEnd" | "baseRent" | "securityDeposit" | "initialMeterElectricity" | "initialMeterWater" | "vehiclePlate" | "status" | "createdAt" | "updatedAt" | "inviteCode", ExtArgs["result"]["tenant"]>
   export type TenantInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    room?: boolean | RoomDefaultArgs<ExtArgs>
+    room?: boolean | Tenant$roomArgs<ExtArgs>
     user?: boolean | Tenant$userArgs<ExtArgs>
+    bills?: boolean | Tenant$billsArgs<ExtArgs>
+    _count?: boolean | TenantCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenantIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    room?: boolean | RoomDefaultArgs<ExtArgs>
+    room?: boolean | Tenant$roomArgs<ExtArgs>
     user?: boolean | Tenant$userArgs<ExtArgs>
   }
   export type TenantIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    room?: boolean | RoomDefaultArgs<ExtArgs>
+    room?: boolean | Tenant$roomArgs<ExtArgs>
     user?: boolean | Tenant$userArgs<ExtArgs>
   }
 
   export type $TenantPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Tenant"
     objects: {
-      room: Prisma.$RoomPayload<ExtArgs>
+      room: Prisma.$RoomPayload<ExtArgs> | null
       user: Prisma.$UserPayload<ExtArgs> | null
+      bills: Prisma.$BillPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string | null
-      roomId: string
+      roomId: string | null
       idCardUrl: string | null
       contractDuration: string
       moveInDate: Date
@@ -7958,6 +8017,7 @@ export namespace Prisma {
       initialMeterElectricity: number
       initialMeterWater: number
       vehiclePlate: string | null
+      status: $Enums.TenantStatus
       createdAt: Date
       updatedAt: Date
       inviteCode: string | null
@@ -8355,8 +8415,9 @@ export namespace Prisma {
    */
   export interface Prisma__TenantClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    room<T extends RoomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoomDefaultArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    room<T extends Tenant$roomArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$roomArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     user<T extends Tenant$userArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    bills<T extends Tenant$billsArgs<ExtArgs> = {}>(args?: Subset<T, Tenant$billsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BillPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8399,6 +8460,7 @@ export namespace Prisma {
     readonly initialMeterElectricity: FieldRef<"Tenant", 'Float'>
     readonly initialMeterWater: FieldRef<"Tenant", 'Float'>
     readonly vehiclePlate: FieldRef<"Tenant", 'String'>
+    readonly status: FieldRef<"Tenant", 'TenantStatus'>
     readonly createdAt: FieldRef<"Tenant", 'DateTime'>
     readonly updatedAt: FieldRef<"Tenant", 'DateTime'>
     readonly inviteCode: FieldRef<"Tenant", 'String'>
@@ -8803,6 +8865,25 @@ export namespace Prisma {
   }
 
   /**
+   * Tenant.room
+   */
+  export type Tenant$roomArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Room
+     */
+    select?: RoomSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Room
+     */
+    omit?: RoomOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RoomInclude<ExtArgs> | null
+    where?: RoomWhereInput
+  }
+
+  /**
    * Tenant.user
    */
   export type Tenant$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8819,6 +8900,30 @@ export namespace Prisma {
      */
     include?: UserInclude<ExtArgs> | null
     where?: UserWhereInput
+  }
+
+  /**
+   * Tenant.bills
+   */
+  export type Tenant$billsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Bill
+     */
+    select?: BillSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Bill
+     */
+    omit?: BillOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BillInclude<ExtArgs> | null
+    where?: BillWhereInput
+    orderBy?: BillOrderByWithRelationInput | BillOrderByWithRelationInput[]
+    cursor?: BillWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BillScalarFieldEnum | BillScalarFieldEnum[]
   }
 
   /**
@@ -8881,6 +8986,7 @@ export namespace Prisma {
   export type BillMinAggregateOutputType = {
     id: string | null
     roomId: string | null
+    tenantId: string | null
     month: string | null
     year: number | null
     baseRent: number | null
@@ -8904,6 +9010,7 @@ export namespace Prisma {
   export type BillMaxAggregateOutputType = {
     id: string | null
     roomId: string | null
+    tenantId: string | null
     month: string | null
     year: number | null
     baseRent: number | null
@@ -8927,6 +9034,7 @@ export namespace Prisma {
   export type BillCountAggregateOutputType = {
     id: number
     roomId: number
+    tenantId: number
     month: number
     year: number
     baseRent: number
@@ -8978,6 +9086,7 @@ export namespace Prisma {
   export type BillMinAggregateInputType = {
     id?: true
     roomId?: true
+    tenantId?: true
     month?: true
     year?: true
     baseRent?: true
@@ -9001,6 +9110,7 @@ export namespace Prisma {
   export type BillMaxAggregateInputType = {
     id?: true
     roomId?: true
+    tenantId?: true
     month?: true
     year?: true
     baseRent?: true
@@ -9024,6 +9134,7 @@ export namespace Prisma {
   export type BillCountAggregateInputType = {
     id?: true
     roomId?: true
+    tenantId?: true
     month?: true
     year?: true
     baseRent?: true
@@ -9134,6 +9245,7 @@ export namespace Prisma {
   export type BillGroupByOutputType = {
     id: string
     roomId: string
+    tenantId: string | null
     month: string
     year: number
     baseRent: number
@@ -9176,6 +9288,7 @@ export namespace Prisma {
   export type BillSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     roomId?: boolean
+    tenantId?: boolean
     month?: boolean
     year?: boolean
     baseRent?: boolean
@@ -9195,12 +9308,14 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    tenant?: boolean | Bill$tenantArgs<ExtArgs>
     slipVerification?: boolean | Bill$slipVerificationArgs<ExtArgs>
   }, ExtArgs["result"]["bill"]>
 
   export type BillSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     roomId?: boolean
+    tenantId?: boolean
     month?: boolean
     year?: boolean
     baseRent?: boolean
@@ -9220,11 +9335,13 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    tenant?: boolean | Bill$tenantArgs<ExtArgs>
   }, ExtArgs["result"]["bill"]>
 
   export type BillSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     roomId?: boolean
+    tenantId?: boolean
     month?: boolean
     year?: boolean
     baseRent?: boolean
@@ -9244,11 +9361,13 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    tenant?: boolean | Bill$tenantArgs<ExtArgs>
   }, ExtArgs["result"]["bill"]>
 
   export type BillSelectScalar = {
     id?: boolean
     roomId?: boolean
+    tenantId?: boolean
     month?: boolean
     year?: boolean
     baseRent?: boolean
@@ -9269,27 +9388,32 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type BillOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "month" | "year" | "baseRent" | "electricityUnits" | "electricityRate" | "electricityCost" | "waterUnits" | "waterRate" | "waterCost" | "additionalCharges" | "totalAmount" | "status" | "dueDate" | "paidDate" | "slipUrl" | "meterReadDate" | "createdAt" | "updatedAt", ExtArgs["result"]["bill"]>
+  export type BillOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "roomId" | "tenantId" | "month" | "year" | "baseRent" | "electricityUnits" | "electricityRate" | "electricityCost" | "waterUnits" | "waterRate" | "waterCost" | "additionalCharges" | "totalAmount" | "status" | "dueDate" | "paidDate" | "slipUrl" | "meterReadDate" | "createdAt" | "updatedAt", ExtArgs["result"]["bill"]>
   export type BillInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    tenant?: boolean | Bill$tenantArgs<ExtArgs>
     slipVerification?: boolean | Bill$slipVerificationArgs<ExtArgs>
   }
   export type BillIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    tenant?: boolean | Bill$tenantArgs<ExtArgs>
   }
   export type BillIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     room?: boolean | RoomDefaultArgs<ExtArgs>
+    tenant?: boolean | Bill$tenantArgs<ExtArgs>
   }
 
   export type $BillPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Bill"
     objects: {
       room: Prisma.$RoomPayload<ExtArgs>
+      tenant: Prisma.$TenantPayload<ExtArgs> | null
       slipVerification: Prisma.$SlipVerificationPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       roomId: string
+      tenantId: string | null
       month: string
       year: number
       baseRent: number
@@ -9703,6 +9827,7 @@ export namespace Prisma {
   export interface Prisma__BillClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     room<T extends RoomDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RoomDefaultArgs<ExtArgs>>): Prisma__RoomClient<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    tenant<T extends Bill$tenantArgs<ExtArgs> = {}>(args?: Subset<T, Bill$tenantArgs<ExtArgs>>): Prisma__TenantClient<$Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     slipVerification<T extends Bill$slipVerificationArgs<ExtArgs> = {}>(args?: Subset<T, Bill$slipVerificationArgs<ExtArgs>>): Prisma__SlipVerificationClient<$Result.GetResult<Prisma.$SlipVerificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -9735,6 +9860,7 @@ export namespace Prisma {
   interface BillFieldRefs {
     readonly id: FieldRef<"Bill", 'String'>
     readonly roomId: FieldRef<"Bill", 'String'>
+    readonly tenantId: FieldRef<"Bill", 'String'>
     readonly month: FieldRef<"Bill", 'String'>
     readonly year: FieldRef<"Bill", 'Int'>
     readonly baseRent: FieldRef<"Bill", 'Float'>
@@ -10151,6 +10277,25 @@ export namespace Prisma {
      * Limit how many Bills to delete.
      */
     limit?: number
+  }
+
+  /**
+   * Bill.tenant
+   */
+  export type Bill$tenantArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenant
+     */
+    select?: TenantSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenant
+     */
+    omit?: TenantOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenantInclude<ExtArgs> | null
+    where?: TenantWhereInput
   }
 
   /**
@@ -21506,6 +21651,7 @@ export namespace Prisma {
     initialMeterElectricity: 'initialMeterElectricity',
     initialMeterWater: 'initialMeterWater',
     vehiclePlate: 'vehiclePlate',
+    status: 'status',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     inviteCode: 'inviteCode'
@@ -21517,6 +21663,7 @@ export namespace Prisma {
   export const BillScalarFieldEnum: {
     id: 'id',
     roomId: 'roomId',
+    tenantId: 'tenantId',
     month: 'month',
     year: 'year',
     baseRent: 'baseRent',
@@ -21839,6 +21986,20 @@ export namespace Prisma {
    * Reference to a field of type 'BillingStatus[]'
    */
   export type ListEnumBillingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BillingStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'TenantStatus'
+   */
+  export type EnumTenantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TenantStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'TenantStatus[]'
+   */
+  export type ListEnumTenantStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TenantStatus[]'>
     
 
 
@@ -22319,7 +22480,7 @@ export namespace Prisma {
     NOT?: TenantWhereInput | TenantWhereInput[]
     id?: StringFilter<"Tenant"> | string
     userId?: StringNullableFilter<"Tenant"> | string | null
-    roomId?: StringFilter<"Tenant"> | string
+    roomId?: StringNullableFilter<"Tenant"> | string | null
     idCardUrl?: StringNullableFilter<"Tenant"> | string | null
     contractDuration?: StringFilter<"Tenant"> | string
     moveInDate?: DateTimeFilter<"Tenant"> | Date | string
@@ -22330,17 +22491,19 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFilter<"Tenant"> | number
     initialMeterWater?: FloatFilter<"Tenant"> | number
     vehiclePlate?: StringNullableFilter<"Tenant"> | string | null
+    status?: EnumTenantStatusFilter<"Tenant"> | $Enums.TenantStatus
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
     inviteCode?: StringNullableFilter<"Tenant"> | string | null
-    room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
+    room?: XOR<RoomNullableScalarRelationFilter, RoomWhereInput> | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    bills?: BillListRelationFilter
   }
 
   export type TenantOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
-    roomId?: SortOrder
+    roomId?: SortOrderInput | SortOrder
     idCardUrl?: SortOrderInput | SortOrder
     contractDuration?: SortOrder
     moveInDate?: SortOrder
@@ -22351,11 +22514,13 @@ export namespace Prisma {
     initialMeterElectricity?: SortOrder
     initialMeterWater?: SortOrder
     vehiclePlate?: SortOrderInput | SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     inviteCode?: SortOrderInput | SortOrder
     room?: RoomOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
+    bills?: BillOrderByRelationAggregateInput
   }
 
   export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -22376,16 +22541,18 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFilter<"Tenant"> | number
     initialMeterWater?: FloatFilter<"Tenant"> | number
     vehiclePlate?: StringNullableFilter<"Tenant"> | string | null
+    status?: EnumTenantStatusFilter<"Tenant"> | $Enums.TenantStatus
     createdAt?: DateTimeFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeFilter<"Tenant"> | Date | string
-    room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
+    room?: XOR<RoomNullableScalarRelationFilter, RoomWhereInput> | null
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    bills?: BillListRelationFilter
   }, "id" | "userId" | "roomId" | "inviteCode">
 
   export type TenantOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrderInput | SortOrder
-    roomId?: SortOrder
+    roomId?: SortOrderInput | SortOrder
     idCardUrl?: SortOrderInput | SortOrder
     contractDuration?: SortOrder
     moveInDate?: SortOrder
@@ -22396,6 +22563,7 @@ export namespace Prisma {
     initialMeterElectricity?: SortOrder
     initialMeterWater?: SortOrder
     vehiclePlate?: SortOrderInput | SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     inviteCode?: SortOrderInput | SortOrder
@@ -22412,7 +22580,7 @@ export namespace Prisma {
     NOT?: TenantScalarWhereWithAggregatesInput | TenantScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Tenant"> | string
     userId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
-    roomId?: StringWithAggregatesFilter<"Tenant"> | string
+    roomId?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     idCardUrl?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
     contractDuration?: StringWithAggregatesFilter<"Tenant"> | string
     moveInDate?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
@@ -22423,6 +22591,7 @@ export namespace Prisma {
     initialMeterElectricity?: FloatWithAggregatesFilter<"Tenant"> | number
     initialMeterWater?: FloatWithAggregatesFilter<"Tenant"> | number
     vehiclePlate?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
+    status?: EnumTenantStatusWithAggregatesFilter<"Tenant"> | $Enums.TenantStatus
     createdAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Tenant"> | Date | string
     inviteCode?: StringNullableWithAggregatesFilter<"Tenant"> | string | null
@@ -22434,6 +22603,7 @@ export namespace Prisma {
     NOT?: BillWhereInput | BillWhereInput[]
     id?: StringFilter<"Bill"> | string
     roomId?: StringFilter<"Bill"> | string
+    tenantId?: StringNullableFilter<"Bill"> | string | null
     month?: StringFilter<"Bill"> | string
     year?: IntFilter<"Bill"> | number
     baseRent?: FloatFilter<"Bill"> | number
@@ -22453,12 +22623,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Bill"> | Date | string
     updatedAt?: DateTimeFilter<"Bill"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
+    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
     slipVerification?: XOR<SlipVerificationNullableScalarRelationFilter, SlipVerificationWhereInput> | null
   }
 
   export type BillOrderByWithRelationInput = {
     id?: SortOrder
     roomId?: SortOrder
+    tenantId?: SortOrderInput | SortOrder
     month?: SortOrder
     year?: SortOrder
     baseRent?: SortOrder
@@ -22478,6 +22650,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     room?: RoomOrderByWithRelationInput
+    tenant?: TenantOrderByWithRelationInput
     slipVerification?: SlipVerificationOrderByWithRelationInput
   }
 
@@ -22487,6 +22660,7 @@ export namespace Prisma {
     OR?: BillWhereInput[]
     NOT?: BillWhereInput | BillWhereInput[]
     roomId?: StringFilter<"Bill"> | string
+    tenantId?: StringNullableFilter<"Bill"> | string | null
     month?: StringFilter<"Bill"> | string
     year?: IntFilter<"Bill"> | number
     baseRent?: FloatFilter<"Bill"> | number
@@ -22506,12 +22680,14 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Bill"> | Date | string
     updatedAt?: DateTimeFilter<"Bill"> | Date | string
     room?: XOR<RoomScalarRelationFilter, RoomWhereInput>
+    tenant?: XOR<TenantNullableScalarRelationFilter, TenantWhereInput> | null
     slipVerification?: XOR<SlipVerificationNullableScalarRelationFilter, SlipVerificationWhereInput> | null
   }, "id">
 
   export type BillOrderByWithAggregationInput = {
     id?: SortOrder
     roomId?: SortOrder
+    tenantId?: SortOrderInput | SortOrder
     month?: SortOrder
     year?: SortOrder
     baseRent?: SortOrder
@@ -22543,6 +22719,7 @@ export namespace Prisma {
     NOT?: BillScalarWhereWithAggregatesInput | BillScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Bill"> | string
     roomId?: StringWithAggregatesFilter<"Bill"> | string
+    tenantId?: StringNullableWithAggregatesFilter<"Bill"> | string | null
     month?: StringWithAggregatesFilter<"Bill"> | string
     year?: IntWithAggregatesFilter<"Bill"> | number
     baseRent?: FloatWithAggregatesFilter<"Bill"> | number
@@ -23741,17 +23918,19 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     inviteCode?: string | null
-    room: RoomCreateNestedOneWithoutTenantInput
+    room?: RoomCreateNestedOneWithoutTenantInput
     user?: UserCreateNestedOneWithoutTenantInput
+    bills?: BillCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateInput = {
     id?: string
     userId?: string | null
-    roomId: string
+    roomId?: string | null
     idCardUrl?: string | null
     contractDuration?: string
     moveInDate: Date | string
@@ -23762,9 +23941,11 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     inviteCode?: string | null
+    bills?: BillUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUpdateInput = {
@@ -23779,17 +23960,19 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
     initialMeterWater?: FloatFieldUpdateOperationsInput | number
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
-    room?: RoomUpdateOneRequiredWithoutTenantNestedInput
+    room?: RoomUpdateOneWithoutTenantNestedInput
     user?: UserUpdateOneWithoutTenantNestedInput
+    bills?: BillUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
-    roomId?: StringFieldUpdateOperationsInput | string
+    roomId?: NullableStringFieldUpdateOperationsInput | string | null
     idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     contractDuration?: StringFieldUpdateOperationsInput | string
     moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23800,15 +23983,17 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
     initialMeterWater?: FloatFieldUpdateOperationsInput | number
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bills?: BillUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantCreateManyInput = {
     id?: string
     userId?: string | null
-    roomId: string
+    roomId?: string | null
     idCardUrl?: string | null
     contractDuration?: string
     moveInDate: Date | string
@@ -23819,6 +24004,7 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     inviteCode?: string | null
@@ -23836,6 +24022,7 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
     initialMeterWater?: FloatFieldUpdateOperationsInput | number
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23844,7 +24031,7 @@ export namespace Prisma {
   export type TenantUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: NullableStringFieldUpdateOperationsInput | string | null
-    roomId?: StringFieldUpdateOperationsInput | string
+    roomId?: NullableStringFieldUpdateOperationsInput | string | null
     idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     contractDuration?: StringFieldUpdateOperationsInput | string
     moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -23855,6 +24042,7 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
     initialMeterWater?: FloatFieldUpdateOperationsInput | number
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
@@ -23881,12 +24069,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutBillsInput
+    tenant?: TenantCreateNestedOneWithoutBillsInput
     slipVerification?: SlipVerificationCreateNestedOneWithoutBillInput
   }
 
   export type BillUncheckedCreateInput = {
     id?: string
     roomId: string
+    tenantId?: string | null
     month: string
     year: number
     baseRent: number
@@ -23929,12 +24119,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutBillsNestedInput
+    tenant?: TenantUpdateOneWithoutBillsNestedInput
     slipVerification?: SlipVerificationUpdateOneWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     roomId?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
     baseRent?: FloatFieldUpdateOperationsInput | number
@@ -23959,6 +24151,7 @@ export namespace Prisma {
   export type BillCreateManyInput = {
     id?: string
     roomId: string
+    tenantId?: string | null
     month: string
     year: number
     baseRent: number
@@ -24004,6 +24197,7 @@ export namespace Prisma {
   export type BillUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     roomId?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
     baseRent?: FloatFieldUpdateOperationsInput | number
@@ -25403,9 +25597,16 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type RoomScalarRelationFilter = {
-    is?: RoomWhereInput
-    isNot?: RoomWhereInput
+  export type EnumTenantStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TenantStatus | EnumTenantStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TenantStatus[] | ListEnumTenantStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TenantStatus[] | ListEnumTenantStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTenantStatusFilter<$PrismaModel> | $Enums.TenantStatus
+  }
+
+  export type RoomNullableScalarRelationFilter = {
+    is?: RoomWhereInput | null
+    isNot?: RoomWhereInput | null
   }
 
   export type UserNullableScalarRelationFilter = {
@@ -25427,6 +25628,7 @@ export namespace Prisma {
     initialMeterElectricity?: SortOrder
     initialMeterWater?: SortOrder
     vehiclePlate?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     inviteCode?: SortOrder
@@ -25453,6 +25655,7 @@ export namespace Prisma {
     initialMeterElectricity?: SortOrder
     initialMeterWater?: SortOrder
     vehiclePlate?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     inviteCode?: SortOrder
@@ -25472,6 +25675,7 @@ export namespace Prisma {
     initialMeterElectricity?: SortOrder
     initialMeterWater?: SortOrder
     vehiclePlate?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     inviteCode?: SortOrder
@@ -25498,6 +25702,21 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type EnumTenantStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TenantStatus | EnumTenantStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TenantStatus[] | ListEnumTenantStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TenantStatus[] | ListEnumTenantStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTenantStatusWithAggregatesFilter<$PrismaModel> | $Enums.TenantStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTenantStatusFilter<$PrismaModel>
+    _max?: NestedEnumTenantStatusFilter<$PrismaModel>
+  }
+
+  export type RoomScalarRelationFilter = {
+    is?: RoomWhereInput
+    isNot?: RoomWhereInput
+  }
+
   export type SlipVerificationNullableScalarRelationFilter = {
     is?: SlipVerificationWhereInput | null
     isNot?: SlipVerificationWhereInput | null
@@ -25506,6 +25725,7 @@ export namespace Prisma {
   export type BillCountOrderByAggregateInput = {
     id?: SortOrder
     roomId?: SortOrder
+    tenantId?: SortOrder
     month?: SortOrder
     year?: SortOrder
     baseRent?: SortOrder
@@ -25542,6 +25762,7 @@ export namespace Prisma {
   export type BillMaxOrderByAggregateInput = {
     id?: SortOrder
     roomId?: SortOrder
+    tenantId?: SortOrder
     month?: SortOrder
     year?: SortOrder
     baseRent?: SortOrder
@@ -25565,6 +25786,7 @@ export namespace Prisma {
   export type BillMinOrderByAggregateInput = {
     id?: SortOrder
     roomId?: SortOrder
+    tenantId?: SortOrder
     month?: SortOrder
     year?: SortOrder
     baseRent?: SortOrder
@@ -26926,14 +27148,34 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type BillCreateNestedManyWithoutTenantInput = {
+    create?: XOR<BillCreateWithoutTenantInput, BillUncheckedCreateWithoutTenantInput> | BillCreateWithoutTenantInput[] | BillUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: BillCreateOrConnectWithoutTenantInput | BillCreateOrConnectWithoutTenantInput[]
+    createMany?: BillCreateManyTenantInputEnvelope
+    connect?: BillWhereUniqueInput | BillWhereUniqueInput[]
+  }
+
+  export type BillUncheckedCreateNestedManyWithoutTenantInput = {
+    create?: XOR<BillCreateWithoutTenantInput, BillUncheckedCreateWithoutTenantInput> | BillCreateWithoutTenantInput[] | BillUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: BillCreateOrConnectWithoutTenantInput | BillCreateOrConnectWithoutTenantInput[]
+    createMany?: BillCreateManyTenantInputEnvelope
+    connect?: BillWhereUniqueInput | BillWhereUniqueInput[]
+  }
+
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
   }
 
-  export type RoomUpdateOneRequiredWithoutTenantNestedInput = {
+  export type EnumTenantStatusFieldUpdateOperationsInput = {
+    set?: $Enums.TenantStatus
+  }
+
+  export type RoomUpdateOneWithoutTenantNestedInput = {
     create?: XOR<RoomCreateWithoutTenantInput, RoomUncheckedCreateWithoutTenantInput>
     connectOrCreate?: RoomCreateOrConnectWithoutTenantInput
     upsert?: RoomUpsertWithoutTenantInput
+    disconnect?: RoomWhereInput | boolean
+    delete?: RoomWhereInput | boolean
     connect?: RoomWhereUniqueInput
     update?: XOR<XOR<RoomUpdateToOneWithWhereWithoutTenantInput, RoomUpdateWithoutTenantInput>, RoomUncheckedUpdateWithoutTenantInput>
   }
@@ -26948,10 +27190,44 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutTenantInput, UserUpdateWithoutTenantInput>, UserUncheckedUpdateWithoutTenantInput>
   }
 
+  export type BillUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<BillCreateWithoutTenantInput, BillUncheckedCreateWithoutTenantInput> | BillCreateWithoutTenantInput[] | BillUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: BillCreateOrConnectWithoutTenantInput | BillCreateOrConnectWithoutTenantInput[]
+    upsert?: BillUpsertWithWhereUniqueWithoutTenantInput | BillUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: BillCreateManyTenantInputEnvelope
+    set?: BillWhereUniqueInput | BillWhereUniqueInput[]
+    disconnect?: BillWhereUniqueInput | BillWhereUniqueInput[]
+    delete?: BillWhereUniqueInput | BillWhereUniqueInput[]
+    connect?: BillWhereUniqueInput | BillWhereUniqueInput[]
+    update?: BillUpdateWithWhereUniqueWithoutTenantInput | BillUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: BillUpdateManyWithWhereWithoutTenantInput | BillUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: BillScalarWhereInput | BillScalarWhereInput[]
+  }
+
+  export type BillUncheckedUpdateManyWithoutTenantNestedInput = {
+    create?: XOR<BillCreateWithoutTenantInput, BillUncheckedCreateWithoutTenantInput> | BillCreateWithoutTenantInput[] | BillUncheckedCreateWithoutTenantInput[]
+    connectOrCreate?: BillCreateOrConnectWithoutTenantInput | BillCreateOrConnectWithoutTenantInput[]
+    upsert?: BillUpsertWithWhereUniqueWithoutTenantInput | BillUpsertWithWhereUniqueWithoutTenantInput[]
+    createMany?: BillCreateManyTenantInputEnvelope
+    set?: BillWhereUniqueInput | BillWhereUniqueInput[]
+    disconnect?: BillWhereUniqueInput | BillWhereUniqueInput[]
+    delete?: BillWhereUniqueInput | BillWhereUniqueInput[]
+    connect?: BillWhereUniqueInput | BillWhereUniqueInput[]
+    update?: BillUpdateWithWhereUniqueWithoutTenantInput | BillUpdateWithWhereUniqueWithoutTenantInput[]
+    updateMany?: BillUpdateManyWithWhereWithoutTenantInput | BillUpdateManyWithWhereWithoutTenantInput[]
+    deleteMany?: BillScalarWhereInput | BillScalarWhereInput[]
+  }
+
   export type RoomCreateNestedOneWithoutBillsInput = {
     create?: XOR<RoomCreateWithoutBillsInput, RoomUncheckedCreateWithoutBillsInput>
     connectOrCreate?: RoomCreateOrConnectWithoutBillsInput
     connect?: RoomWhereUniqueInput
+  }
+
+  export type TenantCreateNestedOneWithoutBillsInput = {
+    create?: XOR<TenantCreateWithoutBillsInput, TenantUncheckedCreateWithoutBillsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutBillsInput
+    connect?: TenantWhereUniqueInput
   }
 
   export type SlipVerificationCreateNestedOneWithoutBillInput = {
@@ -26972,6 +27248,16 @@ export namespace Prisma {
     upsert?: RoomUpsertWithoutBillsInput
     connect?: RoomWhereUniqueInput
     update?: XOR<XOR<RoomUpdateToOneWithWhereWithoutBillsInput, RoomUpdateWithoutBillsInput>, RoomUncheckedUpdateWithoutBillsInput>
+  }
+
+  export type TenantUpdateOneWithoutBillsNestedInput = {
+    create?: XOR<TenantCreateWithoutBillsInput, TenantUncheckedCreateWithoutBillsInput>
+    connectOrCreate?: TenantCreateOrConnectWithoutBillsInput
+    upsert?: TenantUpsertWithoutBillsInput
+    disconnect?: TenantWhereInput | boolean
+    delete?: TenantWhereInput | boolean
+    connect?: TenantWhereUniqueInput
+    update?: XOR<XOR<TenantUpdateToOneWithWhereWithoutBillsInput, TenantUpdateWithoutBillsInput>, TenantUncheckedUpdateWithoutBillsInput>
   }
 
   export type SlipVerificationUpdateOneWithoutBillNestedInput = {
@@ -27379,6 +27665,13 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
+  export type NestedEnumTenantStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.TenantStatus | EnumTenantStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TenantStatus[] | ListEnumTenantStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TenantStatus[] | ListEnumTenantStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTenantStatusFilter<$PrismaModel> | $Enums.TenantStatus
+  }
+
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -27391,6 +27684,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumTenantStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.TenantStatus | EnumTenantStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.TenantStatus[] | ListEnumTenantStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.TenantStatus[] | ListEnumTenantStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumTenantStatusWithAggregatesFilter<$PrismaModel> | $Enums.TenantStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumTenantStatusFilter<$PrismaModel>
+    _max?: NestedEnumTenantStatusFilter<$PrismaModel>
   }
 
   export type NestedFloatNullableFilter<$PrismaModel = never> = {
@@ -27684,15 +27987,17 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     inviteCode?: string | null
-    room: RoomCreateNestedOneWithoutTenantInput
+    room?: RoomCreateNestedOneWithoutTenantInput
+    bills?: BillCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutUserInput = {
     id?: string
-    roomId: string
+    roomId?: string | null
     idCardUrl?: string | null
     contractDuration?: string
     moveInDate: Date | string
@@ -27703,9 +28008,11 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     inviteCode?: string | null
+    bills?: BillUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutUserInput = {
@@ -27825,15 +28132,17 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
     initialMeterWater?: FloatFieldUpdateOperationsInput | number
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
-    room?: RoomUpdateOneRequiredWithoutTenantNestedInput
+    room?: RoomUpdateOneWithoutTenantNestedInput
+    bills?: BillUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    roomId?: StringFieldUpdateOperationsInput | string
+    roomId?: NullableStringFieldUpdateOperationsInput | string | null
     idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
     contractDuration?: StringFieldUpdateOperationsInput | string
     moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27844,9 +28153,11 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
     initialMeterWater?: FloatFieldUpdateOperationsInput | number
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bills?: BillUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type UserCreateWithoutPropertiesInput = {
@@ -28307,11 +28618,13 @@ export namespace Prisma {
     meterReadDate: Date | string
     createdAt?: Date | string
     updatedAt?: Date | string
+    tenant?: TenantCreateNestedOneWithoutBillsInput
     slipVerification?: SlipVerificationCreateNestedOneWithoutBillInput
   }
 
   export type BillUncheckedCreateWithoutRoomInput = {
     id?: string
+    tenantId?: string | null
     month: string
     year: number
     baseRent: number
@@ -28519,10 +28832,12 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     inviteCode?: string | null
     user?: UserCreateNestedOneWithoutTenantInput
+    bills?: BillCreateNestedManyWithoutTenantInput
   }
 
   export type TenantUncheckedCreateWithoutRoomInput = {
@@ -28538,9 +28853,11 @@ export namespace Prisma {
     initialMeterElectricity: number
     initialMeterWater: number
     vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     inviteCode?: string | null
+    bills?: BillUncheckedCreateNestedManyWithoutTenantInput
   }
 
   export type TenantCreateOrConnectWithoutRoomInput = {
@@ -28602,6 +28919,7 @@ export namespace Prisma {
     NOT?: BillScalarWhereInput | BillScalarWhereInput[]
     id?: StringFilter<"Bill"> | string
     roomId?: StringFilter<"Bill"> | string
+    tenantId?: StringNullableFilter<"Bill"> | string | null
     month?: StringFilter<"Bill"> | string
     year?: IntFilter<"Bill"> | number
     baseRent?: FloatFilter<"Bill"> | number
@@ -28811,10 +29129,12 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
     initialMeterWater?: FloatFieldUpdateOperationsInput | number
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneWithoutTenantNestedInput
+    bills?: BillUpdateManyWithoutTenantNestedInput
   }
 
   export type TenantUncheckedUpdateWithoutRoomInput = {
@@ -28830,9 +29150,11 @@ export namespace Prisma {
     initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
     initialMeterWater?: FloatFieldUpdateOperationsInput | number
     vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
+    bills?: BillUncheckedUpdateManyWithoutTenantNestedInput
   }
 
   export type VehicleUpsertWithWhereUniqueWithoutRoomInput = {
@@ -28952,6 +29274,64 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutTenantInput, UserUncheckedCreateWithoutTenantInput>
   }
 
+  export type BillCreateWithoutTenantInput = {
+    id?: string
+    month: string
+    year: number
+    baseRent: number
+    electricityUnits: number
+    electricityRate: number
+    electricityCost: number
+    waterUnits: number
+    waterRate: number
+    waterCost: number
+    additionalCharges?: number
+    totalAmount: number
+    status?: $Enums.BillingStatus
+    dueDate: Date | string
+    paidDate?: Date | string | null
+    slipUrl?: string | null
+    meterReadDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    room: RoomCreateNestedOneWithoutBillsInput
+    slipVerification?: SlipVerificationCreateNestedOneWithoutBillInput
+  }
+
+  export type BillUncheckedCreateWithoutTenantInput = {
+    id?: string
+    roomId: string
+    month: string
+    year: number
+    baseRent: number
+    electricityUnits: number
+    electricityRate: number
+    electricityCost: number
+    waterUnits: number
+    waterRate: number
+    waterCost: number
+    additionalCharges?: number
+    totalAmount: number
+    status?: $Enums.BillingStatus
+    dueDate: Date | string
+    paidDate?: Date | string | null
+    slipUrl?: string | null
+    meterReadDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    slipVerification?: SlipVerificationUncheckedCreateNestedOneWithoutBillInput
+  }
+
+  export type BillCreateOrConnectWithoutTenantInput = {
+    where: BillWhereUniqueInput
+    create: XOR<BillCreateWithoutTenantInput, BillUncheckedCreateWithoutTenantInput>
+  }
+
+  export type BillCreateManyTenantInputEnvelope = {
+    data: BillCreateManyTenantInput | BillCreateManyTenantInput[]
+    skipDuplicates?: boolean
+  }
+
   export type RoomUpsertWithoutTenantInput = {
     update: XOR<RoomUpdateWithoutTenantInput, RoomUncheckedUpdateWithoutTenantInput>
     create: XOR<RoomCreateWithoutTenantInput, RoomUncheckedCreateWithoutTenantInput>
@@ -29050,6 +29430,22 @@ export namespace Prisma {
     properties?: PropertyUncheckedUpdateManyWithoutOwnerNestedInput
   }
 
+  export type BillUpsertWithWhereUniqueWithoutTenantInput = {
+    where: BillWhereUniqueInput
+    update: XOR<BillUpdateWithoutTenantInput, BillUncheckedUpdateWithoutTenantInput>
+    create: XOR<BillCreateWithoutTenantInput, BillUncheckedCreateWithoutTenantInput>
+  }
+
+  export type BillUpdateWithWhereUniqueWithoutTenantInput = {
+    where: BillWhereUniqueInput
+    data: XOR<BillUpdateWithoutTenantInput, BillUncheckedUpdateWithoutTenantInput>
+  }
+
+  export type BillUpdateManyWithWhereWithoutTenantInput = {
+    where: BillScalarWhereInput
+    data: XOR<BillUpdateManyMutationInput, BillUncheckedUpdateManyWithoutTenantInput>
+  }
+
   export type RoomCreateWithoutBillsInput = {
     id?: string
     number: string
@@ -29095,6 +29491,51 @@ export namespace Prisma {
   export type RoomCreateOrConnectWithoutBillsInput = {
     where: RoomWhereUniqueInput
     create: XOR<RoomCreateWithoutBillsInput, RoomUncheckedCreateWithoutBillsInput>
+  }
+
+  export type TenantCreateWithoutBillsInput = {
+    id?: string
+    idCardUrl?: string | null
+    contractDuration?: string
+    moveInDate: Date | string
+    moveOutDate?: Date | string | null
+    contractEnd: Date | string
+    baseRent: number
+    securityDeposit: number
+    initialMeterElectricity: number
+    initialMeterWater: number
+    vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inviteCode?: string | null
+    room?: RoomCreateNestedOneWithoutTenantInput
+    user?: UserCreateNestedOneWithoutTenantInput
+  }
+
+  export type TenantUncheckedCreateWithoutBillsInput = {
+    id?: string
+    userId?: string | null
+    roomId?: string | null
+    idCardUrl?: string | null
+    contractDuration?: string
+    moveInDate: Date | string
+    moveOutDate?: Date | string | null
+    contractEnd: Date | string
+    baseRent: number
+    securityDeposit: number
+    initialMeterElectricity: number
+    initialMeterWater: number
+    vehiclePlate?: string | null
+    status?: $Enums.TenantStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inviteCode?: string | null
+  }
+
+  export type TenantCreateOrConnectWithoutBillsInput = {
+    where: TenantWhereUniqueInput
+    create: XOR<TenantCreateWithoutBillsInput, TenantUncheckedCreateWithoutBillsInput>
   }
 
   export type SlipVerificationCreateWithoutBillInput = {
@@ -29177,6 +29618,57 @@ export namespace Prisma {
     meterReadings?: MeterReadingUncheckedUpdateManyWithoutRoomNestedInput
     tenant?: TenantUncheckedUpdateOneWithoutRoomNestedInput
     vehicles?: VehicleUncheckedUpdateManyWithoutRoomNestedInput
+  }
+
+  export type TenantUpsertWithoutBillsInput = {
+    update: XOR<TenantUpdateWithoutBillsInput, TenantUncheckedUpdateWithoutBillsInput>
+    create: XOR<TenantCreateWithoutBillsInput, TenantUncheckedCreateWithoutBillsInput>
+    where?: TenantWhereInput
+  }
+
+  export type TenantUpdateToOneWithWhereWithoutBillsInput = {
+    where?: TenantWhereInput
+    data: XOR<TenantUpdateWithoutBillsInput, TenantUncheckedUpdateWithoutBillsInput>
+  }
+
+  export type TenantUpdateWithoutBillsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    contractDuration?: StringFieldUpdateOperationsInput | string
+    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    securityDeposit?: FloatFieldUpdateOperationsInput | number
+    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
+    initialMeterWater?: FloatFieldUpdateOperationsInput | number
+    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
+    room?: RoomUpdateOneWithoutTenantNestedInput
+    user?: UserUpdateOneWithoutTenantNestedInput
+  }
+
+  export type TenantUncheckedUpdateWithoutBillsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    roomId?: NullableStringFieldUpdateOperationsInput | string | null
+    idCardUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    contractDuration?: StringFieldUpdateOperationsInput | string
+    moveInDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    moveOutDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    contractEnd?: DateTimeFieldUpdateOperationsInput | Date | string
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    securityDeposit?: FloatFieldUpdateOperationsInput | number
+    initialMeterElectricity?: FloatFieldUpdateOperationsInput | number
+    initialMeterWater?: FloatFieldUpdateOperationsInput | number
+    vehiclePlate?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumTenantStatusFieldUpdateOperationsInput | $Enums.TenantStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inviteCode?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SlipVerificationUpsertWithoutBillInput = {
@@ -29335,11 +29827,13 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     room: RoomCreateNestedOneWithoutBillsInput
+    tenant?: TenantCreateNestedOneWithoutBillsInput
   }
 
   export type BillUncheckedCreateWithoutSlipVerificationInput = {
     id?: string
     roomId: string
+    tenantId?: string | null
     month: string
     year: number
     baseRent: number
@@ -29397,11 +29891,13 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     room?: RoomUpdateOneRequiredWithoutBillsNestedInput
+    tenant?: TenantUpdateOneWithoutBillsNestedInput
   }
 
   export type BillUncheckedUpdateWithoutSlipVerificationInput = {
     id?: StringFieldUpdateOperationsInput | string
     roomId?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
     baseRent?: FloatFieldUpdateOperationsInput | number
@@ -30260,6 +30756,7 @@ export namespace Prisma {
 
   export type BillCreateManyRoomInput = {
     id?: string
+    tenantId?: string | null
     month: string
     year: number
     baseRent: number
@@ -30351,11 +30848,13 @@ export namespace Prisma {
     meterReadDate?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tenant?: TenantUpdateOneWithoutBillsNestedInput
     slipVerification?: SlipVerificationUpdateOneWithoutBillNestedInput
   }
 
   export type BillUncheckedUpdateWithoutRoomInput = {
     id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
     baseRent?: FloatFieldUpdateOperationsInput | number
@@ -30379,6 +30878,7 @@ export namespace Prisma {
 
   export type BillUncheckedUpdateManyWithoutRoomInput = {
     id?: StringFieldUpdateOperationsInput | string
+    tenantId?: NullableStringFieldUpdateOperationsInput | string | null
     month?: StringFieldUpdateOperationsInput | string
     year?: IntFieldUpdateOperationsInput | number
     baseRent?: FloatFieldUpdateOperationsInput | number
@@ -30550,6 +31050,100 @@ export namespace Prisma {
     registeredAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deactivatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type BillCreateManyTenantInput = {
+    id?: string
+    roomId: string
+    month: string
+    year: number
+    baseRent: number
+    electricityUnits: number
+    electricityRate: number
+    electricityCost: number
+    waterUnits: number
+    waterRate: number
+    waterCost: number
+    additionalCharges?: number
+    totalAmount: number
+    status?: $Enums.BillingStatus
+    dueDate: Date | string
+    paidDate?: Date | string | null
+    slipUrl?: string | null
+    meterReadDate: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BillUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    month?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    electricityUnits?: FloatFieldUpdateOperationsInput | number
+    electricityRate?: FloatFieldUpdateOperationsInput | number
+    electricityCost?: FloatFieldUpdateOperationsInput | number
+    waterUnits?: FloatFieldUpdateOperationsInput | number
+    waterRate?: FloatFieldUpdateOperationsInput | number
+    waterCost?: FloatFieldUpdateOperationsInput | number
+    additionalCharges?: FloatFieldUpdateOperationsInput | number
+    totalAmount?: FloatFieldUpdateOperationsInput | number
+    status?: EnumBillingStatusFieldUpdateOperationsInput | $Enums.BillingStatus
+    dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    slipUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    meterReadDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    room?: RoomUpdateOneRequiredWithoutBillsNestedInput
+    slipVerification?: SlipVerificationUpdateOneWithoutBillNestedInput
+  }
+
+  export type BillUncheckedUpdateWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    month?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    electricityUnits?: FloatFieldUpdateOperationsInput | number
+    electricityRate?: FloatFieldUpdateOperationsInput | number
+    electricityCost?: FloatFieldUpdateOperationsInput | number
+    waterUnits?: FloatFieldUpdateOperationsInput | number
+    waterRate?: FloatFieldUpdateOperationsInput | number
+    waterCost?: FloatFieldUpdateOperationsInput | number
+    additionalCharges?: FloatFieldUpdateOperationsInput | number
+    totalAmount?: FloatFieldUpdateOperationsInput | number
+    status?: EnumBillingStatusFieldUpdateOperationsInput | $Enums.BillingStatus
+    dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    slipUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    meterReadDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    slipVerification?: SlipVerificationUncheckedUpdateOneWithoutBillNestedInput
+  }
+
+  export type BillUncheckedUpdateManyWithoutTenantInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    roomId?: StringFieldUpdateOperationsInput | string
+    month?: StringFieldUpdateOperationsInput | string
+    year?: IntFieldUpdateOperationsInput | number
+    baseRent?: FloatFieldUpdateOperationsInput | number
+    electricityUnits?: FloatFieldUpdateOperationsInput | number
+    electricityRate?: FloatFieldUpdateOperationsInput | number
+    electricityCost?: FloatFieldUpdateOperationsInput | number
+    waterUnits?: FloatFieldUpdateOperationsInput | number
+    waterRate?: FloatFieldUpdateOperationsInput | number
+    waterCost?: FloatFieldUpdateOperationsInput | number
+    additionalCharges?: FloatFieldUpdateOperationsInput | number
+    totalAmount?: FloatFieldUpdateOperationsInput | number
+    status?: EnumBillingStatusFieldUpdateOperationsInput | $Enums.BillingStatus
+    dueDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    paidDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    slipUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    meterReadDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
