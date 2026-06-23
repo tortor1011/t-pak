@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
 import { useLanguage } from '@/hooks/useLanguage';
 import { formatCurrency } from '@/utils/currency';
@@ -10,6 +11,7 @@ import SearchInput from '@/components/ui/SearchInput';
 import FilterTabs from '@/components/ui/FilterTabs';
 import Skeleton from '@/components/ui/Skeleton';
 import { getRoomBillingStatusForDisplay } from '@/services/roomBillingDisplay';
+import type { Complaint } from '@/types/complaint';
 
 export default function DashboardPage() {
   const [search, setSearch] = useState('');
@@ -18,6 +20,18 @@ export default function DashboardPage() {
   const { billingState, isLoading, isError } = useOwnerBillingState();
   const rooms = billingState?.rooms || [];
   const summary = billingState?.summary || { totalRooms: 0, occupiedRooms: 0, vacantRooms: 0, totalRevenue: 0, pendingPayments: 0 };
+
+  // Badge counts
+  const pendingSlipCount = billingState?.pendingSlipCount ?? 0;
+  const { data: complaints = [] } = useQuery<Complaint[]>({
+    queryKey: ['complaints'],
+    queryFn: async () => {
+      const res = await fetch('/api/complaints');
+      if (!res.ok) throw new Error('Failed to fetch complaints');
+      return res.json();
+    },
+  });
+  const newComplaintsCount = complaints.filter((c) => c.status === 'new').length;
 
   const monthOptions = useMemo(() => {
     const now = new Date();
@@ -180,17 +194,31 @@ export default function DashboardPage() {
               {t('dashboard.readMeters')}
             </button>
           </Link>
-          <Link href="/billing/generate">
-            <button className="w-full h-14 bg-surface-container-high text-on-surface rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
-              <span className="material-symbols-outlined text-primary">print</span>
-              {t('dashboard.printBills')}
-            </button>
+          <Link href="/billing/verify">
+            <div className="relative">
+              <button className="w-full h-14 bg-surface-container-high text-on-surface rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                <span className="material-symbols-outlined text-primary">verified</span>
+                {t('dashboard.verifySlip')}
+              </button>
+              {pendingSlipCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-error text-on-error text-xs font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+                  {pendingSlipCount > 9 ? '9+' : pendingSlipCount}
+                </span>
+              )}
+            </div>
           </Link>
           <Link href="/services/complaints">
-            <button className="w-full h-14 bg-surface-container-high text-on-surface rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
-              <span className="material-symbols-outlined text-tertiary">emergency_home</span>
-              {t('dashboard.complaints')}
-            </button>
+            <div className="relative">
+              <button className="w-full h-14 bg-surface-container-high text-on-surface rounded-xl font-bold flex items-center justify-center gap-2 active:scale-95 transition-all">
+                <span className="material-symbols-outlined text-tertiary">emergency_home</span>
+                {t('dashboard.complaints')}
+              </button>
+              {newComplaintsCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-error text-on-error text-xs font-black w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+                  {newComplaintsCount > 9 ? '9+' : newComplaintsCount}
+                </span>
+              )}
+            </div>
           </Link>
         </div>
       </section>

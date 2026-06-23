@@ -2,15 +2,18 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useOwnerBillingState } from '@/hooks/useOwnerBillingState';
 import { formatCurrency } from '@/utils/currency';
 import { getRelativeTime } from '@/utils/date';
 import PageHeader from '@/components/layout/PageHeader';
+import type { SlipVerificationQueueItem } from '@/repositories/billing/types';
 
 export default function VerifySlipsPage() {
   const router = useRouter();
   const { t } = useLanguage();
+  const queryClient = useQueryClient();
   const { billingState, isLoading, isError } = useOwnerBillingState();
   const slipQueue = useMemo(() => billingState.slipQueue ?? [], [billingState.slipQueue]);
 
@@ -18,6 +21,27 @@ export default function VerifySlipsPage() {
     () => slipQueue.filter((item) => item.decision === 'pending'),
     [slipQueue]
   );
+
+  const reviewMutation = useMutation({
+    mutationFn: async ({ slipId, decision }: { slipId: string; decision: 'approved' | 'rejected' }) => {
+      const res = await fetch(`/api/bills/slips/${slipId}/review`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? 'Review failed');
+      }
+      return res.json() as Promise<SlipVerificationQueueItem[]>;
+    },
+    onSuccess: (updatedQueue) => {
+      // Update the billing state cache so the page reflects the new queue without a full refetch
+      queryClient.setQueryData(['ownerBillingState'], (prev: { slipQueue?: SlipVerificationQueueItem[] } | undefined) =>
+        prev ? { ...prev, slipQueue: updatedQueue } : prev
+      );
+    },
+  });
 
   if (isLoading) {
     return (
@@ -108,6 +132,28 @@ export default function VerifySlipsPage() {
                   <span className="material-symbols-outlined text-3xl">receipt</span>
                   <p className="text-xs font-medium mt-1">{t('verify.paymentSlip')}</p>
                 </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => reviewMutation.mutate({ slipId: slip.id, decision: 'rejected' })}
+                  disabled={reviewMutation.isPending && reviewMutation.variables?.slipId === slip.id}
+                  className="flex-1 h-12 rounded-2xl border-2 border-error text-error font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {reviewMutation.isPending && reviewMutation.variables?.slipId === slip.id && reviewMutation.variables.decision === 'rejected'
+                    ? '...'
+                    : t('verify.reject')}
+                </button>
+                <button
+                  onClick={() => reviewMutation.mutate({ slipId: slip.id, decision: 'approved' })}
+                  disabled={reviewMutation.isPending && reviewMutation.variables?.slipId === slip.id}
+                  className="flex-1 h-12 rounded-2xl bg-secondary text-on-secondary font-bold text-sm transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {reviewMutation.isPending && reviewMutation.variables?.slipId === slip.id && reviewMutation.variables.decision === 'approved'
+                    ? '...'
+                    : t('verify.approve')}
+                </button>
               </div>
 
             </div>
