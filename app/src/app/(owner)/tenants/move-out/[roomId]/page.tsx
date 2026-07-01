@@ -40,9 +40,22 @@ export default function MoveOutRoomDetailPage() {
 
   const selectedRoom = rooms.find((room) => room.id === roomId);
   const isAllowedRoom = selectedRoom?.occupancy === 'occupied';
+  const tenantId = selectedRoom?.tenantId ?? null;
 
   // Latest meter reading for this room
   const roomMeter = meterReadings.find((m) => m.roomId === roomId);
+
+  // ── Fetch tenant detail for real securityDeposit ──
+  const { data: tenantDetail } = useQuery<{ securityDeposit: number } | null>({
+    queryKey: ['tenant-detail', tenantId],
+    queryFn: async () => {
+      if (!tenantId) return null;
+      const res = await fetch(`/api/owner/tenants/${tenantId}`);
+      if (!res.ok) throw new Error('Failed to fetch tenant');
+      return res.json();
+    },
+    enabled: Boolean(tenantId),
+  });
 
   // ── Move-out Mutation ──
   const moveOutMutation = useMutation({
@@ -141,7 +154,7 @@ export default function MoveOutRoomDetailPage() {
       ? `สรุปย้ายออก: ห้อง ${selectedRoom.number}`
       : `Move-out: Room ${selectedRoom.number}`;
 
-  const securityDeposit = selectedRoom.baseRent * 2;
+  const securityDeposit = tenantDetail?.securityDeposit ?? 0;
 
   // Use real meter data if available
   const electricPrevious = roomMeter?.electricity.previous ?? 0;
@@ -160,8 +173,6 @@ export default function MoveOutRoomDetailPage() {
 
   const totalDeductions = electricCost + waterCost;
   const netRefund = securityDeposit - totalDeductions;
-
-  const tenantId = selectedRoom.tenantId;
 
   const handleConfirmMoveOut = () => {
     if (!tenantId) return;
