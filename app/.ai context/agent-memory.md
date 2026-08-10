@@ -34,7 +34,8 @@ Updated: 2026-05-22
 - The temporary helper script `app/.tmp/create-test-bill.cjs` was removed.
 
 ## Known Notes
-- The owner billing-state route still has its auth check commented out for cross-system testing.
+- ✅ **FIXED (2026-08-11):** Owner billing-state route auth re-enabled — checks `auth()?.user` (401) + `role !== 'ADMIN'` (403). Tenant app NOT affected because it proxies through `/api/tenant/bills` (separate `authenticateTenant()` auth flow).
+- ✅ Regression tests for billing-state added: `tests/api/owner-billing-state.test.ts` (3 tests: 401, 403, 200).
 - Next.js dev currently warns about multiple lockfiles and the middleware-to-proxy migration notice.
 - If a future pass wants a more explicit folder name, this note can be mirrored under a `contextforai/` folder, but the repo instruction currently points to `context/agent-memory.md`.
 

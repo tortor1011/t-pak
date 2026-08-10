@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { serverRepositories } from '@/repositories/server';
 import { calculateBillingSummary } from '@/services/billingSummary';
 
 export async function GET() {
   try {
-    // 💡 ปิดการเช็ค Auth ชั่วคราวเพื่อให้เทสร่วมกับแอป Tenant ได้โดยไม่ต้อง Login ฝั่ง Owner ก่อน
-    // const session = await auth();
-    // if (!session) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const roomsResult = await serverRepositories.roomRepository.listRooms();
     if (!roomsResult.ok) {
